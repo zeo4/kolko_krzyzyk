@@ -1,0 +1,67 @@
+Nr	t[s]	Tytul	Tresc
+-------------------------------------------------------------
+1	0	START	Stworz grafika.
+2	0	OK	.	Ustaw widok kamery sceny.
+3	0	STOP	Stworz grafika.
+4	0.04	OK	Tworz interfejsy: karty, renderowania i lancucha.
+5	0.04	OK	Przypisz bufor tylny do interfejsu.
+6	0.04	OK	Tworz widok bufora tylnego.
+7	0.04	OK	Tworzenie bufora glebi i szablonu.
+8	0.04	OK	Tworzenie widoku glebi i szablonu.
+9	0.04	OK	Wgraj wierzcholki.
+10	0.04	OK	Wgraj indeksy.
+11	0.04	START	Tworz obiekt sceny.
+12	0.04	OK	.	Tworz bufor z laczeniem 1.
+13	0.05	OK	.	Wypelnij bufor wierzcholkow.
+14	0.05	OK	.	Tworz bufor z laczeniem 2.
+15	0.05	OK	.	Wypelnij bufor indeksow.
+16	0.05	STOP	Tworz obiekt sceny.
+17	0.05	OK	Dodaj obiekt do listy renderowania.
+18	0.05	OK	Wgraj wierzcholki.
+19	0.05	OK	Wgraj indeksy.
+20	0.05	START	Tworz obiekt sceny.
+21	0.05	OK	.	Tworz bufor z laczeniem 1.
+22	0.05	OK	.	Wypelnij bufor wierzcholkow.
+23	0.05	OK	.	Tworz bufor z laczeniem 2.
+24	0.05	OK	.	Wypelnij bufor indeksow.
+25	0.05	STOP	Tworz obiekt sceny.
+26	0.05	OK	Dodaj obiekt do listy renderowania.
+27	0.06	OK	Wgraj szader wierzcholkow: 
+28	0.06	OK	Tworz szader wierzcholkow.
+29	0.06	OK	Wgraj szader pikseli: 
+30	0.07	OK	Tworz szader pikseli.
+31	0.07	OK	Tworz strukture wejscia.
+32	0.07	OK	Wiaz strukture wejscia.
+33	0.07	OK	Ustaw topologie elementów podstawowych.
+34	0.07	OK	Tworzenie rzutni.
+35	0.07	OK	Wiazanie rzutni.
+36	0.07	OK	Tworz bufor z laczeniem 4.
+37	0.07	OK	Tworzenie bufora aktualizowanego co obiekt.
+38	0.07	OK	Tworzenie stanu probkowania.
+39	0.07	OK	Wiazanie stanu probkowania.
+40	0.08	OK	Wgranie tekstury.
+41	0.08	OK	Wiazanie tekstury.
+42	0.61	START	Niszcz obiekt sceny.
+43	0.61	OK	.	Zwolnij bufor wierzcholkow obiektu.
+44	0.62	OK	.	Zwolnij bufor indeksow obiektu.
+45	0.62	STOP	Niszcz obiekt sceny.
+46	0.62	START	Niszcz obiekt sceny.
+47	0.62	OK	.	Zwolnij widok tekstury obiektu.
+48	0.62	OK	.	Zwolnij bufor wierzcholkow obiektu.
+49	0.62	OK	.	Zwolnij bufor indeksow obiektu.
+50	0.62	STOP	Niszcz obiekt sceny.
+51	0.62	START	Niszcz zasoby graficzne.
+52	0.62	OK	.	Niszczenie widoku bufora glebi i szablonu.
+53	0.62	OK	.	Niszczenie bufora glebi i szablonu.
+54	0.62	OK	.	Niszczenie stanu probkowania.
+55	0.63	OK	.	Niszczenie bufora aktualizowanego co obiekt.
+56	0.63	OK	.	Niszczenie struktury wejsciowej.
+57	0.63	OK	.	Niszczenie szadera pikseli.
+58	0.63	OK	.	Niszczenie szadera wierzcholkow.
+59	0.63	OK	.	Niszczenie bufora szadera pikseli.
+60	0.63	OK	.	Niszczenie bufora szadera wierzcholkow.
+61	0.63	OK	.	Niszczenie widoku bufora tylnego.
+62	0.63	OK	.	Niszczenie interfejsu renderowania.
+63	0.63	OK	.	Niszczenie interfejsu karty graficznej.
+64	0.64	OK	.	Niszczenie lancucha wymiany.
+65	0.64	STOP	Niszcz zasoby graficzne.

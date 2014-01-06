@@ -1,0 +1,134 @@
+﻿#ifndef _GLOBALNE_
+#define _GLOBALNE_
+#include "globalne.cpp"
+#endif
+
+class Logi {
+	std::ofstream			plik;
+	char const* const		nazwaPliku;
+	UINT					nrWiersza;
+	UINT					poziomAktWciecia;
+	short					tabowDoTresci;
+	void					piszTytul(string const);
+	void					piszTresc(string const);
+	void					piszNrWiersza();
+	void					piszCzas();
+	void					piszNowaLinie();
+	void					piszWciecie();
+public:
+							Logi(char const* const = "log.txt");
+	void					pisz(string const, string const);
+	void					piszStart(string const, string const);
+	void					piszStop(string const, string const);
+} logi;
+void Logi::piszTytul(
+	string const		tytul
+	) {
+	plik << tytul << "\t";
+}
+void Logi::piszTresc(
+	string const		tresc
+	) {
+	piszWciecie();
+
+	UINT i = -1;
+	while(++i != tresc.length()) {
+		switch(tresc[i]) {
+		case '\n':
+			piszNowaLinie();
+			break;
+		default:
+			plik << tresc[i];
+			break;
+		}
+	}
+}
+void Logi::piszNrWiersza() {
+	plik << ++nrWiersza << "\t";
+}
+void Logi::piszCzas() {
+	plik << float((clock()-tikProgramStart))/CLOCKS_PER_SEC << "\t";
+}
+void Logi::piszNowaLinie() {
+	plik << "\n";
+	piszNrWiersza();
+	//za pozostałe kolumny
+	for(int i = 0; i < tabowDoTresci-1; i++) {
+		plik << "\t";
+	}
+	piszWciecie();
+}
+void Logi::piszWciecie() {
+	for(int i = 0; i < poziomAktWciecia; i++) {
+		plik << ".\t";
+	}
+}
+Logi::Logi(
+	char const* const		nazwa
+	) : nazwaPliku(nazwa), nrWiersza(0), poziomAktWciecia(0), tabowDoTresci(0) {
+	// otwórz wyczyszczony
+	plik.open(nazwaPliku, std::ios::trunc);
+
+	// pisz nagłówki
+	plik << "Nr\t" << "t[s]\t" << "Tytul\t" << "Tresc";
+	plik << "\n-------------------------------------------------------------";
+	tabowDoTresci = 3;
+
+	plik.close();
+}
+void Logi::pisz(
+	string const		tytul,
+	string const		tresc
+	) {
+	plik.open(nazwaPliku, std::ios::app);
+
+	plik << "\n";
+	piszNrWiersza();
+	piszCzas();
+	piszTytul(tytul);
+	piszTresc(tresc);
+
+	plik.close();
+}
+void Logi::piszStart(
+	string const		tytul,
+	string const		tresc
+	) {
+	pisz(tytul, tresc);
+	++poziomAktWciecia;
+}
+void Logi::piszStop(
+	string const		tytul,
+	string const		tresc
+	) {
+	--poziomAktWciecia;
+	pisz(tytul, tresc);
+}
+
+// do obsługi błędów / wyjątków
+HRESULT wynik;
+struct Wyjatek {
+	HRESULT		wynik;
+	string		opis;
+				Wyjatek();
+};
+Wyjatek::Wyjatek() : wynik(NULL), opis("")
+	{}
+void SprawdzWynik(
+	HRESULT		wynik,
+	string		opis
+	) {
+	if(FAILED(wynik)){
+		Wyjatek wyj;
+		wyj.wynik = wynik;
+		wyj.opis = opis;
+		throw wyj;
+	}else{
+		logi.pisz("OK", opis);
+	}
+}
+void ObslugaWyjatek(
+	Wyjatek		wyj
+	) {
+	logi.pisz("BLAD", wyj.opis);
+}
