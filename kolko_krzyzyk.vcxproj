@@ -66,12 +66,15 @@
   <ItemGroup>
     <ClCompile Include="..\moonstone\main.cpp" />
     <ClCompile Include="zrodlo\debug.cpp" />
-    <ClCompile Include="zrodlo\fizyka.cpp" />
+    <ClCompile Include="zrodlo\fiz.cpp" />
     <ClCompile Include="zrodlo\gl.cpp" />
     <ClCompile Include="zrodlo\globalne.cpp" />
-    <ClCompile Include="zrodlo\kontroler.cpp" />
-    <ClCompile Include="zrodlo\grafika.cpp" />
-    <ClCompile Include="zrodlo\zdarzenia.cpp" />
+    <ClCompile Include="zrodlo\gra.cpp" />
+    <ClCompile Include="zrodlo\graf.cpp" />
+    <ClCompile Include="zrodlo\kontrolery.cpp" />
+    <ClCompile Include="zrodlo\grafZasoby.cpp" />
+    <ClCompile Include="zrodlo\fizZdarzenia.cpp" />
+    <ClCompile Include="zrodlo\grafZdarzenia.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="zrodlo\b.bat" />

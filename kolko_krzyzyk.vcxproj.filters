@@ -27,16 +27,25 @@
     <ClCompile Include="zrodlo\debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\kontroler.cpp">
+    <ClCompile Include="zrodlo\kontrolery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\fizyka.cpp">
+    <ClCompile Include="zrodlo\gra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\grafika.cpp">
+    <ClCompile Include="zrodlo\grafZdarzenia.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\zdarzenia.cpp">
+    <ClCompile Include="zrodlo\fizZdarzenia.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\fiz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\grafZasoby.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\graf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

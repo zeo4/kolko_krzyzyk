@@ -108,11 +108,10 @@ void Logi::piszStop(
 // do obsługi błędów / wyjątków
 HRESULT wynik;
 struct Wyjatek {
-	HRESULT		wynik;
 	string		opis;
 				Wyjatek();
 };
-Wyjatek::Wyjatek() : wynik(NULL), opis("")
+Wyjatek::Wyjatek() : opis("")
 	{}
 void SprawdzWynik(
 	HRESULT		wynik,
@@ -120,7 +119,6 @@ void SprawdzWynik(
 	) {
 	if(FAILED(wynik)){
 		Wyjatek wyj;
-		wyj.wynik = wynik;
 		wyj.opis = opis;
 		throw wyj;
 	}else{

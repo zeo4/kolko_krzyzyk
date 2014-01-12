@@ -378,17 +378,14 @@ class Projektor {
 	float			katProjekcja;
 	float			odlBlizszaPlaszcz;
 	float			odlDalszaPlaszcz;
-	XMMATRIX		macProjekcja;
+	XMFLOAT4X4		macProjekcja;
 public:
 	void			ustawKat(float const);
 	void			ustawBlizszaPlaszcz(float const);
 	void			ustawDalszaPlaszcz(float const);
 	void			tworzProjekcja();
 	XMMATRIX		wezProjekcja() const;
-	void			usunProjekcjaZ1(
-						float const,
-						float const,
-						XMVECTOR&) const;
+	void			usunProjekcjaZ1(float const, float const, XMVECTOR&) const;
 };
 void Projektor::ustawKat(
 	float const		kat
@@ -406,31 +403,34 @@ void Projektor::ustawDalszaPlaszcz(
 	odlDalszaPlaszcz = odl;
 }
 void Projektor::tworzProjekcja() {
-	macProjekcja = XMMatrixPerspectiveFovLH(
+	XMMATRIX mac = XMMatrixPerspectiveFovLH(
 		katProjekcja*3.14f/180,
 		float(szerRend)/wysRend,
 		odlBlizszaPlaszcz,
 		odlDalszaPlaszcz);
+	XMStoreFloat4x4(&macProjekcja, mac);
 }
 XMMATRIX Projektor::wezProjekcja() const {
-	return macProjekcja;
+	return XMLoadFloat4x4(&macProjekcja);
 }
 void Projektor::usunProjekcjaZ1(
 	float const x,
 	float const y,
 	XMVECTOR& pkt3W
 	) const {
+	XMMATRIX mac = XMLoadFloat4x4(&macProjekcja);
+
 	// współrzędne 3W przy założeniu, że z = 1 (w ten sposób usuwamy projekcję)
-	pkt3W = XMVectorSetX(pkt3W, x / macProjekcja._11);
-	pkt3W = XMVectorSetY(pkt3W, y / macProjekcja._22);
+	pkt3W = XMVectorSetX(pkt3W, x / mac._11);
+	pkt3W = XMVectorSetY(pkt3W, y / mac._22);
 	pkt3W = XMVectorSetZ(pkt3W, 1.0f);
 }
 
 class Kamera {
-	XMVECTOR		pozKamery;
-	XMVECTOR		celKamery;
-	XMVECTOR		goraKamery;
-	XMMATRIX		macWidok;
+	XMFLOAT4		pozKamery;
+	XMFLOAT4		celKamery;
+	XMFLOAT4		goraKamery;
+	XMFLOAT4X4		macWidok;
 public:
 	void			ustawPozycja(
 							float const,
@@ -455,7 +455,7 @@ void Kamera::ustawPozycja(
 	float const		z
 	) {
 	// czwarty parametr XMVectorSet() nie używany
-	pozKamery = XMVectorSet(x, y, z, 0.0f);
+	XMStoreFloat4(&pozKamery, XMVectorSet(x, y, z, 0.0f));
 }
 void Kamera::ustawCel(
 	float const		x,
@@ -463,7 +463,7 @@ void Kamera::ustawCel(
 	float const		z
 	) {
 	// czwarty parametr XMVectorSet() nie używany
-	celKamery = XMVectorSet(x, y, z, 0.0f);
+	XMStoreFloat4(&celKamery, XMVectorSet(x, y, z, 0.0f));
 }
 void Kamera::ustawGora(
 	float const		x,
@@ -471,133 +471,102 @@ void Kamera::ustawGora(
 	float const		z
 	) {
 	// czwarty parametr XMVectorSet() nie używany
-	goraKamery = XMVectorSet(x, y, z, 0.0f);
+	XMStoreFloat4(&goraKamery, XMVectorSet(x, y, z, 0.0f));
 }
 void Kamera::tworzWidok() {
-	macWidok = XMMatrixLookAtLH(pozKamery, celKamery, goraKamery);
+	XMVECTOR w1 = XMLoadFloat4(&pozKamery);
+	XMVECTOR w2 = XMLoadFloat4(&celKamery);
+	XMVECTOR w3 = XMLoadFloat4(&goraKamery);
+
+	XMStoreFloat4x4(&macWidok, XMMatrixLookAtLH(w1, w2, w3));
 	logi.pisz("OK", "Ustaw widok kamery sceny.");
 }
 XMMATRIX Kamera::wezWidok() const {
-	return macWidok;
+	return XMLoadFloat4x4(&macWidok);
 }
 void Kamera::usunWidokPkt(
 	XMVECTOR& pkt3W
 	) const {
+	XMMATRIX mac = XMLoadFloat4x4(&macWidok);
 	// wartość nie ważna, konieczny dla XMMatrixInverse()
-	XMVECTOR wektorRob;
+	XMVECTOR w;
 
-	XMMATRIX macOdwrotWidok = XMMatrixInverse(&wektorRob, macWidok);
+	XMMATRIX macOdwrot = XMMatrixInverse(&w, mac);
 	// czwarty parametr wektora nie istotny, XMVector3TransformCoord() załatwia obliczenia z nim związane
-	pkt3W = XMVector3TransformCoord(pkt3W, macOdwrotWidok);
+	pkt3W = XMVector3TransformCoord(pkt3W, macOdwrot);
 }
 void Kamera::usunWidokWektor(
 	XMVECTOR& wektor3W
 	) const {
+	XMMATRIX mac = XMLoadFloat4x4(&macWidok);
 	// wartość nie ważna, konieczny dla XMMatrixInverse()
-	XMVECTOR wektorRob;
+	XMVECTOR w;
 
-	XMMATRIX macOdwrotWidok = XMMatrixInverse(&wektorRob, macWidok);
+	XMMATRIX macOdwrot = XMMatrixInverse(&w, mac);
 	// czwarty parametr wektora nie istotny, XMVector3TransformNormal() załatwia obliczenia z nim związane
-	wektor3W = XMVector3TransformNormal(wektor3W, macOdwrotWidok);
+	wektor3W = XMVector3TransformNormal(wektor3W, macOdwrot);
 }
 
-class ObiektScena;
-typedef list<ObiektScena const* const>::const_iterator		IterListaOb_;
-list<ObiektScena const* const>								pomocListaOb;
-
-class ListaRender {
-	friend class Grafik;
-	list<ObiektScena const* const>		obiekty;
-public:
-	IterListaOb_						wezIterKonc() const;
-	IterListaOb_						wezIterPocz() const;
-	void								dodDoListy(
-											ObiektScena const* const,
-											IterListaOb_&);
-	void								usunZListy(
-											IterListaOb_);
-} listaRender;
-IterListaOb_ ListaRender::wezIterKonc() const {
-	return obiekty.end();
-}
-IterListaOb_ ListaRender::wezIterPocz() const {
-	return obiekty.begin();
-}
-void ListaRender::dodDoListy(
-	ObiektScena const* const		obiekt,
-	IterListaOb_&					iterElListy
-	) {
-	iterElListy = obiekty.insert(obiekty.end(), obiekt);
-	logi.pisz("OK", "Dodaj obiekt do listy renderowania.");
-}
-void ListaRender::usunZListy(
-	IterListaOb_		iterElListy
-	) {
-	obiekty.erase(iterElListy);
-	logi.pisz("OK", "Usun obiekt z listy renderowania.");
-}
-
-class ObiektScena {
-	vector<Wierzcholek>				wierz;
-	vector<DWORD>					ind;
-	ID3D11Buffer*					bufWierz;
+class Obiekt3W {
 	ID3D11Buffer*					bufIndeksy;
-	IterListaOb_					iterElListy;
-	XMMATRIX						macPrzesun; // pozycja obiektu w świecie
+	ID3D11Buffer*					bufWierz;
+	vector<DWORD>					ind;
+	XMFLOAT4X4						macPrzesun; // pozycja obiektu w świecie
 	ID3D11ShaderResourceView*		widokTekstury;
-	void							tworzBufWierz();
+	vector<Wierzcholek>				wierz;
 	void							tworzBufIndeksy();
-	void							wypelnijBufWierz();
+	void							tworzBufWierz();
 	void							wypelnijBufIndeksy();
+	void							wypelnijBufWierz();
 public:
-									ObiektScena();
-									~ObiektScena();
-	void							wgrajWierzcholki(
-										Wierzcholek const *const,
-										UINT const);
+									Obiekt3W();
+									~Obiekt3W();
+	void							przesun(XMVECTOR const);
+	void							tworz();
+	void							ustawPrzesun(XMVECTOR const);
+	void							usunSwiatPkt(XMVECTOR&) const;
+	void							usunSwiatWektor(XMVECTOR&) const;
+	XMMATRIX						wezPrzesun() const;
+	XMMATRIX						wezSwiat() const;
 	void							wgrajIndeksy(
 										DWORD const *const,
+										UINT const);
+	void							wgrajTeksture(string);
+	void							wgrajWierzcholki(
+										Wierzcholek const *const,
 										UINT const);
 	void							wgrajWierzIndeksy(
 										Wierzcholek const *const,
 										UINT const,
 										DWORD const *const,
 										UINT const);
-	void							wgrajTeksture(string);
-	void							ustawPrzesun(float, float, float);
-	void							dodDoRender();
-	void							tworz();
-	void							wiazWierz() const;
 	void							wiazIndeksy() const;
 	void							wiazTeksture() const;
-	XMMATRIX						wezSwiat() const;
-	void							usunZRender();
-	void							usunSwiatPkt(XMVECTOR&) const;
-	void							usunSwiatWektor(XMVECTOR&) const;
+	void							wiazWierz() const;
 };
-void ObiektScena::tworzBufWierz() {
-	tworzBufor<Wierzcholek>(
-		D3D11_BIND_VERTEX_BUFFER,
-		wierz.size(),
-		bufWierz);
-}
-void ObiektScena::tworzBufIndeksy() {
+void Obiekt3W::tworzBufIndeksy() {
 	tworzBufor<DWORD>(
 		D3D11_BIND_INDEX_BUFFER,
 		ind.size(),
 		bufIndeksy);
 }
-void ObiektScena::wypelnijBufWierz() {
-	zasoby.render->UpdateSubresource(bufWierz, 0, NULL, &wierz[0], 0, 0);
-	logi.pisz("OK", "Wypelnij bufor wierzcholkow.");
+void Obiekt3W::tworzBufWierz() {
+	tworzBufor<Wierzcholek>(
+		D3D11_BIND_VERTEX_BUFFER,
+		wierz.size(),
+		bufWierz);
 }
-void ObiektScena::wypelnijBufIndeksy() {
+void Obiekt3W::wypelnijBufIndeksy() {
 	zasoby.render->UpdateSubresource(bufIndeksy, 0, NULL, &ind[0], 0, 0);
 	logi.pisz("OK", "Wypelnij bufor indeksow.");
 }
-ObiektScena::ObiektScena() : bufWierz(NULL), bufIndeksy(NULL), iterElListy(pomocListaOb.end()), widokTekstury(NULL)
+void Obiekt3W::wypelnijBufWierz() {
+	zasoby.render->UpdateSubresource(bufWierz, 0, NULL, &wierz[0], 0, 0);
+	logi.pisz("OK", "Wypelnij bufor wierzcholkow.");
+}
+Obiekt3W::Obiekt3W() : bufIndeksy(NULL), bufWierz(NULL), widokTekstury(NULL)
 	{}
-ObiektScena::~ObiektScena() {
+Obiekt3W::~Obiekt3W() {
 	logi.piszStart("START", "Niszcz obiekt sceny.");
 	if(widokTekstury != NULL) {
 		widokTekstury->Release();
@@ -616,30 +585,60 @@ ObiektScena::~ObiektScena() {
 	}
 	logi.piszStop("STOP", "Niszcz obiekt sceny.");
 }
-void ObiektScena::wgrajWierzcholki(
-	Wierzcholek const *const		wierzcholki,
-	UINT const						ilWierz
+void Obiekt3W::przesun(
+	XMVECTOR const		wektor
 	) {
-	wierz.assign(wierzcholki, wierzcholki+ilWierz);
-	logi.pisz("OK", "Wgraj wierzcholki.");
+	XMStoreFloat4x4(
+		&macPrzesun,
+		XMMatrixTranslationFromVector(wektor) * XMLoadFloat4x4(&macPrzesun));
 }
-void ObiektScena::wgrajIndeksy(
+void Obiekt3W::tworz() {
+	logi.piszStart("START", "Tworz obiekt sceny.");
+	tworzBufWierz();
+	wypelnijBufWierz();
+	tworzBufIndeksy();
+	wypelnijBufIndeksy();
+	logi.piszStop("STOP", "Tworz obiekt sceny.");
+}
+void Obiekt3W::ustawPrzesun(
+	XMVECTOR const		wektor
+	) {
+	XMStoreFloat4x4(&macPrzesun, XMMatrixTranslationFromVector(wektor));
+}
+void Obiekt3W::usunSwiatPkt(
+	XMVECTOR& pkt3W
+	) const {
+	// wartość nie ważna, konieczny dla XMMatrixInverse()
+	XMVECTOR wektorRob;
+
+	XMMATRIX macOdwrotSwiat = XMMatrixInverse(&wektorRob, wezSwiat());
+	// czwarty parametr wektora nie istotny, XMVector3TransformCoord() załatwia obliczenia z nim związane
+	pkt3W = XMVector3TransformCoord(pkt3W, macOdwrotSwiat);
+}
+void Obiekt3W::usunSwiatWektor(
+	XMVECTOR& wektor3W
+	) const {
+	// wartość nie ważna, konieczny dla XMMatrixInverse()
+	XMVECTOR wektorRob;
+
+	XMMATRIX macOdwrotSwiat = XMMatrixInverse(&wektorRob, wezSwiat());
+	// czwarty parametr wektora nie istotny, XMVector3TransformNormal() załatwia obliczenia z nim związane
+	wektor3W = XMVector3TransformNormal(wektor3W, macOdwrotSwiat);
+}
+XMMATRIX Obiekt3W::wezPrzesun() const {
+	return XMLoadFloat4x4(&macPrzesun);
+}
+XMMATRIX Obiekt3W::wezSwiat() const {
+	return XMLoadFloat4x4(&macPrzesun);
+}
+void Obiekt3W::wgrajIndeksy(
 	DWORD const *const		indeksy,
 	UINT const				ilIndeksy
 	) {
 	ind.assign(indeksy, indeksy+ilIndeksy);
 	logi.pisz("OK", "Wgraj indeksy.");
 }
-void ObiektScena::wgrajWierzIndeksy(
-	Wierzcholek const *const		wierzcholki,
-	UINT const						ilWierz,
-	DWORD const *const				indeksy,
-	UINT const						ilIndeksy
-	) {
-	wgrajWierzcholki(wierzcholki, ilWierz);
-	wgrajIndeksy(indeksy, ilIndeksy);
-}
-void ObiektScena::wgrajTeksture(
+void Obiekt3W::wgrajTeksture(
 	string sciezka
 	) {
 	wynik = D3DX11CreateShaderResourceViewFromFile(
@@ -651,25 +650,34 @@ void ObiektScena::wgrajTeksture(
 		NULL);
 	SprawdzWynik(wynik, "Wgranie tekstury.");
 }
-void ObiektScena::ustawPrzesun(
-	float x,
-	float y,
-	float z
+void Obiekt3W::wgrajWierzcholki(
+	Wierzcholek const *const		wierzcholki,
+	UINT const						ilWierz
 	) {
-	macPrzesun = XMMatrixTranslation(x, y, z);
+	wierz.assign(wierzcholki, wierzcholki+ilWierz);
+	logi.pisz("OK", "Wgraj wierzcholki.");
 }
-void ObiektScena::dodDoRender() {
-	listaRender.dodDoListy(this, iterElListy);
+void Obiekt3W::wgrajWierzIndeksy(
+	Wierzcholek const *const		wierzcholki,
+	UINT const						ilWierz,
+	DWORD const *const				indeksy,
+	UINT const						ilIndeksy
+	) {
+	wgrajWierzcholki(wierzcholki, ilWierz);
+	wgrajIndeksy(indeksy, ilIndeksy);
 }
-void ObiektScena::tworz() {
-	logi.piszStart("START", "Tworz obiekt sceny.");
-	tworzBufWierz();
-	wypelnijBufWierz();
-	tworzBufIndeksy();
-	wypelnijBufIndeksy();
-	logi.piszStop("STOP", "Tworz obiekt sceny.");
+void Obiekt3W::wiazIndeksy() const {
+	if(bufIndeksy == NULL) {
+		logi.pisz("UWAGA", "Nie powiazano. Bufor indeksow jest pusty.");
+	} else {
+		zasoby.render->IASetIndexBuffer(bufIndeksy, DXGI_FORMAT_R32_UINT, 0);
+	}
 }
-void ObiektScena::wiazWierz() const {
+void Obiekt3W::wiazTeksture() const {
+	zasoby.render->PSSetShaderResources(0, 1, &widokTekstury);
+	logi.pisz("OK", "Wiazanie tekstury.");
+}
+void Obiekt3W::wiazWierz() const {
 	if(bufWierz == NULL) {
 		logi.pisz("UWAGA", "Nie powiazano. Bufor wierzcholkow jest pusty.");
 	} else {
@@ -683,100 +691,5 @@ void ObiektScena::wiazWierz() const {
 			&przesunBufWierz);
 	}
 }
-void ObiektScena::wiazIndeksy() const {
-	if(bufIndeksy == NULL) {
-		logi.pisz("UWAGA", "Nie powiazano. Bufor indeksow jest pusty.");
-	} else {
-		zasoby.render->IASetIndexBuffer(bufIndeksy, DXGI_FORMAT_R32_UINT, 0);
-	}
-}
-void ObiektScena::wiazTeksture() const {
-	zasoby.render->PSSetShaderResources(0, 1, &widokTekstury);
-	logi.pisz("OK", "Wiazanie tekstury.");
-}
-XMMATRIX ObiektScena::wezSwiat() const {
-	return macPrzesun;
-}
-void ObiektScena::usunZRender() {
-	// obiekt nie jest na liście do renderowania
-	if(iterElListy == pomocListaOb.end()) {
-		return;
-	}
+typedef list<Obiekt3W* const>		ListaOb_;
 
-	listaRender.usunZListy(iterElListy);
-	iterElListy = pomocListaOb.end();
-}
-void ObiektScena::usunSwiatPkt(
-	XMVECTOR& pkt3W
-	) const {
-	// wartość nie ważna, konieczny dla XMMatrixInverse()
-	XMVECTOR wektorRob;
-
-	XMMATRIX macOdwrotSwiat = XMMatrixInverse(&wektorRob, wezSwiat());
-	// czwarty parametr wektora nie istotny, XMVector3TransformCoord() załatwia obliczenia z nim związane
-	pkt3W = XMVector3TransformCoord(pkt3W, macOdwrotSwiat);
-}
-void ObiektScena::usunSwiatWektor(
-	XMVECTOR& wektor3W
-	) const {
-	// wartość nie ważna, konieczny dla XMMatrixInverse()
-	XMVECTOR wektorRob;
-
-	XMMATRIX macOdwrotSwiat = XMMatrixInverse(&wektorRob, wezSwiat());
-	// czwarty parametr wektora nie istotny, XMVector3TransformNormal() załatwia obliczenia z nim związane
-	wektor3W = XMVector3TransformNormal(wektor3W, macOdwrotSwiat);
-}
-
-class Grafik {
-	// przyjaciel ListaRender
-	IterListaOb_		iterAktObiekt;
-	Ekran				ekran;
-	Projektor			projektor;
-	Kamera				kamera;
-	void				resetujAktObiekt();
-	void				naKolejnyObiekt();
-public:
-						Grafik();
-	void				aktualCoObiekt();
-	void				rysujObiekty();
-} grafik;
-void Grafik::resetujAktObiekt() {
-	iterAktObiekt = listaRender.obiekty.begin();
-}
-void Grafik::naKolejnyObiekt() {
-	if(iterAktObiekt == listaRender.obiekty.end()) {
-		return;
-	}
-	++iterAktObiekt;
-}
-Grafik::Grafik() : iterAktObiekt(pomocListaOb.end())
-	{
-	logi.piszStart("START", "Stworz grafika.");
-	kamera.ustawPozycja(+0.0f, +0.0f, -0.5f);
-	kamera.ustawCel(+0.0f, 0.0f, 0.0f);
-	kamera.ustawGora(+0.0f, +1.0f, +0.0f);
-	kamera.tworzWidok();
-	projektor.ustawKat(90);
-	projektor.ustawBlizszaPlaszcz(1.0f);
-	projektor.ustawDalszaPlaszcz(100.0f);
-	projektor.tworzProjekcja();
-	logi.piszStop("STOP", "Stworz grafika.");
-}
-void Grafik::aktualCoObiekt() {
-	// przed wysłaniem do szadera zawsze trzeba transponować
-	zasoby.daneCoObiekt.macSWP = XMMatrixTranspose(
-		(*iterAktObiekt)->wezSwiat() * kamera.wezWidok() * projektor.wezProjekcja());
-	
-	zasoby.wypelnijCoObiekt();
-	zasoby.wiazCoObiekt();
-}
-void Grafik::rysujObiekty() {
-	resetujAktObiekt();
-	while(iterAktObiekt != listaRender.obiekty.end()) {
-		(*iterAktObiekt)->wiazWierz();
-		(*iterAktObiekt)->wiazIndeksy();
-		aktualCoObiekt();
-		zasoby.render->DrawIndexed(3, 0, 0);
-		naKolejnyObiekt();
-	}
-}
