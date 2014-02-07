@@ -34,7 +34,7 @@ public:
 	void				przesunObiekt(UINT const, XMVECTOR const);
 	void				tworzKolejnaKlatka();
 	void				usunObiektScena(UINT const);
-	void				wezPozSwiat(XMVECTOR* const, UINT const) const;
+	void				wezPozOb(XMVECTOR* const, UINT const) const;
 	void				wez(UINT* const, UINT const) const;
 };
 void Fizyka::przesunHistoriaObiekty(
@@ -113,7 +113,7 @@ void Fizyka::usunObiektScena(
 		logi.pisz("UWAGA", "Usuwanie obiektu sceny: Nie ma takiego obiektu na liscie!");
 	}
 }
-void Fizyka::wezPozSwiat(
+void Fizyka::wezPozOb(
 	XMVECTOR* const		poz,
 	UINT const			adresOb
 	) const {
@@ -131,7 +131,7 @@ void Fizyka::wez(
 	grafika->wezPozKamera(&pocz);
 	// kierunek wektora wyboru
 	XMVECTOR kier;
-	wezPozSwiat(&kier, adrKursor);
+	wezPozOb(&kier, adrKursor);
 	kier = kier - pocz;
 	// szukaj kolizji
 	MapaObiekty3W_::const_iterator it;
@@ -139,6 +139,7 @@ void Fizyka::wez(
 	bool flg;
 	*adrOb = adrKursor;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); it++) {
+		it++;
 		p = pocz;
 		k = kier;
 		it->second->usunSwiatPkt(&p);

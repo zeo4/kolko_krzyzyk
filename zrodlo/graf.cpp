@@ -202,7 +202,7 @@ Grafika::Grafika() {
 	kamera.ustawGora(+0.0f, +1.0f, +0.0f);
 	kamera.tworzWidok();
 	projektor.ustawKat(90);
-	projektor.ustawBlizszaPlaszcz(1.0f);
+	projektor.ustawBlizszaPlaszcz(0.5f);
 	projektor.ustawDalszaPlaszcz(100.0f);
 	projektor.tworzProjekcja();
 	logi.piszStop("<---", "Stworz grafika.");

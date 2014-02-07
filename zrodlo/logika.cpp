@@ -55,11 +55,11 @@ void Logika::uwzglWejscie() {
 		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.002f, +0.0f, +0.0f, +0.0f));
 	}
 	if(stanMysz.lX != 0) {
-		float p = stanMysz.lX * 0.007f;
+		float p = stanMysz.lX * 0.001f;
 		fizyka->przesunObiekt(adrObKursor, XMVectorSet(p, +0.0f, +0.0f, +0.0f));
 	}
 	if(stanMysz.lY != 0) {
-		float p = -stanMysz.lY * 0.007f;
+		float p = -stanMysz.lY * 0.001f;
 		fizyka->przesunObiekt(adrObKursor, XMVectorSet(+0.0f, p, +0.0f, +0.0f));
 	}
 	if(stanMysz.rgbButtons[0] & 0x80){

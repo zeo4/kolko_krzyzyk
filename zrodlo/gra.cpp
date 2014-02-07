@@ -118,14 +118,14 @@ void Gra::inic3W() {
 void Gra::inicScena() {
 	try{
 		Wierzcholek w1[] = {
-			Wierzcholek(+0.0f, -0.2f, +0.5f, +0.0f, +1.0f),
-			Wierzcholek(+0.0f, +0.0f, +0.5f, +0.5f, +0.0f),
-			Wierzcholek(+0.2f, -0.0f, +0.5f, +1.0f, +1.0f),
+			Wierzcholek(+0.0f, -0.2f, +0.0f, +0.0f, +1.0f),
+			Wierzcholek(+0.0f, +0.0f, +0.0f, +0.5f, +0.0f),
+			Wierzcholek(+0.2f, -0.0f, +0.0f, +1.0f, +1.0f),
 		};
 		Wierzcholek w2[] = {
-			Wierzcholek(-1.0f, -1.0f, +0.5f, +0.0f, +1.0f),
-			Wierzcholek(-1.0f, +1.0f, +0.5f, +0.0f, +0.5f),
-			Wierzcholek(+1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
+			Wierzcholek(-1.0f, -1.0f, +0.0f, +0.0f, +1.0f),
+			Wierzcholek(-1.0f, +1.0f, +0.0f, +0.0f, +0.5f),
+			Wierzcholek(+1.0f, +1.0f, +0.0f, +0.5f, +1.0f),
 		};
 		DWORD indeksyModel[] = {
 			0, 1, 2
@@ -164,7 +164,7 @@ void Gra::inicScena() {
 		figura1->wgrajTeksture("tekstura\\t1.jpg");
 		figura1->wiazTeksture();
 		// czwarty parametr wektora nie istotny
-		figura1->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
+		//figura1->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +0.0f, 0.0f));
 		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
 	}
 	catch(Wyjatek wyj){
