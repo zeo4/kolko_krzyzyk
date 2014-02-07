@@ -13,19 +13,9 @@
 #include "grafZasoby.cpp"
 #endif
 
-#ifndef _GRAFZDARZENIA_
-#define _GRAFZDARZENIA_
-#include "grafZdarzenia.cpp"
-#endif
-
 #ifndef _GRAF_
 #define _GRAF_
 #include "graf.cpp"
-#endif
-
-#ifndef _FIZZDARZENIA_
-#define _FIZZDARZENIA_
-#include "fizZdarzenia.cpp"
 #endif
 
 #ifndef _FIZ_
@@ -33,19 +23,22 @@
 #include "fiz.cpp"
 #endif
 
-#ifndef _KONTROLERY_
-#define _KONTROLERY_
-#include "kontrolery.cpp"
+#ifndef _LOGIKA_
+#define _LOGIKA_
+#include "logika.cpp"
+#endif
+
+#ifndef _WEJ_
+#define _WEJ_
+#include "wejscie.cpp"
 #endif
 
 class Gra {
-	Fizyk				fizyk;
-	Grafik				grafik;
-	Kontrolery			kontrolery;
+	Fizyka				fizyka;
+	Grafika				grafika;
+	Logika				logika;
+	Wejscie				wejscie;
 	HINSTANCE const		uchAplikacji;
-	ListaOb_			obiektyScena;
-	ListaZdarzFiz_		zdarzeniaFiz;
-	ListaZdarzGraf_		zdarzeniaGraf;
 public:
 						Gra(HINSTANCE const);
 	void				inic3W();
@@ -54,7 +47,7 @@ public:
 };
 Gra::Gra(
 	HINSTANCE const		uchwyt
-	) : kontrolery(uchwyt), uchAplikacji(uchwyt)
+	) : wejscie(uchwyt), uchAplikacji(uchwyt)
 	{}
 void Gra::inic3W() {
 	try{
@@ -111,7 +104,12 @@ void Gra::inic3W() {
 
 		zasoby.tworzGlebiaSzablon();
 
-		zasoby.render->OMSetRenderTargets(1, &zasoby.widBufTyl, zasoby.widokGlebiaSzablon);
+		zasoby.render->OMSetRenderTargets(1, &zasoby.widBufTyl, zasoby.widGlebiaSzablon);
+
+		// łączenie komponentów silnika
+		logika.laczWejscie(&wejscie);
+		logika.laczFizyka(&fizyka);
+		fizyka.laczGrafika(&grafika);
 	}
 	catch(Wyjatek wyj){
 		ObslugaWyjatek(wyj);
@@ -120,30 +118,28 @@ void Gra::inic3W() {
 void Gra::inicScena() {
 	try{
 		Wierzcholek w1[] = {
-			Wierzcholek(-0.5f, -0.5f, +0.5f, +0.0f, +1.0f),
-			Wierzcholek(+0.0f, +0.5f, +0.5f, +0.5f, +0.0f),
-			Wierzcholek(+0.5f, -0.5f, +0.5f, +1.0f, +1.0f),
+			Wierzcholek(+0.0f, -0.2f, +0.5f, +0.0f, +1.0f),
+			Wierzcholek(+0.0f, +0.0f, +0.5f, +0.5f, +0.0f),
+			Wierzcholek(+0.2f, -0.0f, +0.5f, +1.0f, +1.0f),
 		};
 		Wierzcholek w2[] = {
-			Wierzcholek(-1.0f, -1.0f, +1.0f, +0.0f, +1.0f),
-			Wierzcholek(-1.0f, +0.0f, +1.0f, +0.0f, +0.5f),
-			Wierzcholek(+0.0f, -1.0f, +1.0f, +0.5f, +1.0f),
+			Wierzcholek(-1.0f, -1.0f, +0.5f, +0.0f, +1.0f),
+			Wierzcholek(-1.0f, +1.0f, +0.5f, +0.0f, +0.5f),
+			Wierzcholek(+1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
 		};
-
 		DWORD indeksyModel[] = {
 			0, 1, 2
 		};
-
 		Obiekt3W* figura1 = new Obiekt3W;
 		figura1->wgrajWierzcholki(w1, 3);
 		figura1->wgrajIndeksy(indeksyModel, 3);
 		figura1->tworz();
-		obiektyScena.push_back(figura1);
+		logika.dodajObiektSwiat(figura1);
 		Obiekt3W* figura2 = new Obiekt3W;
 		figura2->wgrajWierzcholki(w2, 3);
 		figura2->wgrajIndeksy(indeksyModel, 3);
 		figura2->tworz();
-		obiektyScena.push_back(figura2);
+		logika.dodajObiektSwiat(figura2);
 
 		zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 		zasoby.tworzSzadWierz();
@@ -169,15 +165,7 @@ void Gra::inicScena() {
 		figura1->wiazTeksture();
 		// czwarty parametr wektora nie istotny
 		figura1->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
-		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +2.0f, 0.0f));
-
-		kontrolery.przypnijListaFiz(&zdarzeniaFiz);
-		fizyk.przypnijListaFiz(&zdarzeniaFiz);
-		fizyk.przypnijObiektyScena(&obiektyScena);
-		fizyk.przypnijListaGraf(&zdarzeniaGraf);
-		grafik.przypnijListaGraf(&zdarzeniaGraf);
-		kontrolery.ustawObiekt(*obiektyScena.begin());
-		//kontrolery.ustawObiekt(*(++obiektyScena.begin()));
+		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
 	}
 	catch(Wyjatek wyj){
 		ObslugaWyjatek(wyj);
@@ -188,17 +176,11 @@ void Gra::wyswietlScena() {
 	const FLOAT kolor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	zasoby.render->ClearRenderTargetView(zasoby.widBufTyl, kolor);
 	// czyść widok bufora glebi i szablonu
-	zasoby.render->ClearDepthStencilView(zasoby.widokGlebiaSzablon, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	zasoby.render->ClearDepthStencilView(zasoby.widGlebiaSzablon, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	zasoby.wiazSzadWierz();
 	zasoby.wiazSzadPiks();
-	kontrolery.tworzZdarzenia();
-	fizyk.wykonajZdarzenia();
-	fizyk.tworzZdarzenia();
-	grafik.wykonajZdarzenia();
-	
-	//przestaw bufory
-	zasoby.lancWym->Present(0, 0);
+	logika.tworzKolejnaKlatka();
 }
 
 

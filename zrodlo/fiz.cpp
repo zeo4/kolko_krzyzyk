@@ -1,4 +1,4 @@
-#ifndef _GLOBALNE_
+﻿#ifndef _GLOBALNE_
 #define _GLOBALNE_
 #include "globalne.cpp"
 #endif
@@ -13,75 +13,141 @@
 #include "grafZasoby.cpp"
 #endif
 
-#ifndef _GRAFZDARZENIA_
-#define _GRAFZDARZENIA_
-#include "grafZdarzenia.cpp"
-#endif
-
 #ifndef _GRAF_
 #define _GRAF_
 #include "graf.cpp"
 #endif
 
-#ifndef _FIZZDARZENIA_
-#define _FIZZDARZENIA_
-#include "fizZdarzenia.cpp"
-#endif
-
-class Fizyk {
-	ListaOb_*				obiektyScena;
-	ListaZdarzFiz_*			zdarzeniaFiz;
-	ListaZdarzGraf_*		zdarzeniaGraf;
+class Fizyka {
+	Grafika*			grafika;
+	MapaObiekty3W_		obiektyScena;
+	MapaObiekty3W_		obiektySwiat;
+	void				przesunHistoriaObiekty(MapaObiekty3W_* const);
 public:
-	void					dodajZdarzenie(ZdarzFiz const* const);
-	void					przypnijListaFiz(ListaZdarzFiz_* const);
-	void					przypnijListaGraf(ListaZdarzGraf_* const);
-	void					przypnijObiektyScena(ListaOb_* const);
-	void					tworzZdarzenia();
-	void					usunNiszczZdarzenie(ListaZdarzFiz_::const_iterator);
-	void					wykonajZdarzenia();
+						Fizyka();
+						~Fizyka();
+	void				dodajObiektScena(Obiekt3W* const);
+	void				dodajObiektSwiat(Obiekt3W* const);
+	void				laczGrafika(Grafika* const);
+	void				niszczObiektSwiat(UINT const);
+	void				niszczObiektySwiat();
+	void				przesunObiekt(UINT const, XMVECTOR const);
+	void				tworzKolejnaKlatka();
+	void				usunObiektScena(UINT const);
+	void				wezPozSwiat(XMVECTOR* const, UINT const) const;
+	void				wez(UINT* const, UINT const) const;
 };
-void Fizyk::dodajZdarzenie(
-	ZdarzFiz const* const		zdarzenie
+void Fizyka::przesunHistoriaObiekty(
+	MapaObiekty3W_* const		m // mapa obiektów 3W
 	) {
-	zdarzeniaFiz->push_back(zdarzenie);
-}
-void Fizyk::przypnijListaFiz(
-	ListaZdarzFiz_* const		lista
-	) {
-	zdarzeniaFiz = lista;
-}
-void Fizyk::przypnijListaGraf(
-	ListaZdarzGraf_* const		lista
-	) {
-	zdarzeniaGraf = lista;
-}
-void Fizyk::przypnijObiektyScena(
-	ListaOb_* const		lista
-	) {
-	obiektyScena = lista;
-}
-void Fizyk::tworzZdarzenia() {
-	ListaOb_::const_iterator iterObiektyScena = obiektyScena->begin();
-	while(iterObiektyScena != obiektyScena->end()) {
-		ZdarzRysujOb* const zdarzenie = new ZdarzRysujOb;
-		zdarzenie->obiekt3W = (*iterObiektyScena);
-		zdarzeniaGraf->push_back(zdarzenie);
-		++iterObiektyScena;
+	MapaObiekty3W_::const_iterator it;
+	for(it = m->begin(); it != m->end(); it++) {
+		it->second->przesunHistoria();
 	}
 }
-void Fizyk::usunNiszczZdarzenie(
-	ListaZdarzFiz_::const_iterator		iter
+Fizyka::Fizyka() : grafika(NULL)
+	{}
+Fizyka::~Fizyka() {
+	niszczObiektySwiat();
+}
+void Fizyka::dodajObiektScena(
+	Obiekt3W* const		ob
 	) {
-	delete *iter;
-	zdarzeniaFiz->erase(iter);
-}
-void Fizyk::wykonajZdarzenia() {
-	ListaZdarzFiz_::const_iterator iter = zdarzeniaFiz->begin();
-	while(iter != zdarzeniaFiz->end()) {
-		(*iter)->wykonajZdarzenie();
-		usunNiszczZdarzenie(iter++);
+	if(obiektySwiat.count(UINT(ob)) == 0) {
+		logi.pisz("UWAGA", "Dodawanie obiektu do listy obiektow sceny: Obiektu nie ma na liscie obiektow swiata!");
+		return;
 	}
-}
 
+	std::pair<MapaObiekty3W_::iterator, bool> p;
+	p = obiektyScena.insert(std::pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
+	if(p.second == false) {
+		logi.pisz("UWAGA", "Dodawanie obiektu do listy obiektow sceny: Obiekt juz jest na liscie!");
+	}
+}
+void Fizyka::dodajObiektSwiat(
+	Obiekt3W* const		ob
+	) {
+	std::pair<MapaObiekty3W_::iterator, bool> p;
+	p = obiektySwiat.insert(std::pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
+	if(p.second == false) {
+		logi.pisz("UWAGA", "Dodawanie obiektu do listy obiektow swiata: Obiekt juz jest na liscie!");
+	}
+}
+void Fizyka::laczGrafika(
+	Grafika* const		g
+	) {
+	grafika = g;
+}
+void Fizyka::niszczObiektSwiat(
+	UINT const		adresOb
+	) {
+	if(obiektySwiat.count(adresOb) == 0) {
+		logi.pisz("UWAGA", "Niszczenie obiektu swiata: Nie ma takiego obiektu na liscie!");
+	} else {
+		delete obiektySwiat[adresOb];
+		obiektySwiat.erase(adresOb);
+	}
+}
+void Fizyka::niszczObiektySwiat() {
+	logi.piszStart("START", "Niszczenie obiektow swiata.");
+	MapaObiekty3W_::const_iterator it;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); it++) {
+		niszczObiektSwiat(it->first);
+	}
+	logi.piszStop("STOP", "Niszczenie obiektow swiata.");
+}
+void Fizyka::przesunObiekt(
+	UINT const			adresOb,
+	XMVECTOR const		w // wektor przesunięcia
+	) {
+	obiektySwiat[adresOb]->przesun(w);
+}
+void Fizyka::tworzKolejnaKlatka() {
+	przesunHistoriaObiekty(&obiektySwiat);
+	grafika->rysujKolejnaKlatka(&obiektySwiat);
+}
+void Fizyka::usunObiektScena(
+	UINT const		adresOb
+	) {
+	if(obiektyScena.erase(adresOb) == 0) {
+		logi.pisz("UWAGA", "Usuwanie obiektu sceny: Nie ma takiego obiektu na liscie!");
+	}
+}
+void Fizyka::wezPozSwiat(
+	XMVECTOR* const		poz,
+	UINT const			adresOb
+	) const {
+	XMMATRIX m;
+	obiektySwiat.at(adresOb)->wezPrzesunAkt(&m);
+	*poz = XMVectorSet(m._41, m._42, m._43, +0.0f);
+}
+void Fizyka::wez(
+	UINT* const		adrOb,
+	UINT const		adrKursor
+	) const {
+	float x, y, z;
+	// początek wektora wyboru
+	XMVECTOR pocz;
+	grafika->wezPozKamera(&pocz);
+	// kierunek wektora wyboru
+	XMVECTOR kier;
+	wezPozSwiat(&kier, adrKursor);
+	kier = kier - pocz;
+	// szukaj kolizji
+	MapaObiekty3W_::const_iterator it;
+	XMVECTOR p, k;
+	bool flg;
+	*adrOb = adrKursor;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); it++) {
+		p = pocz;
+		k = kier;
+		it->second->usunSwiatPkt(&p);
+		it->second->usunSwiatWektor(&k);
+		it->second->sprawdzKolizjaModel(&flg, p, k);
+		if(flg == true) {
+			*adrOb = it->first;
+			return;
+		}
+	}
+}
 

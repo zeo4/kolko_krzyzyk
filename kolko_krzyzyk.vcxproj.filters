@@ -27,18 +27,6 @@
     <ClCompile Include="zrodlo\debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\kontrolery.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\gra.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\grafZdarzenia.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\fizZdarzenia.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="zrodlo\fiz.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +34,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zrodlo\graf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\gra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\wejscie.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\logika.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\testy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

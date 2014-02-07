@@ -13,11 +13,6 @@
 #include "grafZasoby.cpp"
 #endif
 
-#ifndef _GRAFZDARZENIA_
-#define _GRAFZDARZENIA_
-#include "grafZdarzenia.cpp"
-#endif
-
 #ifndef _GRAF_
 #define _GRAF_
 #include "graf.cpp"
@@ -28,14 +23,19 @@
 #include "fiz.cpp"
 #endif
 
-#ifndef _KONTROLERY_
-#define _KONTROLERY_
-#include "kontrolery.cpp"
+#ifndef _WEJ_
+#define _WEJ_
+#include "wejscie.cpp"
 #endif
 
 #ifndef _GRA_
 #define _GRA_
 #include "gra.cpp"
+#endif
+
+#ifndef _TESTY_
+#define _TESTY_
+#include "testy.cpp"
 #endif
 
 // test
@@ -160,3 +160,9 @@ int WINAPI WinMain(
 // wypelnijBufWierz(): potestować wypełnianie bufora (skąd UpdateSubresource ma wiedzieć ile skopiować z danych źródłowych)
 // Logi dla napisanych funkcji.
 // Tworzyć kontroler solidnie, szczególnie z uwzględnieniem uchwytu aplikacji. Teraz jest porozrzucany w głównych funkcjach.
+// Sprawdzić czy "map[klucz];" nadpisze linię "map[klucz] = wartość;". Jeśli tak to poprawić Logika::niszczObiektSwiat().
+// Obslużyć sytuację: Wskaźnik do wskaźnika do wskaźnika ... Tak aby nie można było zmieniać ob2 w: const Wsk<ob1> -> zwykły wsk_ob2 -> ob2 <- to już można zmieniać.
+// Obiekty 3W bazują na wierzchołkach utworzonych poprzez tablicę o stałej ilości elementów. Usuwanie takiej tablicy nie wymaga uwagi. Ale co gdy będzie używana tablica wierzchołków stworzona przez new?
+// Wybieranie chyba działa. Sprawdzić.
+
+

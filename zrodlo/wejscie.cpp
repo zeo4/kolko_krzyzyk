@@ -13,19 +13,9 @@
 #include "grafZasoby.cpp"
 #endif
 
-#ifndef _GRAFZDARZENIA_
-#define _GRAFZDARZENIA_
-#include "grafZdarzenia.cpp"
-#endif
-
 #ifndef _GRAF_
 #define _GRAF_
 #include "graf.cpp"
-#endif
-
-#ifndef _FIZZDARZENIA_
-#define _FIZZDARZENIA_
-#include "fizZdarzenia.cpp"
 #endif
 
 #ifndef _FIZ_
@@ -33,46 +23,38 @@
 #include "fiz.cpp"
 #endif
 
-class Kontrolery {
+class Wejscie {
 	IDirectInputDevice8*		klawiatura;
 	IDirectInputDevice8*		mysz;
-	Obiekt3W*					obiekt;
-	BYTE						stanKlawiatura[256];
-	DIMOUSESTATE				stanMysz;
 	HINSTANCE					uchAplikacji;
 	IDirectInput8*				wejscie;
-	ListaZdarzFiz_*				zdarzeniaFiz;
 	void						inicjalizuj();
 	void						tworzKlawiatura();
 	void						tworzMysz();
 	void						tworzWejscie() const;
 	void						ustawKlawiatura() const;
 	void						ustawMysz() const;
-	void						wezStanKlawiatura();
-	void						wezStanMysz();
 public:
-								Kontrolery(HINSTANCE const);
-								~Kontrolery();
-	void						przypnijListaFiz(ListaZdarzFiz_* const);
-	void						tworzZdarzenia();
-	void						ustawObiekt(Obiekt3W* const);
+								Wejscie(HINSTANCE const);
+								~Wejscie();
+	void						wez(BYTE* const, DIMOUSESTATE* const);
 };
-void Kontrolery::inicjalizuj() {
+void Wejscie::inicjalizuj() {
 	tworzWejscie();
 	tworzKlawiatura();
 	tworzMysz();
 	ustawKlawiatura();
 	ustawMysz();
 }
-void Kontrolery::tworzKlawiatura() {
+void Wejscie::tworzKlawiatura() {
 	wynik = wejscie->CreateDevice(GUID_SysKeyboard, &klawiatura, NULL);
 	SprawdzWynik(wynik, "Tworzenie klawiatury.");
 }
-void Kontrolery::tworzMysz() {
+void Wejscie::tworzMysz() {
 	wynik = wejscie->CreateDevice(GUID_SysMouse, &mysz, NULL);
 	SprawdzWynik(wynik, "Tworzenie myszy");
 }
-void Kontrolery::tworzWejscie() const {
+void Wejscie::tworzWejscie() const {
 	wynik = DirectInput8Create(
 		uchAplikacji,
 		DIRECTINPUT_VERSION,
@@ -81,7 +63,7 @@ void Kontrolery::tworzWejscie() const {
 		NULL);
 	SprawdzWynik(wynik, "Tworzenie wejscia kontrolerow.");
 }
-void Kontrolery::ustawKlawiatura() const {
+void Wejscie::ustawKlawiatura() const {
 	wynik = klawiatura->SetDataFormat(&c_dfDIKeyboard);
 	SprawdzWynik(wynik, "Ustawienie formatu danych klawiatury.");
 	wynik = klawiatura->SetCooperativeLevel(
@@ -91,7 +73,7 @@ void Kontrolery::ustawKlawiatura() const {
 	wynik = klawiatura->Acquire();
 	SprawdzWynik(wynik, "Rezerwacja klawiatury.");
 }
-void Kontrolery::ustawMysz() const {
+void Wejscie::ustawMysz() const {
 	wynik = mysz->SetDataFormat(&c_dfDIMouse);
 	SprawdzWynik(wynik, "Ustawienie formatu danych myszy.");
 	wynik = mysz->SetCooperativeLevel(
@@ -101,19 +83,13 @@ void Kontrolery::ustawMysz() const {
 	wynik = mysz->Acquire();
 	SprawdzWynik(wynik, "Rezerwacja myszy.");
 }
-void Kontrolery::wezStanKlawiatura() {
-	klawiatura->GetDeviceState(sizeof(stanKlawiatura), (LPVOID)&stanKlawiatura);
-}
-void Kontrolery::wezStanMysz() {
-	mysz->GetDeviceState(sizeof(stanMysz), &stanMysz);
-}
-Kontrolery::Kontrolery(
+Wejscie::Wejscie(
 	HINSTANCE const		uchwyt
-	) : klawiatura(NULL), mysz(NULL), obiekt(NULL), uchAplikacji(uchwyt), wejscie(NULL)
+	) : klawiatura(NULL), mysz(NULL), uchAplikacji(uchwyt), wejscie(NULL)
 	{
 	inicjalizuj();
 }
-Kontrolery::~Kontrolery() {
+Wejscie::~Wejscie() {
 	logi.piszStart("START", "Niszczenie kontrolerow.");
 	if(mysz != NULL) {
 		mysz->Unacquire();
@@ -131,45 +107,12 @@ Kontrolery::~Kontrolery() {
 	}
 	logi.piszStop("STOP", "Niszczenie kontrolerow.");
 }
-void Kontrolery::przypnijListaFiz(
-	ListaZdarzFiz_* const		lista
+void Wejscie::wez(
+	BYTE* const				stanKlawiatura,
+	DIMOUSESTATE* const		stanMysz
 	) {
-	zdarzeniaFiz = lista;
+	klawiatura->GetDeviceState(sizeof(BYTE)*256, (LPVOID)stanKlawiatura);
+	mysz->GetDeviceState(sizeof(DIMOUSESTATE), stanMysz);
 }
-void Kontrolery::tworzZdarzenia() {
-	wezStanKlawiatura();
-	wezStanMysz();
-
-	if(stanKlawiatura[DIK_A] & 0x80) {
-		ZdarzRuchOb* const zdarzenie = new ZdarzRuchOb;
-		zdarzenie->obiekt = obiekt;
-		zdarzenie->wektorRuch = XMVectorSet(-0.002f, +0.0f, +0.0f, 0.0f);
-		zdarzeniaFiz->push_back(zdarzenie);
-	}
-	if(stanKlawiatura[DIK_D] & 0x80) {
-		ZdarzRuchOb* const zdarzenie = new ZdarzRuchOb;
-		zdarzenie->obiekt = obiekt;
-		zdarzenie->wektorRuch = XMVectorSet(+0.002f, +0.0f, +0.0f, 0.0f);
-		zdarzeniaFiz->push_back(zdarzenie);
-	}
-	if(stanKlawiatura[DIK_W] & 0x80) {
-		ZdarzRuchOb* const zdarzenie = new ZdarzRuchOb;
-		zdarzenie->obiekt = obiekt;
-		zdarzenie->wektorRuch = XMVectorSet(+0.0f, +0.002f, +0.0f, 0.0f);
-		zdarzeniaFiz->push_back(zdarzenie);
-	}
-	if(stanKlawiatura[DIK_S] & 0x80) {
-		ZdarzRuchOb* const zdarzenie = new ZdarzRuchOb;
-		zdarzenie->obiekt = obiekt;
-		zdarzenie->wektorRuch = XMVectorSet(+0.0f, -0.002f, +0.0f, 0.0f);
-		zdarzeniaFiz->push_back(zdarzenie);
-	}
-}
-void Kontrolery::ustawObiekt(
-	Obiekt3W* const		ob
-	) {
-	obiekt = ob;
-}
-
 
 

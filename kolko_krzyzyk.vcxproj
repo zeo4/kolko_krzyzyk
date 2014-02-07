@@ -69,12 +69,12 @@
     <ClCompile Include="zrodlo\fiz.cpp" />
     <ClCompile Include="zrodlo\gl.cpp" />
     <ClCompile Include="zrodlo\globalne.cpp" />
+    <ClCompile Include="zrodlo\logika.cpp" />
     <ClCompile Include="zrodlo\gra.cpp" />
     <ClCompile Include="zrodlo\graf.cpp" />
-    <ClCompile Include="zrodlo\kontrolery.cpp" />
+    <ClCompile Include="zrodlo\testy.cpp" />
+    <ClCompile Include="zrodlo\wejscie.cpp" />
     <ClCompile Include="zrodlo\grafZasoby.cpp" />
-    <ClCompile Include="zrodlo\fizZdarzenia.cpp" />
-    <ClCompile Include="zrodlo\grafZdarzenia.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="zrodlo\b.bat" />
