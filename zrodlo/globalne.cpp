@@ -12,21 +12,26 @@
 #include <list>
 #include <deque>
 #include <map>
+#include <set>
 #include <fstream>
 #include <ctime>
 #include <dxerr.h>
-#include <xnamath.h>
+#include <DirectXMath.h>
+//#include <DirectXPackedVector.h>
 #include <d3d11.h>
 #include <d3dx11.h>
 #define DIRECTINPUT_VERSION 0x0800 // bez tego DirectInput zgłasza ostrzeżenie
 #include <dinput.h>
 
+using namespace DirectX;
 using std::string;
 using std::to_string;
 using std::vector;
 using std::list;
 using std::deque;
 using std::map;
+using std::set;
+using std::pair;
 
 // ilość tików przy starcie programu
 UINT		tikProgramStart;

@@ -62,10 +62,11 @@ void Logika::uwzglWejscie() {
 		float p = -stanMysz.lY * 0.001f;
 		fizyka->przesunObiekt(adrObKursor, XMVectorSet(+0.0f, p, +0.0f, +0.0f));
 	}
-	if(stanMysz.rgbButtons[0] & 0x80){
+	if(stanMysz.rgbButtons[0] & 0x80) {
 		UINT adr;
-		fizyka->wez(&adr, adrObKursor);
-		adrObWybrany = adr;
+		if(fizyka->wezObPromienSwiat(&adr, adrObKursor)) {
+			adrObWybrany = adr;
+		}
 	}
 }
 Logika::Logika() : adrObKursor(NULL), adrObWybrany(NULL), fizyka(NULL), wejscie(NULL)

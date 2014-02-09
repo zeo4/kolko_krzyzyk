@@ -23,6 +23,11 @@ class Fizyka {
 	MapaObiekty3W_		obiektyScena;
 	MapaObiekty3W_		obiektySwiat;
 	void				przesunHistoriaObiekty(MapaObiekty3W_* const);
+	bool				wezKolizjaPromienSwiat(
+							map<float const, UINT const>* const,
+							XMVECTOR const,
+							XMVECTOR const
+						) const;
 public:
 						Fizyka();
 						~Fizyka();
@@ -35,7 +40,7 @@ public:
 	void				tworzKolejnaKlatka();
 	void				usunObiektScena(UINT const);
 	void				wezPozOb(XMVECTOR* const, UINT const) const;
-	void				wez(UINT* const, UINT const) const;
+	bool				wezObPromienSwiat(UINT* const, UINT const) const;
 };
 void Fizyka::przesunHistoriaObiekty(
 	MapaObiekty3W_* const		m // mapa obiektów 3W
@@ -43,6 +48,35 @@ void Fizyka::przesunHistoriaObiekty(
 	MapaObiekty3W_::const_iterator it;
 	for(it = m->begin(); it != m->end(); it++) {
 		it->second->przesunHistoria();
+	}
+}
+bool Fizyka::wezKolizjaPromienSwiat(
+	map<float const, UINT const>* const		obiektyKol,
+	XMVECTOR const		pocz,
+	XMVECTOR const		kier
+	) const {
+	obiektyKol->clear();
+	// weź obiekty kolidujące z promieniem, ułożone od najbliższych początku promienia do najdalszych początku promienia
+	map<float const, UINT const> trojkatyKol;
+	XMVECTOR p, k;
+	MapaObiekty3W_::const_iterator it;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); it++) {
+		p = pocz;
+		k = kier;
+		it->second->usunSwiatPkt(&p);
+		it->second->usunSwiatWektor(&k);
+		if(it->second->wezKolizjaPromienModel(&trojkatyKol, p, k)) {
+			obiektyKol->insert(pair<float const, UINT const>(
+				trojkatyKol.begin()->first, it->first
+			));
+		}
+	}
+
+	// jeśli brak kolizji promienia z obiektami
+	if(obiektyKol->size() == 0) {
+		return false;
+	} else {
+		return true;
 	}
 }
 Fizyka::Fizyka() : grafika(NULL)
@@ -58,8 +92,8 @@ void Fizyka::dodajObiektScena(
 		return;
 	}
 
-	std::pair<MapaObiekty3W_::iterator, bool> p;
-	p = obiektyScena.insert(std::pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
+	pair<MapaObiekty3W_::iterator, bool> p;
+	p = obiektyScena.insert(pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
 	if(p.second == false) {
 		logi.pisz("UWAGA", "Dodawanie obiektu do listy obiektow sceny: Obiekt juz jest na liscie!");
 	}
@@ -67,8 +101,8 @@ void Fizyka::dodajObiektScena(
 void Fizyka::dodajObiektSwiat(
 	Obiekt3W* const		ob
 	) {
-	std::pair<MapaObiekty3W_::iterator, bool> p;
-	p = obiektySwiat.insert(std::pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
+	pair<MapaObiekty3W_::iterator, bool> p;
+	p = obiektySwiat.insert(pair<UINT const, Obiekt3W* const>(UINT(ob), ob));
 	if(p.second == false) {
 		logi.pisz("UWAGA", "Dodawanie obiektu do listy obiektow swiata: Obiekt juz jest na liscie!");
 	}
@@ -113,42 +147,54 @@ void Fizyka::usunObiektScena(
 		logi.pisz("UWAGA", "Usuwanie obiektu sceny: Nie ma takiego obiektu na liscie!");
 	}
 }
-void Fizyka::wezPozOb(
-	XMVECTOR* const		poz,
-	UINT const			adresOb
-	) const {
-	XMMATRIX m;
-	obiektySwiat.at(adresOb)->wezPrzesunAkt(&m);
-	*poz = XMVectorSet(m._41, m._42, m._43, +0.0f);
-}
-void Fizyka::wez(
+bool Fizyka::wezObPromienSwiat(
 	UINT* const		adrOb,
 	UINT const		adrKursor
 	) const {
-	float x, y, z;
 	// początek wektora wyboru
 	XMVECTOR pocz;
 	grafika->wezPozKamera(&pocz);
+
 	// kierunek wektora wyboru
 	XMVECTOR kier;
 	wezPozOb(&kier, adrKursor);
 	kier = kier - pocz;
-	// szukaj kolizji
-	MapaObiekty3W_::const_iterator it;
-	XMVECTOR p, k;
-	bool flg;
-	*adrOb = adrKursor;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); it++) {
-		it++;
-		p = pocz;
-		k = kier;
-		it->second->usunSwiatPkt(&p);
-		it->second->usunSwiatWektor(&k);
-		it->second->sprawdzKolizjaModel(&flg, p, k);
-		if(flg == true) {
-			*adrOb = it->first;
-			return;
-		}
+	
+	// obiekty kolidujące z promieniem wyboru, ułożone od najbliższych początku promienia wyboru do najdalszych początku promienia wyboru
+	map<float const, UINT const> obiektyKol;
+	wezKolizjaPromienSwiat(&obiektyKol, pocz, kier);
+	
+	// jeśli promień nie koliduje z obiektami
+	if(obiektyKol.size() == 0) {
+		*adrOb = NULL;
+		return false;
 	}
+
+	// usuń obiekt kursora z listy kolidujących
+	if(obiektyKol.begin()->second == adrKursor) {
+		obiektyKol.erase(obiektyKol.begin());
+	}
+
+	// jeśli nie koliduje z żadnym innym oprócz kursora
+	if(obiektyKol.size() == 0) {
+		*adrOb = NULL;
+		return false;
+	}
+
+	// zwróć obiekt najblizej początku promienia wyboru
+	*adrOb = obiektyKol.begin()->second;
+	return true;
 }
+void Fizyka::wezPozOb(
+	XMVECTOR* const		poz,
+	UINT const			adresOb
+	) const {
+	XMMATRIX m1;
+	obiektySwiat.at(adresOb)->wezPrzesunAkt(&m1);
+	XMFLOAT4X4 m2;
+	XMStoreFloat4x4(&m2, m1);
+	*poz = XMVectorSet(m2._41, m2._42, m2._43, +0.0f);
+}
+
+
 

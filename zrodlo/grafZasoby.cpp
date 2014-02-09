@@ -358,6 +358,12 @@ class Obiekt3W {
 	vector<Wierzcholek>				wierz;
 	void							tworzBufIndeksy();
 	void							tworzBufWierz();
+	bool							wezKolizjaPromienTrojkat(
+										XMVECTOR* const,
+										XMVECTOR const,
+										XMVECTOR const,
+										UINT const
+									) const;
 	void							wypelnijBufIndeksy();
 	void							wypelnijBufWierz();
 public:
@@ -365,14 +371,16 @@ public:
 									~Obiekt3W();
 	void							przesun(XMVECTOR const);
 	void							przesunHistoria();
-	void							sprawdzKolizjaModel(
-										bool* const, XMVECTOR const, XMVECTOR const
-									) const;
 	void							tworz();
 	void							ustawPrzesun(XMVECTOR const);
 	void							usunSwiatPkt(XMVECTOR* const) const;
 	void							usunSwiatWektor(XMVECTOR* const) const;
 	UINT							wezIloscIndeksy() const;
+	bool							wezKolizjaPromienModel(
+										map<float const, UINT const>* const,
+										XMVECTOR const,
+										XMVECTOR const
+									) const;
 	void							wezNormalnaTrojkat(XMVECTOR* const) const;
 	void							wezPlaszczTrojkat(XMVECTOR* const) const;
 	void							wezPrzesunAkt(XMMATRIX* const) const;
@@ -403,6 +411,50 @@ void Obiekt3W::tworzBufWierz() {
 		wierz.size(),
 		bufWierz
 	);
+}
+bool Obiekt3W::wezKolizjaPromienTrojkat(
+	XMVECTOR* const		pktKol,
+	XMVECTOR const		pocz,
+	XMVECTOR const		kier,
+	UINT const			nrWierzPierwszy
+	) const {
+	if(nrWierzPierwszy+2 > wierz.size()-1) {
+		logi.pisz("!", "sprawdzWektorTrojkat(): Za malo wierzcholkow.");
+		*pktKol = XMVectorSet(+0.0f, +0.0f, +0.0f, +0.0f);
+		return false;
+	}
+	//------------------WZORY-------------------------
+	// pkt promienia r(t) = poz + t*kier
+	// w1 = wierz1 - wierz0, w2 = wierz2 - wierz0
+	// pkt trojkata T(u,v) = wierz0 + u*w1 + v*w2, dla u >= 0, v >= 0, u+v <= 1
+	// m = poz - wierz0
+	// t = w2 * (m x w1) / w1 * (kier x w2)
+	// u = m * (kier x w2) / w1 * (kier x w2)
+	// v = kier * (m x w1) / w1 * (kier x w2)
+	//------------------------------------------------
+	XMVECTOR wierz0 = XMLoadFloat3(&wierz[nrWierzPierwszy].poz);
+	XMVECTOR wierz1 = XMLoadFloat3(&wierz[nrWierzPierwszy+1].poz);
+	XMVECTOR wierz2 = XMLoadFloat3(&wierz[nrWierzPierwszy+2].poz);
+	XMVECTOR w1 = wierz1 - wierz0;
+	XMVECTOR w2 = wierz2 - wierz0;
+	XMVECTOR m = pocz - wierz0;
+	XMVECTOR kxw2 = XMVector3Cross(kier, w2);
+	XMVECTOR U = XMVector3Dot(m, kxw2) / XMVector3Dot(w1, kxw2);
+	XMVECTOR V = XMVector3Dot(kier, XMVector3Cross(m, w1)) / XMVector3Dot(w1, kxw2);
+	float u = XMVectorGetX(U);
+	float v = XMVectorGetX(V);
+
+	// jeśli kolizja
+	if(u >= 0 && v >=0 && u+v <= 1) {
+		// zwróć punkt kolizji
+		XMVECTOR T = XMVector3Dot(w2, XMVector3Cross(m, w1)) / XMVector3Dot(w1, kxw2);
+		float t = XMVectorGetX(T);
+		*pktKol = pocz + t * kier;
+		return true;
+	} else {
+		*pktKol = XMVectorSet(+0.0f, +0.0f, +0.0f, +0.0f);
+		return false;
+	}
 }
 void Obiekt3W::wypelnijBufIndeksy() {
 	zasoby.render->UpdateSubresource(bufIndeksy, 0, NULL, &ind[0], 0, 0);
@@ -446,88 +498,6 @@ void Obiekt3W::przesunHistoria() {
 	historia.pop_front();
 	// dodaj do końca kopię ostatniego
 	historia.push_back(*(--historia.end()));
-}
-void Obiekt3W::sprawdzKolizjaModel(
-	bool* const			flgKolizja,
-	XMVECTOR const		poz,
-	XMVECTOR const		kier
-	) const {
-	//------------------WZORY-------------------------
-	// pkt promienia r(t) = poz + t*kier
-	// w1 = wierz1 - wierz0, w2 = wierz2 - wierz0
-	// pkt trojkata T(u,v) = wierz0 + u*w1 + v*w2, dla u >= 0, v >= 0, u+v <= 1
-	// m = poz - wierz0
-	// t = w2 * (m x w1) / w1 * (kier x w2)
-	// u = m * (kier x w2) / w1 * (kier x w2)
-	// v = kier * (m x w1) / w1 * (kier x w2)
-	//------------------------------------------------
-	XMFLOAT3 v1 = wierz[0].poz;
-	XMFLOAT3 v2 = wierz[1].poz;
-	XMFLOAT3 v3 = wierz[2].poz;
-	XMFLOAT3 p, k;
-	XMStoreFloat3(&p, poz);
-	XMStoreFloat3(&k, kier);
-	logi.pisz("v1", to_string(v1.x) + " " + to_string(v1.y) + " " + to_string(v1.z));
-	logi.pisz("v2", to_string(v2.x) + " " + to_string(v2.y) + " " + to_string(v2.z));
-	logi.pisz("v3", to_string(v3.x) + " " + to_string(v3.y) + " " + to_string(v3.z));
-	logi.pisz("poz", to_string(p.x) + " " + to_string(p.y) + " " + to_string(p.z));
-	logi.pisz("kier", to_string(k.x) + " " + to_string(k.y) + " " + to_string(k.z));
-	logi.pisz("", "");
-	XMVECTOR wierz0 = XMLoadFloat3(&wierz[0].poz);
-	XMVECTOR wierz1 = XMLoadFloat3(&wierz[1].poz);
-	XMVECTOR wierz2 = XMLoadFloat3(&wierz[2].poz);
-	XMVECTOR w1 = wierz1 - wierz0;
-	XMVECTOR w2 = wierz2 - wierz0;
-	XMVECTOR m = poz - wierz0;
-	XMVECTOR U = XMVector3Dot(m, XMVector3Cross(kier, w2)) / XMVector3Dot(w1, XMVector3Cross(kier, w2));
-	XMVECTOR V = XMVector3Dot(kier, XMVector3Cross(m, w1)) / XMVector3Dot(w1, XMVector3Cross(kier, w2));
-	float u = XMVectorGetX(U);
-	float v = XMVectorGetX(V);
-	//XMMATRIX mac;
-	//mac._11 = -XMVectorGetX(kier);
-	//mac._21 = -XMVectorGetY(kier);
-	//mac._31 = -XMVectorGetZ(kier);
-	//mac._41 = 0.0f;
-	//mac._12 = XMVectorGetX(w1);
-	//mac._22 = XMVectorGetY(w1);
-	//mac._32 = XMVectorGetZ(w1);
-	//mac._42 = 0.0f;
-	//mac._13 = XMVectorGetX(w2);
-	//mac._23 = XMVectorGetY(w2);
-	//mac._33 = XMVectorGetZ(w2);
-	//mac._43 = 0.0f;
-	//mac._14 = 0.0f;
-	//mac._24 = 0.0f;
-	//mac._34 = 0.0f;
-	//mac._44 = 1.0f;
-	//XMMATRIX mact = mac;
-	//mact._11 = XMVectorGetX(m);
-	//mact._21 = XMVectorGetY(m);
-	//mact._31 = XMVectorGetZ(m);
-	//mact._41 = 0.0f;
-	//XMMATRIX macu = mac;
-	//macu._12 = XMVectorGetX(m);
-	//macu._22 = XMVectorGetY(m);
-	//macu._32 = XMVectorGetZ(m);
-	//macu._42 = 0.0f;
-	//XMMATRIX macv = mac;
-	//macv._13 = XMVectorGetX(m);
-	//macv._23 = XMVectorGetY(m);
-	//macv._33 = XMVectorGetZ(m);
-	//macv._43 = 0.0f;
-	//float w = XMVectorGetX(XMMatrixDeterminant(mac));
-	//float wt = XMVectorGetX(XMMatrixDeterminant(mact));
-	//float wu = XMVectorGetX(XMMatrixDeterminant(macu));
-	//float wv = XMVectorGetX(XMMatrixDeterminant(macv));
-	//float t = wt / w;
-	//float u = wu / w;
-	//float v = wv / w;
-
-	*flgKolizja = false;
-	logi.pisz("tutu", to_string(u) + " " + to_string(v));
-	if(u >= 0 && v >=0 && u+v <= 1) {
-		*flgKolizja = true;
-	}
 }
 void Obiekt3W::tworz() {
 	logi.piszStart("--->", "Tworz obiekt 3W.");
@@ -574,6 +544,33 @@ void Obiekt3W::usunSwiatWektor(
 UINT Obiekt3W::wezIloscIndeksy() const {
 	return ind.size();
 }
+bool Obiekt3W::wezKolizjaPromienModel(
+	map<float const, UINT const>* const		trojkatyKol,
+	XMVECTOR const							pocz,
+	XMVECTOR const							kier
+	) const {
+	trojkatyKol->clear();
+	// weź punkty kolizji promienia z modelem, ułożone od najbliższych początku promienia do najdalszych początku promienia
+	float odl;
+	XMVECTOR w;
+	for(int i = 0; i < wierz.size()-2; i++) {
+		if(wezKolizjaPromienTrojkat(&w, pocz, kier, i)) {
+			// licz odległość punktu od początku promienia
+			w = w - pocz;
+			w = XMVectorPow(w, XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
+			odl = XMVectorGetX(w) + XMVectorGetY(w) + XMVectorGetZ(w);
+			// zapisz odległość i numer trójkąta
+			trojkatyKol->insert(pair<float const, UINT const>(odl, i));
+		}
+	}
+
+	// jeśli brak kolizji promienia z obiektem
+	if(trojkatyKol->size() == 0) {
+		return false;
+	} else {
+		return true;
+	}
+}
 void Obiekt3W::wezNormalnaTrojkat(
 	XMVECTOR* const		n
 	) const {
@@ -601,7 +598,7 @@ void Obiekt3W::wezPlaszczTrojkat(
 	*p = XMVectorSet(A, B, C, D);
 }
 void Obiekt3W::wezPrzesunAkt(
-	XMMATRIX* const		m // macierz przesunięcia
+	XMMATRIX* const		m
 	) const {
 	AtrybZmienne const* const a = &historia[historia.size()-2];
 	*m = XMLoadFloat4x4(&a->macPrzesun);

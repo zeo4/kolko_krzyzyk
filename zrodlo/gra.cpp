@@ -123,23 +123,40 @@ void Gra::inicScena() {
 			Wierzcholek(+0.2f, -0.0f, +0.0f, +1.0f, +1.0f),
 		};
 		Wierzcholek w2[] = {
-			Wierzcholek(-1.0f, -1.0f, +0.0f, +0.0f, +1.0f),
-			Wierzcholek(-1.0f, +1.0f, +0.0f, +0.0f, +0.5f),
-			Wierzcholek(+1.0f, +1.0f, +0.0f, +0.5f, +1.0f),
+			Wierzcholek(+1.0f, +1.0f, -0.5f, +0.0f, +1.0f),
+			Wierzcholek(-1.0f, -1.0f, -0.5f, +0.0f, +0.5f),
+			Wierzcholek(-1.0f, +1.0f, -0.5f, +0.5f, +1.0f),
+			Wierzcholek(-1.0f, -1.0f, +0.5f, +0.5f, +1.0f),
+			Wierzcholek(-1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
+			Wierzcholek(+1.0f, -1.0f, +0.5f, +0.5f, +1.0f),
+			Wierzcholek(+1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
 		};
-		DWORD indeksyModel[] = {
+		Wierzcholek w3[] = {
+			Wierzcholek(+1.0f, -1.0f, +0.0f, +0.0f, +1.0f),
+			Wierzcholek(-1.0f, -1.0f, +0.0f, +0.0f, +0.5f),
+			Wierzcholek(-1.0f, +1.0f, +0.0f, +0.5f, +1.0f),
+		};
+		DWORD ind1[] = {
 			0, 1, 2
+		};
+		DWORD ind2[] = {
+			0, 1, 2, 3, 4, 5, 6
 		};
 		Obiekt3W* figura1 = new Obiekt3W;
 		figura1->wgrajWierzcholki(w1, 3);
-		figura1->wgrajIndeksy(indeksyModel, 3);
+		figura1->wgrajIndeksy(ind1, 3);
 		figura1->tworz();
 		logika.dodajObiektSwiat(figura1);
 		Obiekt3W* figura2 = new Obiekt3W;
-		figura2->wgrajWierzcholki(w2, 3);
-		figura2->wgrajIndeksy(indeksyModel, 3);
+		figura2->wgrajWierzcholki(w2, 7);
+		figura2->wgrajIndeksy(ind2, 7);
 		figura2->tworz();
 		logika.dodajObiektSwiat(figura2);
+		Obiekt3W* figura3 = new Obiekt3W;
+		figura3->wgrajWierzcholki(w3, 3);
+		figura3->wgrajIndeksy(ind1, 3);
+		figura3->tworz();
+		logika.dodajObiektSwiat(figura3);
 
 		zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 		zasoby.tworzSzadWierz();
@@ -164,8 +181,8 @@ void Gra::inicScena() {
 		figura1->wgrajTeksture("tekstura\\t1.jpg");
 		figura1->wiazTeksture();
 		// czwarty parametr wektora nie istotny
-		//figura1->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +0.0f, 0.0f));
-		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
+		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +2.0f, 0.0f));
+		figura3->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +2.0f, 0.0f));
 	}
 	catch(Wyjatek wyj){
 		ObslugaWyjatek(wyj);

@@ -69,11 +69,9 @@ void Projektor::usunProjekcjaZ1(
 	float const			x,
 	float const			y
 	) const {
-	XMMATRIX mac = XMLoadFloat4x4(&macProjekcja);
-
 	// współrzędne 3W przy założeniu, że z = 1 (w ten sposób usuwamy projekcję)
-	*pkt3W = XMVectorSetX(*pkt3W, x / mac._11);
-	*pkt3W = XMVectorSetY(*pkt3W, y / mac._22);
+	*pkt3W = XMVectorSetX(*pkt3W, x / macProjekcja._11);
+	*pkt3W = XMVectorSetY(*pkt3W, y / macProjekcja._22);
 	*pkt3W = XMVectorSetZ(*pkt3W, 1.0f);
 }
 

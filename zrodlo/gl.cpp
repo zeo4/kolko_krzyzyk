@@ -158,12 +158,12 @@ int WINAPI WinMain(
 // input layout zgodny z parametrami wejściowymi szadera wierzchołków - sprawdzić
 // template tworzBufor bez danych inicjalizujących
 // wypelnijBufWierz(): potestować wypełnianie bufora (skąd UpdateSubresource ma wiedzieć ile skopiować z danych źródłowych)
+// Czy czyścić parametry przez które zwracane są wyniki funkcji, przed zwrotem?
 // Logi dla napisanych funkcji.
 // Tworzyć kontroler solidnie, szczególnie z uwzględnieniem uchwytu aplikacji. Teraz jest porozrzucany w głównych funkcjach.
 // Sprawdzić czy "map[klucz];" nadpisze linię "map[klucz] = wartość;". Jeśli tak to poprawić Logika::niszczObiektSwiat().
 // Obslużyć sytuację: Wskaźnik do wskaźnika do wskaźnika ... Tak aby nie można było zmieniać ob2 w: const Wsk<ob1> -> zwykły wsk_ob2 -> ob2 <- to już można zmieniać.
 // Obiekty 3W bazują na wierzchołkach utworzonych poprzez tablicę o stałej ilości elementów. Usuwanie takiej tablicy nie wymaga uwagi. Ale co gdy będzie używana tablica wierzchołków stworzona przez new?
-// Wybieranie prawie działa. Dlaczego działają złe macierze z książki (pdf'a)?
 // Projektor powinien być w kamerze.
 
 
