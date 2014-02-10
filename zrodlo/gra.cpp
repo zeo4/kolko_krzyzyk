@@ -123,24 +123,30 @@ void Gra::inicScena() {
 			Wierzcholek(+0.2f, -0.0f, +0.0f, +1.0f, +1.0f),
 		};
 		Wierzcholek w2[] = {
-			Wierzcholek(+1.0f, +1.0f, -0.5f, +0.0f, +1.0f),
-			Wierzcholek(-1.0f, -1.0f, -0.5f, +0.0f, +0.5f),
-			Wierzcholek(-1.0f, +1.0f, -0.5f, +0.5f, +1.0f),
-			Wierzcholek(-1.0f, -1.0f, +0.5f, +0.5f, +1.0f),
-			Wierzcholek(-1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
-			Wierzcholek(+1.0f, -1.0f, +0.5f, +0.5f, +1.0f),
-			Wierzcholek(+1.0f, +1.0f, +0.5f, +0.5f, +1.0f),
+			Wierzcholek(-0.25f, +0.0f, -0.25f, +0.0f, +0.5f),
+			Wierzcholek(+0.25f, +0.0f, -0.25f, +0.5f, +0.5f),
+			Wierzcholek(+0.25f, +0.0f, +0.25f, +1.0f, +0.5f),
+			Wierzcholek(-0.25f, +0.0f, +0.25f, +1.0f, +1.0f),
+			Wierzcholek(+0.0f, +0.5f, +0.0f, +0.5f, +0.0f),
+			Wierzcholek(+0.0f, -0.5f, +0.0f, +0.5f, +1.0f),
 		};
 		Wierzcholek w3[] = {
-			Wierzcholek(+1.0f, -1.0f, +0.0f, +0.0f, +1.0f),
-			Wierzcholek(-1.0f, -1.0f, +0.0f, +0.0f, +0.5f),
-			Wierzcholek(-1.0f, +1.0f, +0.0f, +0.5f, +1.0f),
+			Wierzcholek(+0.5f, -0.5f, +0.0f, +1.0f, +0.0f),
+			Wierzcholek(-0.5f, -0.5f, +0.0f, +1.0f, +1.0f),
+			Wierzcholek(-0.5f, +0.5f, +0.0f, +0.0f, +1.0f),
 		};
 		DWORD ind1[] = {
 			0, 1, 2
 		};
 		DWORD ind2[] = {
-			0, 1, 2, 3, 4, 5, 6
+			0, 4, 1,
+			1, 5, 0,
+			1, 4, 2,
+			2, 5, 1,
+			2, 4, 3,
+			3, 5, 2,
+			3, 4, 0,
+			0, 5, 3,
 		};
 		Obiekt3W* figura1 = new Obiekt3W;
 		figura1->wgrajWierzcholki(w1, 3);
@@ -148,8 +154,8 @@ void Gra::inicScena() {
 		figura1->tworz();
 		logika.dodajObiektSwiat(figura1);
 		Obiekt3W* figura2 = new Obiekt3W;
-		figura2->wgrajWierzcholki(w2, 7);
-		figura2->wgrajIndeksy(ind2, 7);
+		figura2->wgrajWierzcholki(w2, 6);
+		figura2->wgrajIndeksy(ind2, 24);
 		figura2->tworz();
 		logika.dodajObiektSwiat(figura2);
 		Obiekt3W* figura3 = new Obiekt3W;
@@ -179,10 +185,11 @@ void Gra::inicScena() {
 		zasoby.wiazStanProbkowania();
 
 		figura1->wgrajTeksture("tekstura\\t1.jpg");
-		figura1->wiazTeksture();
+		figura2->wgrajTeksture("tekstura\\t2.jpg");
+		figura3->wgrajTeksture("tekstura\\t1.jpg");
 		// czwarty parametr wektora nie istotny
-		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +2.0f, 0.0f));
-		figura3->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +2.0f, 0.0f));
+		figura2->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
+		figura3->ustawPrzesun(XMVectorSet(+0.0f, +0.0f, +1.0f, 0.0f));
 	}
 	catch(Wyjatek wyj){
 		ObslugaWyjatek(wyj);

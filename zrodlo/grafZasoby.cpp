@@ -416,10 +416,10 @@ bool Obiekt3W::wezKolizjaPromienTrojkat(
 	XMVECTOR* const		pktKol,
 	XMVECTOR const		pocz,
 	XMVECTOR const		kier,
-	UINT const			nrWierzPierwszy
+	UINT const			nrIndPierwszy
 	) const {
-	if(nrWierzPierwszy+2 > wierz.size()-1) {
-		logi.pisz("!", "sprawdzWektorTrojkat(): Za malo wierzcholkow.");
+	if(nrIndPierwszy+2 > ind.size()-1) {
+		logi.pisz("!", "sprawdzWektorTrojkat(): Za malo indeksow wierzcholkow.");
 		*pktKol = XMVectorSet(+0.0f, +0.0f, +0.0f, +0.0f);
 		return false;
 	}
@@ -432,9 +432,9 @@ bool Obiekt3W::wezKolizjaPromienTrojkat(
 	// u = m * (kier x w2) / w1 * (kier x w2)
 	// v = kier * (m x w1) / w1 * (kier x w2)
 	//------------------------------------------------
-	XMVECTOR wierz0 = XMLoadFloat3(&wierz[nrWierzPierwszy].poz);
-	XMVECTOR wierz1 = XMLoadFloat3(&wierz[nrWierzPierwszy+1].poz);
-	XMVECTOR wierz2 = XMLoadFloat3(&wierz[nrWierzPierwszy+2].poz);
+	XMVECTOR wierz0 = XMLoadFloat3(&wierz[ind[nrIndPierwszy]].poz);
+	XMVECTOR wierz1 = XMLoadFloat3(&wierz[ind[nrIndPierwszy+1]].poz);
+	XMVECTOR wierz2 = XMLoadFloat3(&wierz[ind[nrIndPierwszy+2]].poz);
 	XMVECTOR w1 = wierz1 - wierz0;
 	XMVECTOR w2 = wierz2 - wierz0;
 	XMVECTOR m = pocz - wierz0;
@@ -553,7 +553,7 @@ bool Obiekt3W::wezKolizjaPromienModel(
 	// weź punkty kolizji promienia z modelem, ułożone od najbliższych początku promienia do najdalszych początku promienia
 	float odl;
 	XMVECTOR w;
-	for(int i = 0; i < wierz.size()-2; i++) {
+	for(int i = 0; i < ind.size()-2; i+=3) {
 		if(wezKolizjaPromienTrojkat(&w, pocz, kier, i)) {
 			// licz odległość punktu od początku promienia
 			w = w - pocz;
@@ -638,7 +638,7 @@ void Obiekt3W::wiazIndeksy() const {
 }
 void Obiekt3W::wiazTeksture() const {
 	zasoby.render->PSSetShaderResources(0, 1, &widokTekstura);
-	logi.pisz("OK", "Wiazanie tekstury.");
+	//logi.pisz("OK", "Wiazanie tekstury.");
 }
 void Obiekt3W::wiazWierz() const {
 	if(bufWierz == NULL) {

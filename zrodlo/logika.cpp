@@ -43,16 +43,16 @@ void Logika::uwzglWejscie() {
 	wejscie->wez(stanKlawiatura, &stanMysz);
 
 	if(stanKlawiatura[DIK_W] & 0x80) {
-		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.0f, +0.002f, +0.0f, +0.0f));
+		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.0f, +0.001f, +0.0f, +0.0f));
 	}
 	if(stanKlawiatura[DIK_S] & 0x80) {
-		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.0f, -0.002f, +0.0f, +0.0f));
+		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.0f, -0.001f, +0.0f, +0.0f));
 	}
 	if(stanKlawiatura[DIK_A] & 0x80) {
-		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(-0.002f, +0.0f, +0.0f, +0.0f));
+		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(-0.001f, +0.0f, +0.0f, +0.0f));
 	}
 	if(stanKlawiatura[DIK_D] & 0x80) {
-		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.002f, +0.0f, +0.0f, +0.0f));
+		fizyka->przesunObiekt(adrObWybrany, XMVectorSet(+0.001f, +0.0f, +0.0f, +0.0f));
 	}
 	if(stanMysz.lX != 0) {
 		float p = stanMysz.lX * 0.001f;

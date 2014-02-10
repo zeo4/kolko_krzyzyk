@@ -188,6 +188,7 @@ void Grafika::rysujObiekt(
 	) const {
 	ob->wiazWierz();
 	ob->wiazIndeksy();
+	ob->wiazTeksture();
 	aktualCoObiekt(ob);
 	zasoby.wypelnijCoObiekt();
 	zasoby.wiazCoObiekt();
