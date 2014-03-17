@@ -1,50 +1,8 @@
-#ifndef _GLOBALNE_
-#define _GLOBALNE_
-#include "globalne.cpp"
-#endif
+#ifndef _TESTY_C_
+#define _TESTY_C_
 
-#ifndef _DEBUG_
-#define _DEBUG_
-#include "debug.cpp"
-#endif
+#include "testy.h"
 
-#ifndef _GRAFZASOBY_
-#define _GRAFZASOBY_
-#include "grafZasoby.cpp"
-#endif
-
-#ifndef _GRAF_
-#define _GRAF_
-#include "graf.cpp"
-#endif
-
-#ifndef _FIZ_
-#define _FIZ_
-#include "fiz.cpp"
-#endif
-
-#ifndef _WEJ_
-#define _WEJ_
-#include "wejscie.cpp"
-#endif
-
-#ifndef _GRA_
-#define _GRA_
-#include "gra.cpp"
-#endif
-
-#include <typeinfo>
-
-class Test_Wsk {
-	void		konstruktory();
-	void		operatoryPrzypisania();
-	void		operatoryPrzyrostu();
-	void		operatoryUbytku();
-	void		operatoryWyboruWskaznik();
-	void		operatoryWyluskania();
-public:
-	void		uruchom();
-};
 void Test_Wsk::konstruktory() {
 	logi.piszStart("--->", "Konstruktory.");
 	
@@ -208,7 +166,4 @@ void Test_Wsk::uruchom() {
 	logi.piszStop("<---", "Test_Wsk.");
 }
 
-
-
-
-
+#endif

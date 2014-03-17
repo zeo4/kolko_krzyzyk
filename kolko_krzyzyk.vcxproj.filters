@@ -27,18 +27,6 @@
     <ClCompile Include="zrodlo\debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\fiz.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\grafZasoby.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\graf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\gra.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="zrodlo\wejscie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +34,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zrodlo\testy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\swiat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\fizyka.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\zasobyGraf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\obiekty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\listaObiekty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\grafika.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,5 +67,43 @@
     <FxCompile Include="zrodlo\szader\efekty.fx">
       <Filter>Source Files</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="zrodlo\fizyka.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\globalne.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\debug.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\zasobyGraf.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\swiat.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\wejscie.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\logika.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\testy.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\obiekty.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\typedefy.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\listaObiekty.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\grafika.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

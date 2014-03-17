@@ -1,26 +1,8 @@
-﻿#ifndef _GLOBALNE_
-#define _GLOBALNE_
-#include "globalne.cpp"
-#endif
+﻿#ifndef _DEBUG_C_
+#define _DEBUG_C_
 
-class Logi {
-	std::ofstream			plik;
-	char const* const		nazwaPliku;
-	UINT					nrWiersza;
-	UINT					poziomAktWciecia;
-	short					tabowDoTresci;
-	void					piszTytul(string const);
-	void					piszTresc(string const);
-	void					piszNrWiersza();
-	void					piszCzas();
-	void					piszNowaLinie();
-	void					piszWciecie();
-public:
-							Logi(char const* const = "log.txt");
-	void					pisz(string const, string const);
-	void					piszStart(string const, string const);
-	void					piszStop(string const, string const);
-} logi;
+#include "debug.h"
+
 void Logi::piszTytul(
 	string const		tytul
 	) {
@@ -105,12 +87,6 @@ void Logi::piszStop(
 	pisz(tytul, tresc);
 }
 
-// do obsługi błędów / wyjątków
-HRESULT wynik;
-struct Wyjatek {
-	string		opis;
-				Wyjatek();
-};
 Wyjatek::Wyjatek() : opis("")
 	{}
 void SprawdzWynik(
@@ -130,3 +106,5 @@ void ObslugaWyjatek(
 	) {
 	logi.pisz("BLAD", wyj.opis);
 }
+
+#endif

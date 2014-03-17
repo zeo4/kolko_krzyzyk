@@ -66,15 +66,17 @@
   <ItemGroup>
     <ClCompile Include="..\moonstone\main.cpp" />
     <ClCompile Include="zrodlo\debug.cpp" />
-    <ClCompile Include="zrodlo\fiz.cpp" />
+    <ClCompile Include="zrodlo\fizyka.cpp" />
     <ClCompile Include="zrodlo\gl.cpp" />
     <ClCompile Include="zrodlo\globalne.cpp" />
+    <ClCompile Include="zrodlo\grafika.cpp" />
+    <ClCompile Include="zrodlo\listaObiekty.cpp" />
     <ClCompile Include="zrodlo\logika.cpp" />
-    <ClCompile Include="zrodlo\gra.cpp" />
-    <ClCompile Include="zrodlo\graf.cpp" />
+    <ClCompile Include="zrodlo\obiekty.cpp" />
+    <ClCompile Include="zrodlo\swiat.cpp" />
     <ClCompile Include="zrodlo\testy.cpp" />
     <ClCompile Include="zrodlo\wejscie.cpp" />
-    <ClCompile Include="zrodlo\grafZasoby.cpp" />
+    <ClCompile Include="zrodlo\zasobyGraf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="zrodlo\b.bat" />
@@ -82,6 +84,20 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="zrodlo\szader\efekty.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="zrodlo\debug.h" />
+    <ClInclude Include="zrodlo\fizyka.h" />
+    <ClInclude Include="zrodlo\globalne.h" />
+    <ClInclude Include="zrodlo\grafika.h" />
+    <ClInclude Include="zrodlo\listaObiekty.h" />
+    <ClInclude Include="zrodlo\logika.h" />
+    <ClInclude Include="zrodlo\obiekty.h" />
+    <ClInclude Include="zrodlo\swiat.h" />
+    <ClInclude Include="zrodlo\testy.h" />
+    <ClInclude Include="zrodlo\typedefy.h" />
+    <ClInclude Include="zrodlo\wejscie.h" />
+    <ClInclude Include="zrodlo\zasobyGraf.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

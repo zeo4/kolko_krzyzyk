@@ -1,44 +1,8 @@
-﻿#ifndef _GLOBALNE_
-#define _GLOBALNE_
-#include "globalne.cpp"
-#endif
+﻿#ifndef _WEJSCIE_C_
+#define _WEJSCIE_C_
 
-#ifndef _DEBUG_
-#define _DEBUG_
-#include "debug.cpp"
-#endif
+#include "wejscie.h"
 
-#ifndef _GRAFZASOBY_
-#define _GRAFZASOBY_
-#include "grafZasoby.cpp"
-#endif
-
-#ifndef _GRAF_
-#define _GRAF_
-#include "graf.cpp"
-#endif
-
-#ifndef _FIZ_
-#define _FIZ_
-#include "fiz.cpp"
-#endif
-
-class Wejscie {
-	IDirectInputDevice8*		klawiatura;
-	IDirectInputDevice8*		mysz;
-	HINSTANCE					uchAplikacji;
-	IDirectInput8*				wejscie;
-	void						inicjalizuj();
-	void						tworzKlawiatura();
-	void						tworzMysz();
-	void						tworzWejscie() const;
-	void						ustawKlawiatura() const;
-	void						ustawMysz() const;
-public:
-								Wejscie(HINSTANCE const);
-								~Wejscie();
-	void						wez(BYTE* const, DIMOUSESTATE* const);
-};
 void Wejscie::inicjalizuj() {
 	tworzWejscie();
 	tworzKlawiatura();
@@ -115,4 +79,4 @@ void Wejscie::wez(
 	mysz->GetDeviceState(sizeof(DIMOUSESTATE), stanMysz);
 }
 
-
+#endif

@@ -1,42 +1,22 @@
-#ifndef _GLOBALNE_
-#define _GLOBALNE_
+#include "globalne.h"
+#include "debug.h"
+#include "swiat.h"
+#include "wejscie.h"
+#include "logika.h"
+#include "obiekty.h"
+#include "zasobyGraf.h"
+#include "fizyka.h"
+#include "grafika.h"
+
 #include "globalne.cpp"
-#endif
-
-#ifndef _DEBUG_
-#define _DEBUG_
 #include "debug.cpp"
-#endif
-
-#ifndef _GRAFZASOBY_
-#define _GRAFZASOBY_
-#include "grafZasoby.cpp"
-#endif
-
-#ifndef _GRAF_
-#define _GRAF_
-#include "graf.cpp"
-#endif
-
-#ifndef _FIZ_
-#define _FIZ_
-#include "fiz.cpp"
-#endif
-
-#ifndef _WEJ_
-#define _WEJ_
+#include "swiat.cpp"
 #include "wejscie.cpp"
-#endif
-
-#ifndef _GRA_
-#define _GRA_
-#include "gra.cpp"
-#endif
-
-#ifndef _TESTY_
-#define _TESTY_
-#include "testy.cpp"
-#endif
+#include "logika.cpp"
+#include "obiekty.cpp"
+#include "zasobyGraf.cpp"
+#include "fizyka.cpp"
+#include "grafika.cpp"
 
 // test
 HINSTANCE		uchAp;
@@ -71,9 +51,9 @@ void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
-	Gra gra(uchAp);
-	gra.inic3W();
-	gra.inicScena();
+	Logika logika(uchAp);
+	logika.inic3W();
+	logika.inicScena();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -89,7 +69,7 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			gra.wyswietlScena();
+			logika.wyswietlScena();
 		}
 	}
 }
@@ -164,6 +144,12 @@ int WINAPI WinMain(
 // Sprawdzić czy "map[klucz];" nadpisze linię "map[klucz] = wartość;". Jeśli tak to poprawić Logika::niszczObiektSwiat().
 // Obslużyć sytuację: Wskaźnik do wskaźnika do wskaźnika ... Tak aby nie można było zmieniać ob2 w: const Wsk<ob1> -> zwykły wsk_ob2 -> ob2 <- to już można zmieniać.
 // Obiekty 3W bazują na wierzchołkach utworzonych poprzez tablicę o stałej ilości elementów. Usuwanie takiej tablicy nie wymaga uwagi. Ale co gdy będzie używana tablica wierzchołków stworzona przez new?
+// Przy dodaniu macierzy obrotu do klasy obiektu 3W, uwzględnić to w: pobieraniu bryły granicznej, pobieraniu obszaru siatki.
 // Projektor powinien być w kamerze.
-// 
-
+// Kiedy już nowa fizyka zacznie działać pousuwać niepotrzebne funkcje.
+// FizykaObiekt::aktualizujPolaSiatka(): Źle napisane. Źle liczy floatowe identyfikatory pól.
+// Proces kolizji: Metoda wykonajZdarzKolizjaSiatka wykonywany na wszystkich podobiektach, zwraca boola czy aktualna kolizja zaszła (lub cokolwiek co jest potrzebne) aby wyższe klasy mogły odpowiednio zareagować.
+// Dokończyć: FizykaObiekt3W::wykonajZdarzKolizjaSiatka().
+// Po dopisaniu zakańczającej klasy FizykiZbioru i FizykiObiektu, sprawdzić czy dodając tylko ją jako przyjaciela klas obiektów, wystarczy.
+// Poprawić tworzenie obiektów tak aby to nie świat tylko logika gry tworzyła poszczególne obiekty, które potem sa "podpinane" do świata.
+// Napisać dekstruktory do wszystkich klas fizyk i grafik.
