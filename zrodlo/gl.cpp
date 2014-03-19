@@ -153,3 +153,4 @@ int WINAPI WinMain(
 // Po dopisaniu zakańczającej klasy FizykiZbioru i FizykiObiektu, sprawdzić czy dodając tylko ją jako przyjaciela klas obiektów, wystarczy.
 // Poprawić tworzenie obiektów tak aby to nie świat tylko logika gry tworzyła poszczególne obiekty, które potem sa "podpinane" do świata.
 // Napisać dekstruktory do wszystkich klas fizyk i grafik.
+// Dopracować wybieranie promieniem tak aby zawsze nie wybierał po modelach i to dodatkowo wszystkich obiektów.

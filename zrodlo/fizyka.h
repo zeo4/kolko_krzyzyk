@@ -28,20 +28,17 @@ public:
 								) const;
 	void virtual				usunSwiatPkt(XMVECTOR* const) const = 0;
 	void virtual				usunSwiatWektor(XMVECTOR* const) const = 0;
-	bool virtual				wezBrylaGraniczna(
-									XMVECTOR* const, XMVECTOR* const
-								) const = 0;
 	bool						wezKolizjaOdcinekTrojkat(
-									XMVECTOR* const,
+									float* const,
 									FXMVECTOR const, FXMVECTOR const,
 									FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
 								) const;
-	bool virtual				wezKolizjaPromien(
-									map<float const, UINT const>* const,
+	bool virtual				wezKolizjePromien(
+									set<float>* const,
 									XMVECTOR const, XMVECTOR const
 								) const = 0;
 	bool						wezKolizjaPromienTrojkat(
-									XMVECTOR* const,
+									float* const,
 									FXMVECTOR const, FXMVECTOR const,
 									FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
 								) const;
@@ -52,6 +49,8 @@ public:
 };
 
 class FizykaObiekt3WPodstawa : public IFizyka {
+	bool				wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const;
+	bool				wezLewyDolnyBliski(XMVECTOR* const) const;
 public:
 	Obiekt3W* const		obiekt;
 						FizykaObiekt3WPodstawa();
@@ -63,9 +62,8 @@ public:
 	bool virtual		sprawdzKolizjaModele(IObiekt3W const* const) const;
 	void virtual		usunSwiatPkt(XMVECTOR* const) const;
 	void virtual		usunSwiatWektor(XMVECTOR* const) const;
-	bool virtual		wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const;
-	bool virtual		wezKolizjaPromien(
-							map<float const, UINT const>* const,
+	bool virtual		wezKolizjePromien(
+							set<float>* const,
 							XMVECTOR const, XMVECTOR const
 						) const;
 	void virtual		wezWierzcholkiSwiat(vector<XMFLOAT3>* const) const;
@@ -103,9 +101,8 @@ public:
 	bool virtual			sprawdzKolizjaModele(IObiekt3W const* const) const;
 	void virtual			usunSwiatPkt(XMVECTOR* const) const;
 	void virtual			usunSwiatWektor(XMVECTOR* const) const;
-	bool virtual			wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const;
-	bool virtual			wezKolizjaPromien(
-								map<float const, UINT const>* const,
+	bool virtual			wezKolizjePromien(
+								set<float>* const,
 								XMVECTOR const, XMVECTOR const
 							) const;
 	void virtual			wezWierzcholkiSwiat(vector<XMFLOAT3>* const) const;

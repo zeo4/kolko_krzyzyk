@@ -12,27 +12,28 @@ bool IFizyka::sprawdzKolizjaTrojkatTrojkat(
 	CXMVECTOR const		wB2,
 	CXMVECTOR const		wB3
 	) const {
-	if(wezKolizjaOdcinekTrojkat(&XMVectorSet(0,0,0,0), wA1, wA2, wB1, wB2, wB3)) {
+	float f1;
+	if(wezKolizjaOdcinekTrojkat(&f1, wA1, wA2, wB1, wB2, wB3)) {
 		return true;
 	}
-	if(wezKolizjaOdcinekTrojkat(&XMVectorSet(0,0,0,0), wA1, wA3, wB1, wB2, wB3)) {
+	if(wezKolizjaOdcinekTrojkat(&f1, wA1, wA3, wB1, wB2, wB3)) {
 		return true;
 	}
-	if(wezKolizjaOdcinekTrojkat(&XMVectorSet(0,0,0,0), wA2, wA3, wB1, wB2, wB3)) {
+	if(wezKolizjaOdcinekTrojkat(&f1, wA2, wA3, wB1, wB2, wB3)) {
 		return true;
 	}
 	return false;
 }
 bool IFizyka::wezKolizjaOdcinekTrojkat(
-	XMVECTOR* const		pktKol,
+	float* const		odlKolizja,
 	FXMVECTOR const		pocz,
 	FXMVECTOR const		kon,
 	FXMVECTOR const		w0,
 	CXMVECTOR const		w1,
 	CXMVECTOR const		w2
 	) const {
-	XMVECTOR kier = kon - pocz;
-	if(wezKolizjaPromienTrojkat(pktKol, pocz, kier, w0, w1, w2)) {
+	/*XMVECTOR kier = kon - pocz;
+	if(wezKolizjaPromienTrojkat(odlKolizja, pocz, kier, w0, w1, w2)) {
 		XMVECTOR p1 = XMVectorAbs(*pktKol);
 		XMVECTOR p2 = XMVectorAbs(kon);
 		XMVECTOR roznica = p2 - p1;
@@ -44,10 +45,11 @@ bool IFizyka::wezKolizjaOdcinekTrojkat(
 		}
 	} else {
 		return false;
-	}
+	}*/
+	return false;
 }
 bool IFizyka::wezKolizjaPromienTrojkat(
-	XMVECTOR* const		pktKol,
+	float* const		odlKol,
 	FXMVECTOR const		pocz,
 	FXMVECTOR const		kier,
 	FXMVECTOR const		w0,
@@ -76,20 +78,54 @@ bool IFizyka::wezKolizjaPromienTrojkat(
 	if(u >= 0 && v >=0 && u+v <= 1) {
 		// zwróć punkt kolizji
 		XMVECTOR T = XMVector3Dot(wekt2, XMVector3Cross(m, wekt1)) / XMVector3Dot(wekt1, kxw2);
-		float t = XMVectorGetX(T);
-		if(t < 0) {
-			*pktKol = XMVectorSet(+0.0f, +0.0f, +0.0f, +0.0f);
-			return false;
-		} else {
-			*pktKol = pocz + t * kier;
-			return true;
-		}
+		*odlKol = XMVectorGetX(T);
+		return true;
 	} else {
-		*pktKol = XMVectorSet(+0.0f, +0.0f, +0.0f, +0.0f);
 		return false;
 	}
 }
 
+bool FizykaObiekt3WPodstawa::wezBrylaGraniczna(
+	XMVECTOR* const				pktMin,
+	XMVECTOR* const				pktMax
+	) const {
+	if(obiekt->wierz.size() == 0) {
+		return false;
+	}
+
+	// wartość początkowa pktMin i pktMax
+	*pktMin = XMLoadFloat3(&obiekt->wierz.at(0).poz);
+	*pktMax = XMLoadFloat3(&obiekt->wierz.at(0).poz);
+	XMMATRIX m = XMLoadFloat4x4(&obiekt->macPrzesun);
+	*pktMin = XMVector3TransformCoord(*pktMin, m);
+	*pktMax = XMVector3TransformCoord(*pktMax, m);
+
+	// sprawdź pozostałe wierzchołki
+	XMVECTOR pkt;
+	for(UINT i = 1; i < obiekt->wierz.size(); ++i) {
+		pkt = XMLoadFloat3(&obiekt->wierz.at(i).poz);
+		pkt = XMVector3TransformCoord(pkt, m);
+		if(XMVectorGetX(pkt) < XMVectorGetX(*pktMin)) {
+			*pktMin = XMVectorSetX(*pktMin, XMVectorGetX(pkt));
+		}
+		if(XMVectorGetY(pkt) < XMVectorGetY(*pktMin)) {
+			*pktMin = XMVectorSetY(*pktMin, XMVectorGetY(pkt));
+		}
+		if(XMVectorGetZ(pkt) < XMVectorGetZ(*pktMin)) {
+			*pktMin = XMVectorSetZ(*pktMin, XMVectorGetZ(pkt));
+		}
+		if(XMVectorGetX(pkt) > XMVectorGetX(*pktMax)) {
+			*pktMax = XMVectorSetX(*pktMax, XMVectorGetX(pkt));
+		}
+		if(XMVectorGetY(pkt) > XMVectorGetY(*pktMax)) {
+			*pktMax = XMVectorSetY(*pktMax, XMVectorGetY(pkt));
+		}
+		if(XMVectorGetZ(pkt) > XMVectorGetZ(*pktMax)) {
+			*pktMax = XMVectorSetZ(*pktMax, XMVectorGetZ(pkt));
+		}
+	}
+	return true;
+}
 FizykaObiekt3WPodstawa::FizykaObiekt3WPodstawa() : obiekt(NULL)
 	{}
 FizykaObiekt3WPodstawa::FizykaObiekt3WPodstawa(
@@ -98,22 +134,23 @@ FizykaObiekt3WPodstawa::FizykaObiekt3WPodstawa(
 	{}
 FizykaObiekt3WPodstawa::~FizykaObiekt3WPodstawa() {}
 void FizykaObiekt3WPodstawa::aktualizujSiatka() {
+	// rozmiar pojedynczego obszaru
+	float rozm = 0.5f;
+
 	obiekt->siatka.czysc();
 
-	// licz rogi zajmowanej przestrzeni
-	XMFLOAT3 pktMin; // lewy dolny bliski
-	XMFLOAT3 pktMax; // prawy górny daleki
-	pktMin.x = obiekt->macPrzesun._41 - 1.5f;
-	pktMin.y = obiekt->macPrzesun._42 - 1.5f;
-	pktMin.z = obiekt->macPrzesun._43 - 1.5f;
-	pktMax.x = obiekt->macPrzesun._41 + 1.5f;
-	pktMax.y = obiekt->macPrzesun._42 + 1.5f;
-	pktMax.z = obiekt->macPrzesun._43 + 1.5f;
+	XMVECTOR min; // lewy dolny bliski
+	XMVECTOR max; // prawy górny daleki
+	wezBrylaGraniczna(&min, &max);
 
-	// dodaj numery zajmowanych przez obiekt pól siatki
-	for(float i = pktMin.x; i < pktMax.x; i += 1) {
-	for(float j = pktMin.y; j < pktMax.y; j += 1) {
-	for(float k = pktMin.z; k < pktMax.z; k += 1) {
+	// licz numery obszarów rogów bryły granicznej
+	min = XMVectorFloor(min / rozm) * rozm;
+	max = XMVectorFloor(max / rozm) * rozm;
+
+	// zapisz numery zajmowanych przez obiekt obszarów siatki
+	for(float i = XMVectorGetX(min); i <= XMVectorGetX(max); i += rozm) {
+	for(float j = XMVectorGetY(min); j <= XMVectorGetY(max); j += rozm) {
+	for(float k = XMVectorGetZ(min); k <= XMVectorGetZ(max); k += rozm) {
 		obiekt->siatka.dopiszObiekt(i, j, k, obiekt);
 	}
 	}
@@ -174,75 +211,29 @@ void FizykaObiekt3WPodstawa::usunSwiatWektor(
 	XMMATRIX mOdwrot = XMMatrixInverse(&XMVectorSet(0,0,0,0), obiekt->wezSwiat());
 	*w = XMVector3TransformNormal(*w, mOdwrot);
 }
-bool FizykaObiekt3WPodstawa::wezBrylaGraniczna(
-	XMVECTOR* const				pktMin,
-	XMVECTOR* const				pktMax
+bool FizykaObiekt3WPodstawa::wezKolizjePromien(
+	set<float>* const		odlKolizje,
+	XMVECTOR const			pocz,
+	XMVECTOR const			kier
 	) const {
-	if(obiekt->wierz.size() == 0) {
-		return false;
-	}
+	odlKolizje->clear();
 
-	// wartość początkowa pktMin i pktMax
-	*pktMin = XMLoadFloat3(&obiekt->wierz.at(0).poz);
-	*pktMax = XMLoadFloat3(&obiekt->wierz.at(0).poz);
-	XMMATRIX m = XMLoadFloat4x4(&obiekt->macPrzesun);
-	*pktMin = XMVector3TransformCoord(*pktMin, m);
-	*pktMax = XMVector3TransformCoord(*pktMax, m);
-
-	// sprawdź pozostałe wierzchołki
-	XMVECTOR pkt;
-	for(UINT i = 1; i < obiekt->wierz.size(); ++i) {
-		pkt = XMLoadFloat3(&obiekt->wierz.at(i).poz);
-		pkt = XMVector3TransformCoord(pkt, m);
-		if(XMVectorGetX(pkt) < XMVectorGetX(*pktMin)) {
-			*pktMin = XMVectorSetX(*pktMin, XMVectorGetX(pkt));
-		}
-		if(XMVectorGetY(pkt) < XMVectorGetY(*pktMin)) {
-			*pktMin = XMVectorSetY(*pktMin, XMVectorGetY(pkt));
-		}
-		if(XMVectorGetZ(pkt) < XMVectorGetZ(*pktMin)) {
-			*pktMin = XMVectorSetZ(*pktMin, XMVectorGetZ(pkt));
-		}
-		if(XMVectorGetX(pkt) > XMVectorGetX(*pktMax)) {
-			*pktMax = XMVectorSetX(*pktMax, XMVectorGetX(pkt));
-		}
-		if(XMVectorGetY(pkt) > XMVectorGetY(*pktMax)) {
-			*pktMax = XMVectorSetY(*pktMax, XMVectorGetY(pkt));
-		}
-		if(XMVectorGetZ(pkt) > XMVectorGetZ(*pktMax)) {
-			*pktMax = XMVectorSetZ(*pktMax, XMVectorGetZ(pkt));
-		}
-	}
-	return true;
-}
-bool FizykaObiekt3WPodstawa::wezKolizjaPromien(
-	map<float const, UINT const>* const		obiektyKolizja,
-	XMVECTOR const							pocz,
-	XMVECTOR const							kier
-	) const {
-	obiektyKolizja->clear();
-	// weź kwadrat odległości (od początku promienia) punktów kolizji wraz z numerami odpowiadających obiektów, ułożone według kwadratu odległości od najmniejszej do największej
+	// weź odległości (od początku promienia) punktów kolizji, ułożone według odległości od najmniejszej do największej (istnieją odległości ujemne)
 	float odl;
-	XMVECTOR pkt;
 	for(int i = 0; i < obiekt->ind.size()-2; ++i) {
 		if(wezKolizjaPromienTrojkat(
-			&pkt, pocz, kier,
+			&odl, pocz, kier,
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i)).poz),
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i+1)).poz),
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i+2)).poz)
 		)) {
-			// licz kwadrat odległości punktu od początku promienia
-			pkt = pkt - pocz;
-			pkt = XMVectorPow(pkt, XMVectorSet(2.0f, 2.0f, 2.0f, 1.0f));
-			odl = XMVectorGetX(pkt) + XMVectorGetY(pkt) + XMVectorGetZ(pkt);
-
-			// zapisz kwadrat odległości punktu i numer odpowiadającego obiektu
-			obiektyKolizja->insert(pair<float const, UINT const>(odl, (UINT)this));
+			// zapisz odległość punktu kolizji
+			odlKolizje->insert(odl);
 		}
 	}
 
 	// jeśli brak kolizji promienia z obiektem
-	if(obiektyKolizja->size() == 0) {
+	if(odlKolizje->size() == 0) {
 		return false;
 	} else {
 		return true;
@@ -324,8 +315,7 @@ bool FizykaObiektZbiorPodstawa::sprawdzKolizjaBryly(IObiekt3W const* const) cons
 bool FizykaObiektZbiorPodstawa::sprawdzKolizjaModele(IObiekt3W const* const) const {return false;}
 void FizykaObiektZbiorPodstawa::usunSwiatPkt(XMVECTOR* const) const {}
 void FizykaObiektZbiorPodstawa::usunSwiatWektor(XMVECTOR* const) const {}
-bool FizykaObiektZbiorPodstawa::wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const {return false;}
-bool FizykaObiektZbiorPodstawa::wezKolizjaPromien(map<float const, UINT const>* const, XMVECTOR const, XMVECTOR const) const {return false;}
+bool FizykaObiektZbiorPodstawa::wezKolizjePromien(set<float>* const, XMVECTOR const, XMVECTOR const) const {return false;}
 void FizykaObiektZbiorPodstawa::wezWierzcholkiSwiat(vector<XMFLOAT3>* const) const {}
 
 RaportKolizja FizykaObiektZbiorZalezny::wykonajZdarzKolizjaSiatka(
@@ -363,56 +353,12 @@ RaportKolizja FizykaObiektZbiorZalezny::wykonajZdarzKolizjaSiatka(
 //	MapaObiekty3W_		obiektyScena;
 //	MapaObiekty3W_		obiektySwiat;
 //public:
-//	void				laczGrafika(Grafika* const);
 //	void				tworzKolejnaKlatka();
-//	bool				wezObPromienSwiat(UINT* const, UINT const) const;
 //};
-//void FizykaSwiat::laczGrafika(
-//	Grafika* const		g
-//	) {
-//	grafika = g;
-//}
 //void FizykaSwiat::tworzKolejnaKlatka() {
 //	wykryjKolizje();
 //	grafika->rysujKolejnaKlatka(&obiektySwiat);
 //}
-//bool FizykaSwiat::wezObPromienSwiat(
-//	UINT* const		adrOb,
-//	UINT const		adrKursor
-//	) const {
-//	// początek wektora wyboru
-//	XMVECTOR pocz;
-//	grafika->wezPozKamera(&pocz);
-//
-//	// kierunek wektora wyboru
-//	XMVECTOR kier;
-//	wezPozOb(&kier, adrKursor);
-//	kier = kier - pocz;
-//	
-//	// obiekty kolidujące z promieniem wyboru, ułożone od najbliższych początku promienia wyboru do najdalszych początku promienia wyboru
-//	map<float const, UINT const> obiektyKol;
-//	wezKolizjaPromienSwiat(&obiektyKol, pocz, kier);
-//	
-//	// jeśli promień nie koliduje z obiektami
-//	if(obiektyKol.size() == 0) {
-//		*adrOb = NULL;
-//		return false;
-//	}
-//
-//	// usuń obiekt kursora z listy kolidujących
-//	if(obiektyKol.begin()->second == adrKursor) {
-//		obiektyKol.erase(obiektyKol.begin());
-//	}
-//
-//	// jeśli nie koliduje z żadnym innym oprócz kursora
-//	if(obiektyKol.size() == 0) {
-//		*adrOb = NULL;
-//		return false;
-//	}
-//
-//	// zwróć obiekt najblizej początku promienia wyboru
-//	*adrOb = obiektyKol.begin()->second;
-//	return true;
-//}
+
 
 #endif

@@ -39,6 +39,27 @@ void Swiat::niszczObiektySwiat() {
 
 	logi.piszStop("<---", "Niszczenie obiektow swiata.");
 }
+void Swiat::obsluzKolizjeSiatka() const {
+	SiatkaObiekty siatka1, siatka2;
+	ListaObiekty::const_iterator it;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
+		(*it)->aktualizujSiatka();
+		(*it)->wezSiatka(&siatka2);
+		siatka1.dopiszSiatka(siatka2);
+	}
+
+	Kolizje_ kolizje;
+	siatka1.wezKolizje(&kolizje);
+
+	Kolizje_::const_iterator itA;
+	set<IObiekt3W const* const>::const_iterator itB;
+	bool rob;
+	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
+	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
+		itA->first->wykonajZdarzKolizjaSiatka(*itB);
+	}
+	}
+}
 void Swiat::ustawBlizszaPlaszcz(
 	float const		odl
 	) {
@@ -120,26 +141,6 @@ void Swiat::wezPozKamera(
 	) const {
 	*poz = XMLoadFloat3(&pozKamera);
 }
-void Swiat::wykonajKolizjeSiatka() const {
-	SiatkaObiekty siatka, siatkaRob;
-	ListaObiekty::const_iterator it;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->wezSiatka(&siatkaRob);
-		siatka.dopiszSiatka(siatkaRob);
-	}
-
-	Kolizje_ kolizje;
-	siatka.wezKolizje(&kolizje);
-
-	Kolizje_::const_iterator itA;
-	set<IObiekt3W const* const>::const_iterator itB;
-	bool rob;
-	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
-	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
-		itA->first->wykonajZdarzKolizjaSiatka(*itB);
-	}
-	}
-}
 Swiat::Swiat() {
 	logi.piszStart("--->", "Tworzenie swiata.");
 
@@ -163,7 +164,7 @@ Swiat::~Swiat() {
 	logi.piszStop("<---", "Niszczenie swiata.");
 }
 void Swiat::tworzKolejnaKlatka() {
-	//wykonajKolizjeSiatka();
+	//obsluzKolizjeSiatka();
 
 	ListaObiekty::const_iterator it;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
@@ -226,7 +227,7 @@ IObiekt3W* Swiat::tworzObiektRycerz() {
 	);
 	ob->ustawFizyka();
 	ob->ustawGrafika();
-	ob->wykonajZdarzRuch(XMVectorSet(-2.0f, +0.0f, +4.0f, 0.0f));
+	ob->wykonajZdarzRuch(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
 	obiektySwiat.insert(ob);
 	return ob;
 }
@@ -251,9 +252,53 @@ IObiekt3W* Swiat::tworzObiektSmok() {
 	);
 	ob->ustawFizyka();
 	ob->ustawGrafika();
-	ob->wykonajZdarzRuch(XMVectorSet(+2.0f, +0.0f, +4.0f, 0.0f));
+	ob->wykonajZdarzRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
 	obiektySwiat.insert(ob);
 	return ob;
+}
+bool Swiat::wezObPromien(
+	IObiekt3W** const			ob,
+	IObiekt3W const* const		obWybierajacy
+	) const {
+	if(obiektySwiat.size() == 0) {
+		return false;
+	}
+
+	// początek i kierunek promienia wyboru
+	XMVECTOR pocz1 = XMLoadFloat3(&pozKamera);
+	XMVECTOR kier1 = obWybierajacy->wezPoz();
+	kier1 = kier1 - pocz1;
+
+	// obiekty kolidujące z promieniem wyboru, ułożone od najbliższych początku promienia do najdalszych
+	ListaObiekty::const_iterator it;
+	set<float> odleglosci;
+	float odlMin = 0;
+	float odl;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
+		if(*it == obWybierajacy) {
+			continue;
+		}
+
+		if((*it)->wezKolizjePromien(&odleglosci, pocz1, kier1)) {
+			if(odlMin == 0) {
+				odlMin = *odleglosci.upper_bound(0);
+				*ob = *it;
+				continue;
+			}
+			odl = *odleglosci.upper_bound(0);
+			if(odl < odlMin) {
+				odlMin = odl;
+				*ob = *it;
+			}
+		}
+	}
+
+	// brak elementów kolizjii
+	if(odlMin == 0) {
+		return false;
+	}
+
+	return true;
 }
 
 #endif

@@ -21,6 +21,7 @@ private:
 	void				aktualizujMacWidok();
 	void				niszczObiektSwiat(IObiekt3W* const);
 	void				niszczObiektySwiat();
+	void				obsluzKolizjeSiatka() const;
 	void				ustawBlizszaPlaszcz(float const);
 	void				ustawCelKamera(
 								float const, float const, float const
@@ -40,7 +41,6 @@ private:
 	void				usunWidokWektor(XMVECTOR* const) const;
 	void				wezBlizszaPlaszczyzna(float* const) const;
 	void				wezPozKamera(XMVECTOR* const) const;
-	void				wykonajKolizjeSiatka() const;
 public:
 						Swiat();
 						~Swiat();
@@ -48,6 +48,7 @@ public:
 	IObiekt3W*			tworzObiektKursor();
 	IObiekt3W*			tworzObiektRycerz();
 	IObiekt3W*			tworzObiektSmok();
+	bool				wezObPromien(IObiekt3W** const, IObiekt3W const* const) const;
 };
 
 #endif

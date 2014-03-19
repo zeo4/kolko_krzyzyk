@@ -19,8 +19,8 @@ struct Wierzcholek {
 };
 
 class SiatkaObiekty {
-	typedef set<IObiekt3W* const>					ObiektyPole_;
-	typedef map<float const, ObiektyPole_>			Siatka1Obiekty_;
+	typedef set<IObiekt3W* const>					ObiektyObszar_;
+	typedef map<float const, ObiektyObszar_>		Siatka1Obiekty_;
 	typedef map<float const, Siatka1Obiekty_>		Siatka2Obiekty_;
 	typedef map<float const, Siatka2Obiekty_>		Siatka3Obiekty_;
 	Siatka3Obiekty_		siatka;
@@ -31,8 +31,8 @@ public:
 	typedef Siatka2Obiekty_::const_iterator			StalyIteratorY;
 	typedef Siatka1Obiekty_::iterator				IteratorZ;
 	typedef Siatka1Obiekty_::const_iterator			StalyIteratorZ;
-	typedef ObiektyPole_::iterator					IteratorOb;
-	typedef ObiektyPole_::const_iterator			StalyIteratorOb;
+	typedef ObiektyObszar_::iterator				IteratorOb;
+	typedef ObiektyObszar_::const_iterator			StalyIteratorOb;
 	void				dopiszObiekt(float, float, float, IObiekt3W* const);
 	void				dopiszSiatka(SiatkaObiekty const);
 	void				czysc();
@@ -63,6 +63,10 @@ public:
 	void				rysuj() const;
 	void virtual		ustawFizyka() = 0;
 	void virtual		ustawGrafika() = 0;
+	bool virtual		wezKolizjePromien(
+							set<float>* const, XMVECTOR, XMVECTOR
+						) const = 0;
+	XMVECTOR			wezPoz() const;
 	void				wezSiatka(SiatkaObiekty* const);
 	XMMATRIX			wezSwiat() const;
 	void				wykonajZdarzKolizjaSiatka(IObiekt3W const* const);
@@ -110,6 +114,10 @@ public:
 	virtual							~Obiekt3W();
 	void virtual					ustawFizyka();
 	void virtual					ustawGrafika();
+	bool virtual					wezKolizjePromien(
+										set<float>* const,
+										XMVECTOR const, XMVECTOR const
+									) const;
 	void virtual					wykonajZdarzRuch(XMVECTOR const);
 };
 

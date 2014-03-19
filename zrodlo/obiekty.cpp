@@ -31,7 +31,7 @@ void SiatkaObiekty::dopiszObiekt(
 		pair<float const, Siatka1Obiekty_>(y, Siatka1Obiekty_())
 	);
 	siatka.at(x).at(y).insert(
-		pair<float const, ObiektyPole_>(x, ObiektyPole_())
+		pair<float const, ObiektyObszar_>(x, ObiektyObszar_())
 	);
 	siatka.at(x).at(y).at(z).insert(ob);
 }
@@ -76,8 +76,8 @@ void SiatkaObiekty::wezKolizje(
 	Siatka3Obiekty_::const_iterator it3;
 	Siatka2Obiekty_::const_iterator it2;
 	Siatka1Obiekty_::const_iterator it1;
-	ObiektyPole_::const_iterator itA;
-	ObiektyPole_::const_iterator itB;
+	ObiektyObszar_::const_iterator itA;
+	ObiektyObszar_::const_iterator itB;
 	for(it3 = siatka.begin(); it3 != siatka.end(); ++it3) {
 	for(it2 = it3->second.begin(); it2 != it3->second.end(); ++it2) {
 	for(it1 = it2->second.begin(); it1 != it2->second.end(); ++it1) {
@@ -137,6 +137,13 @@ void IObiekt3W::aktualizujSiatka() {
 }
 void IObiekt3W::rysuj() const {
 	graf->rysuj();
+}
+XMVECTOR IObiekt3W::wezPoz() const {
+	XMVECTOR poz;
+	XMMatrixDecompose(
+		&XMVectorSet(0,0,0,0), &XMVectorSet(0,0,0,0), &poz, XMLoadFloat4x4(&macPrzesun)
+	);
+	return poz;
 }
 void IObiekt3W::wezSiatka(
 	SiatkaObiekty* const		siat
@@ -289,6 +296,15 @@ void Obiekt3W::ustawFizyka() {
 }
 void Obiekt3W::ustawGrafika() {
 	graf = new GrafikaObiekt3WPodstawa(this);
+}
+bool Obiekt3W::wezKolizjePromien(
+	set<float>* const		odlKolizje,
+	XMVECTOR				pocz,
+	XMVECTOR				kier
+	) const {
+	fiz->usunSwiatPkt(&pocz);
+	fiz->usunSwiatWektor(&kier);
+	return fiz->wezKolizjePromien(odlKolizje, pocz, kier);
 }
 void Obiekt3W::wykonajZdarzRuch(
 	XMVECTOR const		w

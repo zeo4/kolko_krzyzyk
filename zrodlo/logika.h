@@ -12,7 +12,6 @@ class Logika {
 	Swiat			swiat;
 	Wejscie			wejscie;
 	void			uwzglWejscie();
-	void			wybierzObiektPromien();
 public:
 					Logika(HINSTANCE const);
 	void			inic3W();

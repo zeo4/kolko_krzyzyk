@@ -29,11 +29,8 @@ void Logika::uwzglWejscie() {
 		obiektKursor->wykonajZdarzRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
 	}
 	if(stanMysz.rgbButtons[0] & 0x80) {
-		wybierzObiektPromien();
+		swiat.wezObPromien(&obiektWybrany, obiektKursor);
 	}
-}
-void Logika::wybierzObiektPromien() {
-	// FizykaSwiat::wezObPromienSwiat();
 }
 Logika::Logika(
 	HINSTANCE const		uchwyt
