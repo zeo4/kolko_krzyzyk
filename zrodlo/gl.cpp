@@ -1,22 +1,13 @@
 #include "globalne.h"
 #include "debug.h"
-#include "swiat.h"
-#include "wejscie.h"
-#include "logika.h"
-#include "obiekty.h"
 #include "zasobyGraf.h"
+#include "ifizyka.h"
+#include "obiekty.h"
 #include "fizyka.h"
 #include "grafika.h"
-
-#include "globalne.cpp"
-#include "debug.cpp"
-#include "swiat.cpp"
-#include "wejscie.cpp"
-#include "logika.cpp"
-#include "obiekty.cpp"
-#include "zasobyGraf.cpp"
-#include "fizyka.cpp"
-#include "grafika.cpp"
+#include "wejscie.h"
+#include "swiat.h"
+#include "logika.h"
 
 // test
 HINSTANCE		uchAp;
@@ -69,7 +60,7 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			logika.wyswietlScena();
+			logika.tworzKolejnaKlatka();
 		}
 	}
 }
@@ -138,19 +129,18 @@ int WINAPI WinMain(
 // input layout zgodny z parametrami wejściowymi szadera wierzchołków - sprawdzić
 // template tworzBufor bez danych inicjalizujących
 // wypelnijBufWierz(): potestować wypełnianie bufora (skąd UpdateSubresource ma wiedzieć ile skopiować z danych źródłowych)
-// Czy czyścić parametry przez które zwracane są wyniki funkcji, przed zwrotem?
-// Logi dla napisanych funkcji.
 // Tworzyć kontroler solidnie, szczególnie z uwzględnieniem uchwytu aplikacji. Teraz jest porozrzucany w głównych funkcjach.
-// Sprawdzić czy "map[klucz];" nadpisze linię "map[klucz] = wartość;". Jeśli tak to poprawić Logika::niszczObiektSwiat().
 // Obslużyć sytuację: Wskaźnik do wskaźnika do wskaźnika ... Tak aby nie można było zmieniać ob2 w: const Wsk<ob1> -> zwykły wsk_ob2 -> ob2 <- to już można zmieniać.
 // Obiekty 3W bazują na wierzchołkach utworzonych poprzez tablicę o stałej ilości elementów. Usuwanie takiej tablicy nie wymaga uwagi. Ale co gdy będzie używana tablica wierzchołków stworzona przez new?
 // Przy dodaniu macierzy obrotu do klasy obiektu 3W, uwzględnić to w: pobieraniu bryły granicznej, pobieraniu obszaru siatki.
-// Projektor powinien być w kamerze.
 // Kiedy już nowa fizyka zacznie działać pousuwać niepotrzebne funkcje.
-// FizykaObiekt::aktualizujPolaSiatka(): Źle napisane. Źle liczy floatowe identyfikatory pól.
-// Proces kolizji: Metoda wykonajZdarzKolizjaSiatka wykonywany na wszystkich podobiektach, zwraca boola czy aktualna kolizja zaszła (lub cokolwiek co jest potrzebne) aby wyższe klasy mogły odpowiednio zareagować.
-// Dokończyć: FizykaObiekt3W::wykonajZdarzKolizjaSiatka().
 // Po dopisaniu zakańczającej klasy FizykiZbioru i FizykiObiektu, sprawdzić czy dodając tylko ją jako przyjaciela klas obiektów, wystarczy.
 // Poprawić tworzenie obiektów tak aby to nie świat tylko logika gry tworzyła poszczególne obiekty, które potem sa "podpinane" do świata.
 // Napisać dekstruktory do wszystkich klas fizyk i grafik.
 // Dopracować wybieranie promieniem tak aby zawsze nie wybierał po modelach i to dodatkowo wszystkich obiektów.
+// Kolizje oparte na założeniu że prędkość obiektu (obiekt->v) to jest prędkość per klatka. Nie koniecznie tak musi być później. Gdyby, to dzielić prędkość przez ilosc klatek i potem używać takiej prędkości.
+// Przy kolizji zapobiegać "przestrzeleniu" obiektów.
+// Cała inicjalizacja do logów.
+// Napisać kolizje modeli tak aby się po sobie zsuwały. Wykorzystać siły (F).
+
+// Ustawiony jest breakpoint. Gdy obiekty odsunięte są pod wpływem obliczeń kolizji, przylegają do siebie, ale nie powinny wywoływać zdarzenia kolizji (teraz wywołują) bo przecież nie powinny kolidować.

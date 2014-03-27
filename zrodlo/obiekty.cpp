@@ -1,5 +1,4 @@
-﻿#ifndef _OBIEKTY_C_
-#define _OBIEKTY_C_
+﻿#pragma once
 
 #include "obiekty.h"
 
@@ -19,10 +18,10 @@ Wierzcholek::Wierzcholek(
 	{}
 
 void SiatkaObiekty::dopiszObiekt(
-	float					x,
-	float					y,
-	float					z,
-	IObiekt3W* const		ob
+	float				x,
+	float				y,
+	float				z,
+	IObiekt* const		ob
 	) {
 	siatka.insert(
 		pair<float const, Siatka2Obiekty_>(x, Siatka2Obiekty_())
@@ -31,7 +30,7 @@ void SiatkaObiekty::dopiszObiekt(
 		pair<float const, Siatka1Obiekty_>(y, Siatka1Obiekty_())
 	);
 	siatka.at(x).at(y).insert(
-		pair<float const, ObiektyObszar_>(x, ObiektyObszar_())
+		pair<float const, ObiektyObszar_>(z, ObiektyObszar_())
 	);
 	siatka.at(x).at(y).at(z).insert(ob);
 }
@@ -56,7 +55,7 @@ void SiatkaObiekty::czysc() {
 	siatka.clear();
 }
 void SiatkaObiekty::ustawWspolnyObiekt(
-	IObiekt3W* const		ob
+	IObiekt* const		ob
 	) {
 	SiatkaObiekty::IteratorX itX;
 	SiatkaObiekty::IteratorY itY;
@@ -87,8 +86,8 @@ void SiatkaObiekty::wezKolizje(
 			continue;
 		}
 
-		kolizje->insert(pair<IObiekt3W* const, set<IObiekt3W const* const>>(
-			*itA, set<IObiekt3W const* const>()
+		kolizje->insert(pair<IObiekt* const, set<IObiekt const* const>>(
+			*itA, set<IObiekt const* const>()
 		));
 		kolizje->at(*itA).insert(*itB);
 	}
@@ -98,10 +97,10 @@ void SiatkaObiekty::wezKolizje(
 	}
 }
 bool SiatkaObiekty::wezObiekty(
-	set<IObiekt3W* const>* const		obiekty,
-	float								x,
-	float								y,
-	float								z
+	set<IObiekt* const>* const		obiekty,
+	float							x,
+	float							y,
+	float							z
 	) const {
 	obiekty->clear();
 
@@ -124,41 +123,41 @@ bool SiatkaObiekty::wezObiekty(
 //	return siatka.end();
 //}
 
-IObiekt3W::IObiekt3W() : fiz(NULL), graf(NULL), v(XMFLOAT3(0,0,0))
+IObiekt::IObiekt() : fiz(NULL), graf(NULL), v(XMFLOAT3(0,0,0))
 	{
 	XMStoreFloat4x4(&macPrzesun, XMMatrixIdentity());
 }
-IObiekt3W::~IObiekt3W() {}
-void IObiekt3W::aktualizujPoz() {
+IObiekt::~IObiekt() {}
+void IObiekt::aktualizujPoz() {
 	fiz->aktualizujPoz();
 }
-void IObiekt3W::aktualizujSiatka() {
+void IObiekt::aktualizujSiatka() {
 	fiz->aktualizujSiatka();
 }
-void IObiekt3W::rysuj() const {
+void IObiekt::rysuj() const {
 	graf->rysuj();
 }
-XMVECTOR IObiekt3W::wezPoz() const {
+XMVECTOR IObiekt::wezPoz() const {
 	XMVECTOR poz;
 	XMMatrixDecompose(
 		&XMVectorSet(0,0,0,0), &XMVectorSet(0,0,0,0), &poz, XMLoadFloat4x4(&macPrzesun)
 	);
 	return poz;
 }
-void IObiekt3W::wezSiatka(
+void IObiekt::wezSiatka(
 	SiatkaObiekty* const		siat
 	) {
 	siat->czysc();
 	*siat = siatka;
 	siat->ustawWspolnyObiekt(this);
 }
-XMMATRIX IObiekt3W::wezSwiat() const {
+XMMATRIX IObiekt::wezSwiat() const {
 	return XMLoadFloat4x4(&macPrzesun);
 }
-void IObiekt3W::wykonajZdarzKolizjaSiatka(
-	IObiekt3W const* const		ob
+void IObiekt::wykonajKolizjaSiatka(
+	IObiekt const* const		ob
 	) {
-	fiz->wykonajZdarzKolizjaSiatka(ob);
+	fiz->wykonajKolizjaSiatka(&WektObiekty3W_(), ob);
 }
 
 void Obiekt3W::nadpiszIndeksy(
@@ -201,7 +200,8 @@ void Obiekt3W::tworzWidokTekstura(
 		NULL,
 		NULL,
 		&widokTekstura,
-		NULL);
+		NULL
+	);
 	SprawdzWynik(wynik, "Wgranie tekstury.");
 }
 void Obiekt3W::usunBufIndeksy() {
@@ -271,8 +271,6 @@ Obiekt3W::Obiekt3W(
 	XMFLOAT4X4 const* const			mWidok
 	) : bufIndeksy(NULL), bufWierz(NULL), macProjekcja(mProjekcja), macWidok(mWidok), widokTekstura(NULL)
 	{
-	logi.piszStart("--->", "Tworz Obiekt3W.");
-	
 	nadpiszWierzcholki(wierzcholki, ilWierzcholki);
 	nadpiszIndeksy(indeksy, ilIndeksy);
 	tworzWidokTekstura(sciezkaTekstura);
@@ -281,8 +279,6 @@ Obiekt3W::Obiekt3W(
 	wypelnijBufWierz();
 	wypelnijBufIndeksy();
 	XMStoreFloat4x4(&macPrzesun, XMMatrixIdentity());
-
-	logi.piszStop("<---", "Tworz Obiekt3W.");
 }
 Obiekt3W::~Obiekt3W() {
 	logi.piszStart("--->", "Niszcz obiekt 3W.");
@@ -292,10 +288,12 @@ Obiekt3W::~Obiekt3W() {
 	logi.piszStop("<---", "Niszcz obiekt 3W.");
 }
 void Obiekt3W::ustawFizyka() {
-	fiz = new FizykaObiekt3W(this);
+	FizykaPostac* ob = new FizykaPostac(this);
+	IObiekt::fiz = ob;
+	fiz = ob;
 }
 void Obiekt3W::ustawGrafika() {
-	graf = new GrafikaObiekt3WPodstawa(this);
+	graf = new Grafika3WPodstawa(this);
 }
 bool Obiekt3W::wezKolizjePromien(
 	set<float>* const		odlKolizje,
@@ -306,7 +304,7 @@ bool Obiekt3W::wezKolizjePromien(
 	fiz->usunSwiatWektor(&kier);
 	return fiz->wezKolizjePromien(odlKolizje, pocz, kier);
 }
-void Obiekt3W::wykonajZdarzRuch(
+void Obiekt3W::wykonajRuch(
 	XMVECTOR const		w
 	) {
 	fiz->dodajPredkosc(w);
@@ -327,4 +325,3 @@ void ObiektZbior::ustawFizyka() {
 	//fiz = new FizykaObiektZbior(this);
 }
 
-#endif

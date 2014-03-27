@@ -1,5 +1,4 @@
-﻿#ifndef _SWIAT_C_
-#define _SWIAT_C_
+﻿#pragma once
 
 #include "swiat.h"
 
@@ -10,6 +9,7 @@ void Swiat::aktualizujMacProjekcja() {
 		odlBlizszaPlaszcz,
 		odlDalszaPlaszcz
 	));
+	logi.pisz("OK", "Swiat::aktualizujMacProjekcja().");
 }
 void Swiat::aktualizujMacWidok() {
 	XMVECTOR w1 = XMLoadFloat3(&pozKamera);
@@ -17,47 +17,20 @@ void Swiat::aktualizujMacWidok() {
 	XMVECTOR w3 = XMLoadFloat3(&goraKamera);
 
 	XMStoreFloat4x4(&macWidok, XMMatrixLookAtLH(w1, w2, w3));
-	logi.pisz("OK", "Ustaw widok kamery sceny.");
+	logi.pisz("OK", "Swiat::aktualizujMacWidok().");
 }
 void Swiat::niszczObiektSwiat(
-	IObiekt3W* const		ob
+	IObiekt* const		ob
 	) {
-	if(obiektySwiat.count(ob) == 0) {
-		logi.pisz("?", "Niszczenie obiektu swiata: Nie ma takiego obiektu na liscie.");
-	} else {
+	if(obiektySwiat.count(ob) != 0) {
 		obiektySwiat.erase(ob);
 		delete ob;
 	}
 }
 void Swiat::niszczObiektySwiat() {
-	logi.piszStart("--->", "Niszczenie obiektow swiata.");
-
 	ListaObiekty::const_iterator it;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		niszczObiektSwiat(*it);
-	}
-
-	logi.piszStop("<---", "Niszczenie obiektow swiata.");
-}
-void Swiat::obsluzKolizjeSiatka() const {
-	SiatkaObiekty siatka1, siatka2;
-	ListaObiekty::const_iterator it;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->aktualizujSiatka();
-		(*it)->wezSiatka(&siatka2);
-		siatka1.dopiszSiatka(siatka2);
-	}
-
-	Kolizje_ kolizje;
-	siatka1.wezKolizje(&kolizje);
-
-	Kolizje_::const_iterator itA;
-	set<IObiekt3W const* const>::const_iterator itB;
-	bool rob;
-	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
-	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
-		itA->first->wykonajZdarzKolizjaSiatka(*itB);
-	}
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ) {
+		niszczObiektSwiat(*it++);
 	}
 }
 void Swiat::ustawBlizszaPlaszcz(
@@ -157,14 +130,10 @@ Swiat::Swiat() {
 	logi.piszStop("<---", "Tworzenie swiata.");
 }
 Swiat::~Swiat() {
-	logi.piszStart("--->", "Niszczenie swiata.");
-
 	niszczObiektySwiat();
-	
-	logi.piszStop("<---", "Niszczenie swiata.");
 }
 void Swiat::tworzKolejnaKlatka() {
-	//obsluzKolizjeSiatka();
+	wykonajKolizjeSiatka();
 
 	ListaObiekty::const_iterator it;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
@@ -172,7 +141,7 @@ void Swiat::tworzKolejnaKlatka() {
 		(*it)->rysuj();
 	}
 }
-IObiekt3W* Swiat::tworzObiektKursor() {
+IObiekt* Swiat::tworzObiektKursor() {
 	Wierzcholek wierzcholki[] = {
 		Wierzcholek(+0.0f, -0.2f, +0.0f, +0.0f, +1.0f),
 		Wierzcholek(+0.0f, +0.0f, +0.0f, +0.5f, +0.0f),
@@ -182,7 +151,7 @@ IObiekt3W* Swiat::tworzObiektKursor() {
 		0, 1, 2
 	};
 
-	IObiekt3W* const ob = new Obiekt3W(
+	IObiekt* const ob = new Obiekt3W(
 		wierzcholki,
 		3,
 		indeksy,
@@ -196,7 +165,7 @@ IObiekt3W* Swiat::tworzObiektKursor() {
 	obiektySwiat.insert(ob);
 	return ob;
 }
-IObiekt3W* Swiat::tworzObiektRycerz() {
+IObiekt* Swiat::tworzObiektRycerz() {
 	Wierzcholek wierzcholki[] = {
 		Wierzcholek(-0.25f, +0.0f, -0.25f, +0.0f, +0.5f),
 		Wierzcholek(+0.25f, +0.0f, -0.25f, +0.5f, +0.5f),
@@ -216,7 +185,7 @@ IObiekt3W* Swiat::tworzObiektRycerz() {
 		0, 5, 3,
 	};
 
-	IObiekt3W* const ob = new Obiekt3W(
+	IObiekt* const ob = new Obiekt3W(
 		wierzcholki,
 		6,
 		indeksy,
@@ -227,11 +196,12 @@ IObiekt3W* Swiat::tworzObiektRycerz() {
 	);
 	ob->ustawFizyka();
 	ob->ustawGrafika();
-	ob->wykonajZdarzRuch(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
+	ob->wykonajRuch(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
+	ob->aktualizujPoz();
 	obiektySwiat.insert(ob);
 	return ob;
 }
-IObiekt3W* Swiat::tworzObiektSmok() {
+IObiekt* Swiat::tworzObiektSmok() {
 	Wierzcholek wierzcholki[] = {
 		Wierzcholek(+0.5f, -0.5f, +0.0f, +1.0f, +0.0f),
 		Wierzcholek(-0.5f, -0.5f, +0.0f, +1.0f, +1.0f),
@@ -241,7 +211,7 @@ IObiekt3W* Swiat::tworzObiektSmok() {
 		0, 1, 2
 	};
 
-	IObiekt3W* const ob = new Obiekt3W(
+	IObiekt* const ob = new Obiekt3W(
 		wierzcholki,
 		3,
 		indeksy,
@@ -252,13 +222,14 @@ IObiekt3W* Swiat::tworzObiektSmok() {
 	);
 	ob->ustawFizyka();
 	ob->ustawGrafika();
-	ob->wykonajZdarzRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
+	ob->wykonajRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
+	ob->aktualizujPoz();
 	obiektySwiat.insert(ob);
 	return ob;
 }
 bool Swiat::wezObPromien(
-	IObiekt3W** const			ob,
-	IObiekt3W const* const		obWybierajacy
+	IObiekt** const				ob,
+	IObiekt const* const		obWybierajacy
 	) const {
 	if(obiektySwiat.size() == 0) {
 		return false;
@@ -300,5 +271,25 @@ bool Swiat::wezObPromien(
 
 	return true;
 }
+void Swiat::wykonajKolizjeSiatka() const {
+	SiatkaObiekty siatka1, siatka2;
+	ListaObiekty::const_iterator it;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
+		(*it)->aktualizujSiatka();
+		(*it)->wezSiatka(&siatka2);
+		siatka1.dopiszSiatka(siatka2);
+	}
 
-#endif
+	Kolizje_ kolizje;
+	siatka1.wezKolizje(&kolizje);
+
+	Kolizje_::const_iterator itA;
+	set<IObiekt const* const>::const_iterator itB;
+	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
+	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
+		itA->first->wykonajKolizjaSiatka(*itB);
+	}
+	}
+}
+
+

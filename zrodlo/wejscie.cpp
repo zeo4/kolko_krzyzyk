@@ -1,5 +1,4 @@
-﻿#ifndef _WEJSCIE_C_
-#define _WEJSCIE_C_
+﻿#pragma once
 
 #include "wejscie.h"
 
@@ -79,4 +78,3 @@ void Wejscie::wez(
 	mysz->GetDeviceState(sizeof(DIMOUSESTATE), stanMysz);
 }
 
-#endif

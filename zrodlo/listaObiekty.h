@@ -1,11 +1,11 @@
-﻿#ifndef _LISTAOBIEKTY_H_
-#define _LISTAOBIEKTY_H_
+﻿#pragma once
 
-#include "obiekty.h"
+#include "globalne.h"
 
-class ListaObiekty : public set<IObiekt3W* const> {
-	typedef set<IObiekt3W* const>		Baza_;
+class IObiekt;
+
+class ListaObiekty : public set<IObiekt* const> {
+	typedef set<IObiekt* const>		Baza_;
 public:
 };
 
-#endif

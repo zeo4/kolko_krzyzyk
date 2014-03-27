@@ -1,5 +1,4 @@
-﻿#ifndef _WEJSCIE_H_
-#define _WEJSCIE_H_
+﻿#pragma once
 
 #include "globalne.h"
 #include "debug.h"
@@ -22,4 +21,3 @@ public:
 	void						wez(BYTE* const, DIMOUSESTATE* const);
 };
 
-#endif

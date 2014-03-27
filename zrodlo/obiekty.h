@@ -1,5 +1,4 @@
-﻿#ifndef _OBIEKTY_H_
-#define _OBIEKTY_H_
+﻿#pragma once
 
 #include "globalne.h"
 #include "debug.h"
@@ -19,7 +18,7 @@ struct Wierzcholek {
 };
 
 class SiatkaObiekty {
-	typedef set<IObiekt3W* const>					ObiektyObszar_;
+	typedef set<IObiekt* const>						ObiektyObszar_;
 	typedef map<float const, ObiektyObszar_>		Siatka1Obiekty_;
 	typedef map<float const, Siatka1Obiekty_>		Siatka2Obiekty_;
 	typedef map<float const, Siatka2Obiekty_>		Siatka3Obiekty_;
@@ -33,22 +32,24 @@ public:
 	typedef Siatka1Obiekty_::const_iterator			StalyIteratorZ;
 	typedef ObiektyObszar_::iterator				IteratorOb;
 	typedef ObiektyObszar_::const_iterator			StalyIteratorOb;
-	void				dopiszObiekt(float, float, float, IObiekt3W* const);
+	void				dopiszObiekt(float, float, float, IObiekt* const);
 	void				dopiszSiatka(SiatkaObiekty const);
 	void				czysc();
-	void				ustawWspolnyObiekt(IObiekt3W* const);
+	void				ustawWspolnyObiekt(IObiekt* const);
 	void				wezKolizje(Kolizje_* const) const;
 	bool				wezObiekty(
-							set<IObiekt3W* const>* const, float, float, float
+							set<IObiekt* const>* const, float, float, float
 						) const;
 	//StalyIteratorX		wezPocz() const;
 	//StalyIteratorX		wezKon() const;
 };
 
-class IObiekt3W {
-	friend class FizykaObiektZbiorPodstawa;
-	friend class FizykaObiektZbiorZalezny;
-	friend class GrafikaObiektZbiorPodstawa;
+class IObiekt {
+	friend class Fizyka3WKolizyjny;
+	friend class Fizyka3WNiekolizyjny;
+	friend class FizykaZbior;
+	friend class FizykaZbiorZalezny;
+	friend class GrafikaZbiorPodstawa;
 protected:
 	IFizyka*			fiz;
 	IGrafika*			graf;
@@ -56,8 +57,8 @@ protected:
 	SiatkaObiekty		siatka;
 	XMFLOAT3			v;
 public:
-						IObiekt3W();
-	virtual				~IObiekt3W();
+						IObiekt();
+	virtual				~IObiekt();
 	void				aktualizujPoz();
 	void				aktualizujSiatka();
 	void				rysuj() const;
@@ -69,16 +70,18 @@ public:
 	XMVECTOR			wezPoz() const;
 	void				wezSiatka(SiatkaObiekty* const);
 	XMMATRIX			wezSwiat() const;
-	void				wykonajZdarzKolizjaSiatka(IObiekt3W const* const);
-	void virtual		wykonajZdarzRuch(XMVECTOR const) = 0;
+	void				wykonajKolizjaSiatka(IObiekt const* const);
+	void virtual		wykonajRuch(XMVECTOR const) = 0;
 };
 
-class Obiekt3W : public IObiekt3W {
-	friend class FizykaObiekt3WPodstawa;
-	friend class FizykaObiekt3WNieopozniony;
-	friend class GrafikaObiekt3WPodstawa;
+class Obiekt3W : public IObiekt {
+	friend class Fizyka3W;
+	friend class Fizyka3WKolizyjny;
+	friend class Fizyka3WNieopozniony;
+	friend class Grafika3WPodstawa;
 	ID3D11Buffer*					bufIndeksy;
 	ID3D11Buffer*					bufWierz;
+	IFizyka3W*						fiz;
 	vector<DWORD>					ind;
 	XMFLOAT4X4 const* const			macProjekcja;
 	XMFLOAT4X4 const* const			macWidok;
@@ -118,13 +121,13 @@ public:
 										set<float>* const,
 										XMVECTOR const, XMVECTOR const
 									) const;
-	void virtual					wykonajZdarzRuch(XMVECTOR const);
+	void virtual					wykonajRuch(XMVECTOR const);
 };
 
-class ObiektZbior : public IObiekt3W {
-	friend class FizykaObiektZbiorPodstawa;
-	friend class FizykaObiektZbiorZalezny;
-	friend class GrafikaObiektZbiorPodstawa;
+class ObiektZbior : public IObiekt {
+	friend class FizykaZbior;
+	friend class FizykaZbiorZalezny;
+	friend class GrafikaZbiorPodstawa;
 	ListaObiekty		podobiekty;
 public:
 						ObiektZbior(
@@ -135,4 +138,3 @@ public:
 	void virtual		ustawFizyka();
 };
 
-#endif

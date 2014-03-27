@@ -1,5 +1,4 @@
-﻿#ifndef _GLOBALNE_H_
-#define _GLOBALNE_H_
+﻿#pragma once
 
 #pragma comment (lib, "gdi32.lib")
 #pragma comment (lib, "user32.lib")
@@ -37,11 +36,11 @@ using std::set;
 using std::pair;
 
 // ilość tików przy starcie programu
-UINT		tikProgramStart;
+UINT extern tikProgramStart;
 
-HWND		uchOknoGl = 0;
-float		szerRend = 640;
-float		wysRend = 480;
+HWND extern uchOknoGl;
+float extern szerRend;
+float extern wysRend;
 
 template<class TYP>
 class Wsk {
@@ -59,9 +58,61 @@ public:
 	Wsk<TYP>&		operator--();
 	Wsk<TYP>		operator--(int);
 };
+template<class TYP>
+Wsk<TYP>::Wsk() : wskaznik(NULL)
+	{}
+template<class TYP>
+Wsk<TYP>::Wsk(
+	TYP*		w
+	) : wskaznik(w)
+	{}
+template<class TYP>
+Wsk<TYP>& Wsk<TYP>::operator=(
+	TYP*		wsk
+	) {
+	wskaznik = wsk;
+	return *this;
+}
+template<class TYP>
+TYP& Wsk<TYP>::operator*() {
+	return *wskaznik;
+}
+template<class TYP>
+TYP* Wsk<TYP>::operator->() {
+	return wskaznik;
+}
+template<class TYP>
+TYP const* Wsk<TYP>::operator->() const {
+	return wskaznik;
+}
+template<class TYP>
+Wsk<TYP>& Wsk<TYP>::operator++() {
+	++wskaznik;
+	return *this;
+}
+template<class TYP>
+Wsk<TYP> Wsk<TYP>::operator++(
+	int
+	) {
+	Wsk<TYP> w = *this;
+	++wskaznik;
+	return w;
+}
+template<class TYP>
+Wsk<TYP>& Wsk<TYP>::operator--() {
+	--wskaznik;
+	return *this;
+}
+template<class TYP>
+Wsk<TYP> Wsk<TYP>::operator--(
+	int
+	) {
+	Wsk<TYP> w = *this;
+	--wskaznik;
+	return w;
+}
 
 struct RaportKolizja {
 	bool		flgKolizjaModel;
 };
 
-#endif

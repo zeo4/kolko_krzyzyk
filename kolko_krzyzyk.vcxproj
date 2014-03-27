@@ -38,7 +38,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)zrodlo\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)zrodlo\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -64,12 +73,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\moonstone\main.cpp" />
+    <ClCompile Include="..\moonstone\main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="zrodlo\debug.cpp" />
     <ClCompile Include="zrodlo\fizyka.cpp" />
     <ClCompile Include="zrodlo\gl.cpp" />
     <ClCompile Include="zrodlo\globalne.cpp" />
     <ClCompile Include="zrodlo\grafika.cpp" />
+    <ClCompile Include="zrodlo\ifizyka.cpp" />
     <ClCompile Include="zrodlo\listaObiekty.cpp" />
     <ClCompile Include="zrodlo\logika.cpp" />
     <ClCompile Include="zrodlo\obiekty.cpp" />
@@ -83,16 +95,26 @@
     <None Include="zrodlo\c.bat" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="zrodlo\szader\efekty.fx" />
+    <FxCompile Include="zrodlo\szader\efekty.fx">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="zrodlo\debug.h" />
     <ClInclude Include="zrodlo\fizyka.h" />
     <ClInclude Include="zrodlo\globalne.h" />
     <ClInclude Include="zrodlo\grafika.h" />
-    <ClInclude Include="zrodlo\listaObiekty.h" />
+    <ClInclude Include="zrodlo\ifizyka.h" />
+    <ClInclude Include="zrodlo\listaObiekty.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="zrodlo\logika.h" />
-    <ClInclude Include="zrodlo\obiekty.h" />
+    <ClInclude Include="zrodlo\obiekty.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="zrodlo\swiat.h" />
     <ClInclude Include="zrodlo\testy.h" />
     <ClInclude Include="zrodlo\typedefy.h" />

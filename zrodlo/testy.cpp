@@ -1,5 +1,4 @@
-#ifndef _TESTY_C_
-#define _TESTY_C_
+#pragma once
 
 #include "testy.h"
 
@@ -166,4 +165,3 @@ void Test_Wsk::uruchom() {
 	logi.piszStop("<---", "Test_Wsk.");
 }
 
-#endif

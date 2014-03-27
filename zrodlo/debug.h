@@ -1,12 +1,12 @@
-﻿#ifndef _DEBUG_H_
-#define _DEBUG_H_
+﻿#pragma once
 
 #include "globalne.h"
 
 class Logi {
-	std::ofstream			plik;
+	bool static				flgWlaczone;
 	char const* const		nazwaPliku;
 	UINT					nrWiersza;
+	std::ofstream			plik;
 	UINT					poziomAktWciecia;
 	short					tabowDoTresci;
 	void					piszTytul(string const);
@@ -20,10 +20,10 @@ public:
 	void					pisz(string const, string const);
 	void					piszStart(string const, string const);
 	void					piszStop(string const, string const);
-} logi;
+} extern logi;
 
 // do obsługi błędów / wyjątków
-HRESULT wynik;
+HRESULT extern wynik;
 struct Wyjatek {
 	string		opis;
 				Wyjatek();
@@ -31,4 +31,3 @@ struct Wyjatek {
 void SprawdzWynik(HRESULT, string);
 void ObslugaWyjatek(Wyjatek);
 
-#endif

@@ -1,11 +1,25 @@
-﻿#ifndef _ZASOBYGRAF_H_
-#define _ZASOBYGRAF_H_
+﻿#pragma once
 
 #include "globalne.h"
 #include "debug.h"
 
 template<class TYP>
-void tworzBufor(UINT const, UINT const, ID3D11Buffer*&);
+void tworzBufor(
+	UINT const			flgLaczenie,
+	UINT const			ilEl, // ilość elementów danych bufora
+	ID3D11Buffer*&		bufor // interfejs bufora
+	) {
+	D3D11_BUFFER_DESC opisBuf;
+	ZeroMemory(&opisBuf, sizeof(opisBuf));
+	opisBuf.ByteWidth = sizeof(TYP) * ilEl;
+	opisBuf.Usage = D3D11_USAGE_DEFAULT;
+	opisBuf.BindFlags = flgLaczenie;
+	opisBuf.CPUAccessFlags = 0;
+	opisBuf.MiscFlags = 0;
+
+	wynik = zasoby.karta->CreateBuffer(&opisBuf, NULL, &bufor);
+	SprawdzWynik(wynik, (string("Tworz bufor z laczeniem ")+to_string(flgLaczenie)+string(".")).c_str());
+}
 
 struct ZasobyGraf {
 	ID3D10Blob*					bufBladSzad; // interfejs do pamięci gdzie siedzi skompilowany szader piksela
@@ -29,29 +43,28 @@ struct ZasobyGraf {
 	ID3D11DepthStencilView*		widGlebiaSzablon;
 								ZasobyGraf();
 								~ZasobyGraf();
-	char const* const			wezBladSzad();
-	void						wgrajSzadWierz(
-									char const* const,
-									char const* const
-								);
+	void						tworzCoObiekt();
+	void						tworzGlebiaSzablon();
+	void						tworzRzutnie();
+	void						tworzStanProbkowania();
+	void						tworzStruktWe();
+	void						tworzSzadPiks();
 	void						tworzSzadWierz();
-	void						wiazSzadWierz() const;
+	char const* const			wezBladSzad();
 	void						wgrajSzadPiks(
 									char const* const,
 									char const* const
 								);
-	void						tworzSzadPiks();
-	void						wiazSzadPiks() const;
-	void						tworzStruktWe();
-	void						wiazStruktWe() const;
-	void						tworzRzutnie();
-	void						wiazRzutnie() const;
-	void						tworzCoObiekt();
-	void						wypelnijCoObiekt();
+	void						wgrajSzadWierz(
+									char const* const,
+									char const* const
+								);
 	void						wiazCoObiekt() const;
-	void						tworzStanProbkowania();
+	void						wiazRzutnie() const;
 	void						wiazStanProbkowania() const;
-	void						tworzGlebiaSzablon();
-} zasoby;
+	void						wiazStruktWe() const;
+	void						wiazSzadPiks() const;
+	void						wiazSzadWierz() const;
+	void						wypelnijCoObiekt();
+} extern zasoby;
 
-#endif

@@ -1,8 +1,8 @@
-﻿#ifndef _DEBUG_C_
-#define _DEBUG_C_
+﻿#pragma once
 
 #include "debug.h"
 
+bool Logi::flgWlaczone = true;
 void Logi::piszTytul(
 	string const		tytul
 	) {
@@ -62,6 +62,10 @@ void Logi::pisz(
 	string const		tytul,
 	string const		tresc
 	) {
+	if(flgWlaczone == false) {
+		return;
+	}
+
 	plik.open(nazwaPliku, std::ios::app);
 
 	plik << "\n";
@@ -76,6 +80,10 @@ void Logi::piszStart(
 	string const		tytul,
 	string const		tresc
 	) {
+	if(flgWlaczone == false) {
+		return;
+	}
+
 	pisz(tytul, tresc);
 	++poziomAktWciecia;
 }
@@ -83,10 +91,16 @@ void Logi::piszStop(
 	string const		tytul,
 	string const		tresc
 	) {
+	if(flgWlaczone == false) {
+		return;
+	}
+
 	--poziomAktWciecia;
 	pisz(tytul, tresc);
 }
+Logi logi;
 
+HRESULT wynik;
 Wyjatek::Wyjatek() : opis("")
 	{}
 void SprawdzWynik(
@@ -107,4 +121,3 @@ void ObslugaWyjatek(
 	logi.pisz("BLAD", wyj.opis);
 }
 
-#endif

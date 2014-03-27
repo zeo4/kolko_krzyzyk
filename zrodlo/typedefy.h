@@ -1,8 +1,9 @@
-﻿#ifndef _TYPEDEFY_H_
-#define _TYPEDEFY_H_
+﻿#pragma once
 
-class IObiekt3W;
+class IObiekt;
+class Obiekt3W;
 
-typedef map<IObiekt3W* const, set<IObiekt3W const* const>>		Kolizje_;
+typedef map<IObiekt* const, set<IObiekt const* const>>		Kolizje_;
+typedef vector<Obiekt3W const* const>						WektObiekty3W_;
 
-#endif
+

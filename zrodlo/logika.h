@@ -1,5 +1,4 @@
-﻿#ifndef _LOGIKA_H_
-#define _LOGIKA_H_
+﻿#pragma once
 
 #include "globalne.h"
 #include "debug.h"
@@ -7,8 +6,8 @@
 #include "swiat.h"
 
 class Logika {
-	IObiekt3W*		obiektKursor;
-	IObiekt3W*		obiektWybrany;
+	IObiekt*		obiektKursor;
+	IObiekt*		obiektWybrany;
 	Swiat			swiat;
 	Wejscie			wejscie;
 	void			uwzglWejscie();
@@ -17,7 +16,5 @@ public:
 	void			inic3W();
 	void			inicScena();
 	void			tworzKolejnaKlatka();
-	void			wyswietlScena();
 };
 
-#endif
