@@ -3,6 +3,17 @@
 #include "fizyka.h"
 
 Fizyka3W::~Fizyka3W() {}
+void Fizyka3W::aktualizujParamFiz() {}
+void Fizyka3W::aktualizujPoz(
+	) {
+	// prędkość
+	XMStoreFloat4x4(
+		&obiekt->macPrzesun,
+		XMMatrixTranslationFromVector(XMLoadFloat3(&obiekt->v) + XMLoadFloat3(&obiekt->vRodzic)) * XMLoadFloat4x4(&obiekt->macPrzesun)
+	);
+	//obiekt->vRodzic = XMFLOAT3(0,0,0);
+	obiekt->v = XMFLOAT3(0,0,0);
+}
 void Fizyka3W::aktualizujSiatka() {
 	// rozmiar pojedynczego obszaru
 	float rozm = 0.5f;
@@ -33,7 +44,7 @@ void Fizyka3W::dodajPredkosc(
 	XMVECTOR const		w
 	) {
 	XMVECTOR v = XMLoadFloat3(&obiekt->v);
-	v = v + w;
+	v += w;
 	XMStoreFloat3(&obiekt->v, v);
 }
 bool Fizyka3W::sprawdzKolizjaBryly(
@@ -47,28 +58,6 @@ bool Fizyka3W::sprawdzKolizjaBryly(
 		XMVECTOR v2 = XMLoadFloat3(&ob->v);
 		return sprawdzKolizjaPudelkoPudelko(pktMin1 + v1, pktMaks1 + v1, pktMin2 + v2, pktMaks2 + v2);
 	}
-	return false;
-}
-bool Fizyka3W::sprawdzKolizjaModele(
-	IObiekt const* const		ob
-	) const {
-	//vector<XMFLOAT3> wierzcholkiA, wierzcholkiB;
-	//wezWierzcholkiSwiat(&wierzcholkiA);
-	//ob->fiz->wezWierzcholkiSwiat(&wierzcholkiB);
-	//for(int i = 0; i < obiekt3W->ind.size()-2; i += 3) {
-	//for(int j = 0; j < ob->ind.size()-2; j += 3) {
-	//	if(sprawdzKolizjaTrojkatTrojkat(
-	//		XMLoadFloat3(&obiekt3W->wierz.at(obiekt3W->ind.at(i))),
-	//		XMLoadFloat3(&obiekt3W->wierz.at(obiekt3W->ind.at(i+1))),
-	//		XMLoadFloat3(&obiekt3W->wierz.at(obiekt3W->ind.at(i+2))),
-	//		XMLoadFloat3(&ob->wierz.at(ob->ind.at(j))),
-	//		XMLoadFloat3(&ob->wierz.at(ob->ind.at(j+1))),
-	//		XMLoadFloat3(&ob->wierz.at(ob->ind.at(j+2)))
-	//	)) {
-	//		return true;
-	//	}
-	//}
-	//}
 	return false;
 }
 void Fizyka3W::usunSwiatPkt(
@@ -125,22 +114,22 @@ bool Fizyka3W::wezBrylaGraniczna(
 	return true;
 }
 void Fizyka3W::wezKolidujaceZ3W(
-	WektObiekty3W_* const		wekt,
+	WektObiekty3W_* const		obiektyKol,
 	Obiekt3W const* const		ob
 	) const {
-	wekt->clear();
+	obiektyKol->clear();
 	if(sprawdzKolizjaBryly(ob)) {
-		wekt->push_back(obiekt);
+		obiektyKol->push_back(obiekt);
 	}
 }
-bool Fizyka3W::wezKolizjePromien(
-	set<float>* const		odlKolizje,
-	XMVECTOR const			pocz,
-	XMVECTOR const			kier
+void Fizyka3W::wezKolizjePromien(
+	MapaFloatObiekt_* const		odlKolizje,
+	XMVECTOR const				pocz,
+	XMVECTOR const				kier
 	) const {
 	odlKolizje->clear();
 
-	// weź odległości (od początku promienia) punktów kolizji, ułożone według odległości od najmniejszej do największej (istnieją odległości ujemne)
+	// weź pary: odległość (od początku promienia) punku kolizjii - obiekt, ułożone rosnąco według odległości (istnieją odległości ujemne)
 	float odl;
 	for(int i = 0; i < obiekt->ind.size()-2; ++i) {
 		if(wezKolizjaPromienTrojkat(
@@ -149,31 +138,9 @@ bool Fizyka3W::wezKolizjePromien(
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i+1)).poz),
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i+2)).poz)
 		)) {
-			// zapisz odległość punktu kolizji
-			odlKolizje->insert(odl);
+			// zapisz parę: odległość - obiekt
+			odlKolizje->insert(ParaFloatObiekt_(odl, obiekt));
 		}
-	}
-
-	// jeśli brak kolizji promienia z obiektem
-	if(odlKolizje->size() == 0) {
-		return false;
-	} else {
-		return true;
-	}
-}
-void Fizyka3W::wezWierzcholkiSwiat(
-	vector<XMFLOAT3>* const		w
-	) const 
-{
-	w->clear();
-
-	XMMATRIX m = obiekt->wezSwiat();
-	XMFLOAT3 pkt;
-	for(int i = 0; i < obiekt->wierz.size(); ++i) {
-		XMStoreFloat3(
-			&pkt, XMVector3TransformCoord(XMLoadFloat3(&obiekt->wierz[i].poz), m)
-		);
-		w->push_back(pkt);
 	}
 }
 
@@ -186,12 +153,15 @@ void Fizyka3WKolizyjny::wykonajKolizjaSiatka(
 	WektObiekty3W_* const		obiektyKol,
 	IObiekt const* const		ob
 	) {
+	obiektyKol->clear();
+
 	WektObiekty3W_ kolidujace;
 	ob->fiz->wezKolidujaceZ3W(&kolidujace, obiekt);
 	
 	for(int i = 0; i < kolidujace.size(); ++i) {
 		wykonajKolizjaBryly(kolidujace[i]);
 	}
+
 	obiektyKol->insert(obiektyKol->end(), kolidujace.begin(), kolidujace.end());
 }
 
@@ -203,21 +173,7 @@ void Fizyka3WNiekolizyjny::wykonajKolizjaSiatka(
 	ob->fiz->wezKolidujaceZ3W(&kolidujace, obiekt);
 	obiektyKol->insert(obiektyKol->end(), kolidujace.begin(), kolidujace.end());
 }
-
-void Fizyka3WNieopozniony::aktualizujPoz() {
-	// prędkość
-	XMStoreFloat4x4(
-		&obiekt->macPrzesun,
-		XMMatrixTranslationFromVector(XMLoadFloat3(&obiekt->v)) * XMLoadFloat4x4(&obiekt->macPrzesun)
-	);
-	obiekt->v = XMFLOAT3(0,0,0);
-}
 // ---------------------------------------------
-FizykaLitera::FizykaLitera(
-	Obiekt3W* const		ob
-	) : IFizyka3W(ob)
-	{}
-
 FizykaPostac::FizykaPostac(
 	Obiekt3W* const		ob
 	) : IFizyka3W(ob)
@@ -240,20 +196,56 @@ void FizykaZbior::dodajPredkosc(
 	XMVECTOR const		w
 	) {
 	XMVECTOR v = XMLoadFloat3(&obiekt->v);
-	v = v + w;
+	v += w;
 	XMStoreFloat3(&obiekt->v, v);
 }
-bool FizykaZbior::sprawdzKolizjaBryly(IObiekt const* const) const {return false;}
-bool FizykaZbior::sprawdzKolizjaModele(IObiekt const* const) const {return false;}
-void FizykaZbior::usunSwiatPkt(XMVECTOR* const) const {}
-void FizykaZbior::usunSwiatWektor(XMVECTOR* const) const {}
-bool FizykaZbior::wezKolizjePromien(set<float>* const, XMVECTOR const, XMVECTOR const) const {return false;}
-void FizykaZbior::wezWierzcholkiSwiat(vector<XMFLOAT3>* const) const {}
+void FizykaZbior::wezKolidujaceZ3W(
+	WektObiekty3W_* const		obiektyKol,
+	Obiekt3W const* const		ob
+	) const {
+	obiektyKol->clear();
+	ListaObiekty::const_iterator it;
+	WektObiekty3W_ kolidujace;
+	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
+		(*it)->fiz->wezKolidujaceZ3W(&kolidujace, ob);
+		obiektyKol->insert(obiektyKol->end(), kolidujace.begin(), kolidujace.end());
+	}
+}
 
+void FizykaZbiorZalezny::aktualizujParamFiz(
+	) {
+	ListaObiekty::const_iterator it;
+	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
+		(*it)->vRodzic = obiekt->v;
+	}
+	obiekt->v = XMFLOAT3(0,0,0);
+}
+void FizykaZbiorZalezny::wezKolizjePromien(
+	MapaFloatObiekt_* const		odlKolizje,
+	XMVECTOR const				pocz,
+	XMVECTOR const				kier
+	) const {
+	odlKolizje->clear();
+	ListaObiekty::const_iterator it;
+	MapaFloatObiekt_ odlKol;
+	MapaFloatObiekt_::iterator itKol;
+	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
+		(*it)->wezKolizjePromien(&odlKol, pocz, kier);
+
+		// zamień wszystkie obiekty w mapie na aktualny obiekt
+		for(itKol = odlKol.begin(); itKol != odlKol.end(); ++itKol) {
+			itKol->second = obiekt;
+		}
+
+		odlKolizje->insert(odlKol.begin(), odlKol.end());
+	}
+}
 void FizykaZbiorZalezny::wykonajKolizjaSiatka(
 	WektObiekty3W_* const		obiektyKol,
 	IObiekt const* const		ob
 	) {
+	obiektyKol->clear();
+
 	SiatkaObiekty siatka1, siatka2;
 	siatka1 = obiekt->siatka;
 	ListaObiekty::const_iterator it;
@@ -262,19 +254,20 @@ void FizykaZbiorZalezny::wykonajKolizjaSiatka(
 		siatka1.dopiszSiatka(siatka2);
 	}
 
-	Kolizje_ kolizje;
+	MapaKolizje_ kolizje;
 	siatka1.wezKolizje(&kolizje);
 
-	Kolizje_::const_iterator itA;
+	MapaKolizje_::const_iterator itA;
 	set<IObiekt const* const>::const_iterator itB;
-	WektObiekty3W_ obKol1;
+	WektObiekty3W_ obKol;
 	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
 	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
-		itA->first->fiz->wykonajKolizjaSiatka(&obKol1, *itB);
+		itA->first->fiz->wykonajKolizjaSiatka(&obKol, *itB);
+		obiektyKol->insert(obiektyKol->end(), obKol.begin(), obKol.end());
 	}
 	}
 
-	if(obKol1.size() > 0) {
+	if(obiektyKol->size() > 0) {
 		obiekt->v = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	}
 }

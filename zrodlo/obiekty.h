@@ -6,8 +6,8 @@
 #include "grafika.h"
 #include "typedefy.h"
 #include "listaObiekty.h"
+#include "ifizyka.h"
 
-class IFizyka;
 class IGrafika;
 
 struct Wierzcholek {
@@ -36,7 +36,7 @@ public:
 	void				dopiszSiatka(SiatkaObiekty const);
 	void				czysc();
 	void				ustawWspolnyObiekt(IObiekt* const);
-	void				wezKolizje(Kolizje_* const) const;
+	void				wezKolizje(MapaKolizje_* const) const;
 	bool				wezObiekty(
 							set<IObiekt* const>* const, float, float, float
 						) const;
@@ -53,25 +53,23 @@ class IObiekt {
 protected:
 	IFizyka*			fiz;
 	IGrafika*			graf;
-	XMFLOAT4X4			macPrzesun;
 	SiatkaObiekty		siatka;
 	XMFLOAT3			v;
+	XMFLOAT3			vRodzic;
 public:
 						IObiekt();
 	virtual				~IObiekt();
-	void				aktualizujPoz();
+	void				aktualizujParamFiz();
 	void				aktualizujSiatka();
 	void				rysuj() const;
-	void virtual		ustawFizyka() = 0;
-	void virtual		ustawGrafika() = 0;
-	bool virtual		wezKolizjePromien(
-							set<float>* const, XMVECTOR, XMVECTOR
+	virtual void		ustawFizyka() = 0;
+	virtual void		ustawGrafika() = 0;
+	virtual void		wezKolizjePromien(
+							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
 						) const = 0;
-	XMVECTOR			wezPoz() const;
 	void				wezSiatka(SiatkaObiekty* const);
-	XMMATRIX			wezSwiat() const;
 	void				wykonajKolizjaSiatka(IObiekt const* const);
-	void virtual		wykonajRuch(XMVECTOR const) = 0;
+	virtual void		wykonajRuch(XMVECTOR const) = 0;
 };
 
 class Obiekt3W : public IObiekt {
@@ -83,10 +81,10 @@ class Obiekt3W : public IObiekt {
 	ID3D11Buffer*					bufWierz;
 	IFizyka3W*						fiz;
 	vector<DWORD>					ind;
-	XMFLOAT4X4 const* const			macProjekcja;
-	XMFLOAT4X4 const* const			macWidok;
+	XMFLOAT4X4						macPrzesun;
 	ID3D11ShaderResourceView*		widokTekstura;
 	vector<Wierzcholek>				wierz;
+	void							aktualizujPoz();
 	void							nadpiszIndeksy(
 										DWORD const *const,
 										UINT const
@@ -107,21 +105,23 @@ class Obiekt3W : public IObiekt {
 	void							wypelnijBufIndeksy();
 	void							wypelnijBufWierz();
 public:
+	XMFLOAT4X4 static				macProjekcja;
+	XMFLOAT4X4 static				macWidok;
 									Obiekt3W(
 										Wierzcholek const *const, UINT const,
 										DWORD const *const, UINT const,
-										string,
-										XMFLOAT4X4 const* const,
-										XMFLOAT4X4 const* const
+										string
 									);
 	virtual							~Obiekt3W();
-	void virtual					ustawFizyka();
-	void virtual					ustawGrafika();
-	bool virtual					wezKolizjePromien(
-										set<float>* const,
+	void							ustawFizyka();
+	void							ustawGrafika();
+	void							wezKolizjePromien(
+										MapaFloatObiekt_* const,
 										XMVECTOR const, XMVECTOR const
 									) const;
-	void virtual					wykonajRuch(XMVECTOR const);
+	XMVECTOR						wezPoz() const;
+	XMMATRIX						wezSwiat() const;
+	void							wykonajRuch(XMVECTOR const);
 };
 
 class ObiektZbior : public IObiekt {
@@ -130,11 +130,14 @@ class ObiektZbior : public IObiekt {
 	friend class GrafikaZbiorPodstawa;
 	ListaObiekty		podobiekty;
 public:
-						ObiektZbior(
-							ListaObiekty::const_iterator const,
-							ListaObiekty::const_iterator const
-						);
+						ObiektZbior();
 	virtual				~ObiektZbior();
-	void virtual		ustawFizyka();
+	void				dodaj(IObiekt* const);
+	void				ustawFizyka();
+	void				ustawGrafika();
+	void				wezKolizjePromien(
+							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
+						) const;
+	void				wykonajRuch(XMVECTOR const);
 };
 

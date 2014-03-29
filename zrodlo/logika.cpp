@@ -7,28 +7,32 @@ void Logika::uwzglWejscie() {
 	DIMOUSESTATE stanMysz;
 	wejscie.wez(stanKlawiatura, &stanMysz);
 
-	if(stanKlawiatura[DIK_W] & 0x80) {
-		obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f));
+	if(obiektWybrany != NULL) {
+		if(stanKlawiatura[DIK_W] & 0x80) {
+			obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f));
+		}
+		if(stanKlawiatura[DIK_S] & 0x80) {
+			obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f));
+		}
+		if(stanKlawiatura[DIK_A] & 0x80) {
+			obiektWybrany->wykonajRuch(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f));
+		}
+		if(stanKlawiatura[DIK_D] & 0x80) {
+			obiektWybrany->wykonajRuch(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f));
+		}
 	}
-	if(stanKlawiatura[DIK_S] & 0x80) {
-		obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f));
-	}
-	if(stanKlawiatura[DIK_A] & 0x80) {
-		obiektWybrany->wykonajRuch(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f));
-	}
-	if(stanKlawiatura[DIK_D] & 0x80) {
-		obiektWybrany->wykonajRuch(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f));
-	}
-	if(stanMysz.lX != 0) {
-		float p = stanMysz.lX * 0.001f;
-		obiektKursor->wykonajRuch(XMVectorSet(p, +0.0f, +0.0f, +0.0f));
-	}
-	if(stanMysz.lY != 0) {
-		float p = -stanMysz.lY * 0.001f;
-		obiektKursor->wykonajRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
-	}
-	if(stanMysz.rgbButtons[0] & 0x80) {
-		swiat.wezObPromien(&obiektWybrany, obiektKursor);
+	if(obiektKursor != NULL) {
+		if(stanMysz.lX != 0) {
+			float p = stanMysz.lX * 0.001f;
+			obiektKursor->wykonajRuch(XMVectorSet(p, +0.0f, +0.0f, +0.0f));
+		}
+		if(stanMysz.lY != 0) {
+			float p = -stanMysz.lY * 0.001f;
+			obiektKursor->wykonajRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
+		}
+		if(stanMysz.rgbButtons[0] & 0x80) {
+			swiat.wezObPromien(&obiektWybrany, obiektKursor);
+		}
 	}
 }
 Logika::Logika(
@@ -103,6 +107,10 @@ void Logika::inicScena() {
 	obiektKursor = swiat.tworzObiektKursor();
 	obiektWybrany = swiat.tworzObiektRycerz();
 	swiat.tworzObiektSmok();
+	Tekst t;
+	t.pisz("abcdefghijklmnopqrstuvwxyz");
+	//t.pisz("abc");
+	swiat.dodaj(t.wezObiektGraf());
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 	zasoby.tworzSzadWierz();

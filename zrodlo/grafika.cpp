@@ -1,5 +1,4 @@
-﻿#ifndef _GRAFIKA_C_
-#define _GRAFIKA_C_
+﻿#pragma once
 
 #include "grafika.h"
 
@@ -7,8 +6,8 @@ IGrafika::~IGrafika() {}
 
 void Grafika3WPodstawa::aktualizujCoObiekt() const {
 	XMMATRIX mSwiat = XMLoadFloat4x4(&obiekt->macPrzesun);
-	XMMATRIX mWidok = XMLoadFloat4x4(obiekt->macWidok);
-	XMMATRIX mProjekcja = XMLoadFloat4x4(obiekt->macProjekcja);
+	XMMATRIX mWidok = XMLoadFloat4x4(&obiekt->macWidok);
+	XMMATRIX mProjekcja = XMLoadFloat4x4(&obiekt->macProjekcja);
 	// macierz SWP musi być transponowana przed wysłaniem do szadera
 	zasoby.daneCoObiekt.macSWP = XMMatrixTranspose(mSwiat * mWidok * mProjekcja);
 }
@@ -36,6 +35,7 @@ Grafika3WPodstawa::Grafika3WPodstawa(
 	{}
 Grafika3WPodstawa::~Grafika3WPodstawa() {}
 void Grafika3WPodstawa::rysuj() const {
+	obiekt->aktualizujPoz();
 	aktualizujCoObiekt();
 	zasoby.wypelnijCoObiekt();
 	zasoby.wiazCoObiekt();
@@ -55,4 +55,3 @@ void GrafikaZbiorPodstawa::rysuj() const {
 	}
 }
 
-#endif

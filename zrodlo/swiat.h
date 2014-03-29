@@ -44,11 +44,12 @@ private:
 public:
 						Swiat();
 						~Swiat();
+	void				dodaj(IObiekt* const);
 	void				tworzKolejnaKlatka();
-	IObiekt*			tworzObiektKursor();
+	Obiekt3W*			tworzObiektKursor();
 	IObiekt*			tworzObiektRycerz();
 	IObiekt*			tworzObiektSmok();
-	bool				wezObPromien(IObiekt** const, IObiekt const* const) const;
+	void				wezObPromien(IObiekt** const, Obiekt3W const* const) const;
 };
 
 #endif

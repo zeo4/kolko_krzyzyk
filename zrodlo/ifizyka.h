@@ -11,10 +11,9 @@ class ObiektZbior;
 class IFizyka {
 public:
 	virtual				~IFizyka();
-	void virtual		aktualizujPoz() = 0;
-	void virtual		aktualizujSiatka() = 0;
-	void virtual		dodajPredkosc(XMVECTOR const) = 0;
-	bool virtual		sprawdzKolizjaModele(IObiekt const* const) const = 0;
+	virtual void		aktualizujParamFiz() = 0;
+	virtual void		aktualizujSiatka() = 0;
+	virtual void		dodajPredkosc(XMVECTOR const) = 0;
 	bool				sprawdzKolizjaPudelkoPudelko(
 							FXMVECTOR const, FXMVECTOR const,
 							FXMVECTOR const, CXMVECTOR const
@@ -23,9 +22,7 @@ public:
 							FXMVECTOR const, FXMVECTOR const, FXMVECTOR const,
 							CXMVECTOR const, CXMVECTOR const, CXMVECTOR const
 						) const;
-	void virtual		usunSwiatPkt(XMVECTOR* const) const = 0;
-	void virtual		usunSwiatWektor(XMVECTOR* const) const = 0;
-	void virtual		wezKolidujaceZ3W(
+	virtual void		wezKolidujaceZ3W(
 							WektObiekty3W_* const, Obiekt3W const* const
 						) const = 0;
 	bool				wezKolizjaOdcinekTrojkat(
@@ -33,8 +30,8 @@ public:
 							FXMVECTOR const, FXMVECTOR const,
 							FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
 						) const;
-	bool virtual		wezKolizjePromien(
-							set<float>* const,
+	virtual void		wezKolizjePromien(
+							MapaFloatObiekt_* const,
 							XMVECTOR const, XMVECTOR const
 						) const = 0;
 	bool				wezKolizjaPromienTrojkat(
@@ -42,10 +39,7 @@ public:
 							FXMVECTOR const, FXMVECTOR const,
 							FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
 						) const;
-	void virtual		wezWierzcholkiSwiat(
-							vector<XMFLOAT3>* const
-						) const = 0;
-	void virtual		wykonajKolizjaSiatka(
+	virtual void		wykonajKolizjaSiatka(
 							WektObiekty3W_* const, IObiekt const* const
 						) = 0;
 };
@@ -56,8 +50,11 @@ public:
 						IFizyka3W(Obiekt3W* const);
 	virtual				~IFizyka3W();
 	Obiekt3W* const		obiekt;
-	bool virtual		sprawdzKolizjaBryly(Obiekt3W const* const) const = 0;
-	bool virtual		wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const = 0;
+	virtual void		aktualizujPoz() = 0;
+	virtual bool		sprawdzKolizjaBryly(Obiekt3W const* const) const = 0;
+	virtual void		usunSwiatPkt(XMVECTOR* const) const = 0;
+	virtual void		usunSwiatWektor(XMVECTOR* const) const = 0;
+	virtual bool		wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const = 0;
 };
 
 class IFizykaZbior : public IFizyka {

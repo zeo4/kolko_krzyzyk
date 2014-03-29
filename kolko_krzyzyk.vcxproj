@@ -85,6 +85,7 @@
     <ClCompile Include="zrodlo\listaObiekty.cpp" />
     <ClCompile Include="zrodlo\logika.cpp" />
     <ClCompile Include="zrodlo\obiekty.cpp" />
+    <ClCompile Include="zrodlo\obiektyGra.cpp" />
     <ClCompile Include="zrodlo\swiat.cpp" />
     <ClCompile Include="zrodlo\testy.cpp" />
     <ClCompile Include="zrodlo\wejscie.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="zrodlo\obiekty.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="zrodlo\obiektyGra.h" />
     <ClInclude Include="zrodlo\swiat.h" />
     <ClInclude Include="zrodlo\testy.h" />
     <ClInclude Include="zrodlo\typedefy.h" />

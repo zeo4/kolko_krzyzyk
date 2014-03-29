@@ -9,7 +9,6 @@ void Swiat::aktualizujMacProjekcja() {
 		odlBlizszaPlaszcz,
 		odlDalszaPlaszcz
 	));
-	logi.pisz("OK", "Swiat::aktualizujMacProjekcja().");
 }
 void Swiat::aktualizujMacWidok() {
 	XMVECTOR w1 = XMLoadFloat3(&pozKamera);
@@ -17,7 +16,6 @@ void Swiat::aktualizujMacWidok() {
 	XMVECTOR w3 = XMLoadFloat3(&goraKamera);
 
 	XMStoreFloat4x4(&macWidok, XMMatrixLookAtLH(w1, w2, w3));
-	logi.pisz("OK", "Swiat::aktualizujMacWidok().");
 }
 void Swiat::niszczObiektSwiat(
 	IObiekt* const		ob
@@ -132,16 +130,26 @@ Swiat::Swiat() {
 Swiat::~Swiat() {
 	niszczObiektySwiat();
 }
+void Swiat::dodaj(
+	IObiekt* const		ob
+	) {
+	obiektySwiat.insert(ob);
+}
 void Swiat::tworzKolejnaKlatka() {
-	wykonajKolizjeSiatka();
-
 	ListaObiekty::const_iterator it;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->aktualizujPoz();
+		(*it)->aktualizujParamFiz();
+	}
+
+	wykonajKolizjeSiatka();
+
+	Obiekt3W::macProjekcja = macProjekcja;
+	Obiekt3W::macWidok = macWidok;
+	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
 		(*it)->rysuj();
 	}
 }
-IObiekt* Swiat::tworzObiektKursor() {
+Obiekt3W* Swiat::tworzObiektKursor() {
 	Wierzcholek wierzcholki[] = {
 		Wierzcholek(+0.0f, -0.2f, +0.0f, +0.0f, +1.0f),
 		Wierzcholek(+0.0f, +0.0f, +0.0f, +0.5f, +0.0f),
@@ -151,17 +159,13 @@ IObiekt* Swiat::tworzObiektKursor() {
 		0, 1, 2
 	};
 
-	IObiekt* const ob = new Obiekt3W(
+	Obiekt3W* const ob = new Obiekt3W(
 		wierzcholki,
 		3,
 		indeksy,
 		3,
-		"tekstura\\t1.jpg",
-		&macProjekcja,
-		&macWidok
+		"tekstura\\t1.jpg"
 	);
-	ob->ustawFizyka();
-	ob->ustawGrafika();
 	obiektySwiat.insert(ob);
 	return ob;
 }
@@ -190,14 +194,9 @@ IObiekt* Swiat::tworzObiektRycerz() {
 		6,
 		indeksy,
 		24,
-		"tekstura\\t2.jpg",
-		&macProjekcja,
-		&macWidok
+		"tekstura\\t2.jpg"
 	);
-	ob->ustawFizyka();
-	ob->ustawGrafika();
 	ob->wykonajRuch(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
-	ob->aktualizujPoz();
 	obiektySwiat.insert(ob);
 	return ob;
 }
@@ -216,23 +215,19 @@ IObiekt* Swiat::tworzObiektSmok() {
 		3,
 		indeksy,
 		3,
-		"tekstura\\t1.jpg",
-		&macProjekcja,
-		&macWidok
+		"tekstura\\t1.jpg"
 	);
-	ob->ustawFizyka();
-	ob->ustawGrafika();
 	ob->wykonajRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
-	ob->aktualizujPoz();
 	obiektySwiat.insert(ob);
 	return ob;
 }
-bool Swiat::wezObPromien(
+void Swiat::wezObPromien(
 	IObiekt** const				ob,
-	IObiekt const* const		obWybierajacy
+	Obiekt3W const* const		obWybierajacy
 	) const {
+	*ob = NULL;
 	if(obiektySwiat.size() == 0) {
-		return false;
+		return;
 	}
 
 	// początek i kierunek promienia wyboru
@@ -242,34 +237,23 @@ bool Swiat::wezObPromien(
 
 	// obiekty kolidujące z promieniem wyboru, ułożone od najbliższych początku promienia do najdalszych
 	ListaObiekty::const_iterator it;
-	set<float> odleglosci;
-	float odlMin = 0;
-	float odl;
+	MapaFloatObiekt_ odlKolizje;
+	MapaFloatObiekt_::const_iterator itKol;
+	float odlMin = -1;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
 		if(*it == obWybierajacy) {
 			continue;
 		}
 
-		if((*it)->wezKolizjePromien(&odleglosci, pocz1, kier1)) {
-			if(odlMin == 0) {
-				odlMin = *odleglosci.upper_bound(0);
-				*ob = *it;
-				continue;
-			}
-			odl = *odleglosci.upper_bound(0);
-			if(odl < odlMin) {
-				odlMin = odl;
-				*ob = *it;
+		(*it)->wezKolizjePromien(&odlKolizje, pocz1, kier1);
+		if(odlKolizje.size() > 0) {
+			itKol = odlKolizje.upper_bound(0);
+			if(odlMin == -1 || itKol->first < odlMin) {
+				odlMin = itKol->first;
+				*ob = itKol->second;
 			}
 		}
 	}
-
-	// brak elementów kolizjii
-	if(odlMin == 0) {
-		return false;
-	}
-
-	return true;
 }
 void Swiat::wykonajKolizjeSiatka() const {
 	SiatkaObiekty siatka1, siatka2;
@@ -280,10 +264,10 @@ void Swiat::wykonajKolizjeSiatka() const {
 		siatka1.dopiszSiatka(siatka2);
 	}
 
-	Kolizje_ kolizje;
+	MapaKolizje_ kolizje;
 	siatka1.wezKolizje(&kolizje);
 
-	Kolizje_::const_iterator itA;
+	MapaKolizje_::const_iterator itA;
 	set<IObiekt const* const>::const_iterator itB;
 	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
 	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {

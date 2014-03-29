@@ -4,9 +4,10 @@
 #include "debug.h"
 #include "wejscie.h"
 #include "swiat.h"
+#include "obiektyGra.h"
 
 class Logika {
-	IObiekt*		obiektKursor;
+	Obiekt3W*		obiektKursor;
 	IObiekt*		obiektWybrany;
 	Swiat			swiat;
 	Wejscie			wejscie;

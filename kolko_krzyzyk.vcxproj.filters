@@ -57,6 +57,9 @@
     <ClCompile Include="zrodlo\ifizyka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="zrodlo\obiektyGra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="zrodlo\b.bat">
@@ -104,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zrodlo\ifizyka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\obiektyGra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

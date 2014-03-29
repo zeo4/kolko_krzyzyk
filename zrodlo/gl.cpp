@@ -142,5 +142,6 @@ int WINAPI WinMain(
 // Przy kolizji zapobiegać "przestrzeleniu" obiektów.
 // Cała inicjalizacja do logów.
 // Napisać kolizje modeli tak aby się po sobie zsuwały. Wykorzystać siły (F).
+// Dorobić przy kolizjach wpływ od kolidujących obiektów i ich rodziców. Nie uwzględnia parametrów rodzica przy sprawdzaniu kolizjii.
 
-// Ustawiony jest breakpoint. Gdy obiekty odsunięte są pod wpływem obliczeń kolizji, przylegają do siebie, ale nie powinny wywoływać zdarzenia kolizji (teraz wywołują) bo przecież nie powinny kolidować.
+// Wybieranie nie działa we wszystkich punktach liter tekstu.

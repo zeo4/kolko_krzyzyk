@@ -107,9 +107,10 @@ IFizyka3W::IFizyka3W(
 IFizyka3W::~IFizyka3W() {}
 
 IFizykaZbior::IFizykaZbior() : obiekt(NULL)
-{}
+	{}
 IFizykaZbior::IFizykaZbior(
 	ObiektZbior* const		ob
 	) : obiekt(ob)
 	{}
 IFizykaZbior::~IFizykaZbior() {}
+
