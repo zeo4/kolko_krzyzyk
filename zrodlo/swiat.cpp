@@ -205,16 +205,16 @@ IObiekt* Swiat::tworzObiektSmok() {
 		Wierzcholek(+0.5f, -0.5f, +0.0f, +1.0f, +0.0f),
 		Wierzcholek(-0.5f, -0.5f, +0.0f, +1.0f, +1.0f),
 		Wierzcholek(-0.5f, +0.5f, +0.0f, +0.0f, +1.0f),
+		Wierzcholek(+0.5f, +0.5f, +0.0f, +0.0f, +0.0f)
 	};
 	DWORD indeksy[] = {
-		0, 1, 2
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	IObiekt* const ob = new Obiekt3W(
-		wierzcholki,
-		3,
-		indeksy,
-		3,
+		wierzcholki, 4,
+		indeksy, 6,
 		"tekstura\\t1.jpg"
 	);
 	ob->wykonajRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));

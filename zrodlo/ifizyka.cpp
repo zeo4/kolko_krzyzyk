@@ -62,7 +62,7 @@ bool IFizyka::wezKolizjaOdcinekTrojkat(
 	return false;
 }
 bool IFizyka::wezKolizjaPromienTrojkat(
-	float* const		odlKol,
+	float* const		t, // odległość kolizjii od początku promienia
 	FXMVECTOR const		pocz,
 	FXMVECTOR const		kier,
 	FXMVECTOR const		w0,
@@ -70,28 +70,29 @@ bool IFizyka::wezKolizjaPromienTrojkat(
 	CXMVECTOR const		w2
 	) const {
 	//------------------WZORY-------------------------
-	// pkt promienia r(t) = poz + t*kier
-	// w1 = wierz1 - wierz0, w2 = wierz2 - wierz0
-	// pkt trojkata T(u,v) = wierz0 + u*w1 + v*w2, dla u >= 0, v >= 0, u+v <= 1
-	// m = poz - wierz0
-	// t = w2 * (m x w1) / w1 * (kier x w2)
-	// u = m * (kier x w2) / w1 * (kier x w2)
-	// v = kier * (m x w1) / w1 * (kier x w2)
+	// pkt promienia r(t) = pocz + t*kier
+	// wekt1 = w1 - w0, wekt2 = w2 - w0
+	// pkt trojkata T(u,v) = w0 + u*wekt1 + v*wekt2, dla u >= 0, v >= 0, u+v <= 1
+	// m = pocz - w0
+	// t = wekt2 * (m x wekt1) / wekt1 * (kier x wekt2)
+	// u = m * (kier x wekt2) / wekt1 * (kier x wekt2)
+	// v = kier * (m x wekt1) / wekt1 * (kier x wekt2)
 	//------------------------------------------------
 	XMVECTOR wekt1 = w1 - w0;
 	XMVECTOR wekt2 = w2 - w0;
 	XMVECTOR m = pocz - w0;
-	XMVECTOR kxw2 = XMVector3Cross(kier, wekt2);
-	XMVECTOR U = XMVector3Dot(m, kxw2) / XMVector3Dot(w1, kxw2);
-	XMVECTOR V = XMVector3Dot(kier, XMVector3Cross(m, wekt1)) / XMVector3Dot(wekt1, kxw2);
+	XMVECTOR kxwekt2 = XMVector3Cross(kier, wekt2);
+	XMVECTOR mxwekt1 = XMVector3Cross(m, wekt1);
+	XMVECTOR U = XMVector3Dot(m, kxwekt2) / XMVector3Dot(wekt1, kxwekt2);
+	XMVECTOR V = XMVector3Dot(kier, mxwekt1) / XMVector3Dot(wekt1, kxwekt2);
 	float u = XMVectorGetX(U);
 	float v = XMVectorGetX(V);
 
 	// jeśli kolizja
 	if(u >= 0 && v >=0 && u+v <= 1) {
 		// zwróć punkt kolizji
-		XMVECTOR T = XMVector3Dot(wekt2, XMVector3Cross(m, wekt1)) / XMVector3Dot(wekt1, kxw2);
-		*odlKol = XMVectorGetX(T);
+		XMVECTOR T = XMVector3Dot(wekt2, mxwekt1) / XMVector3Dot(wekt1, kxwekt2);
+		*t = XMVectorGetX(T);
 		return true;
 	} else {
 		return false;

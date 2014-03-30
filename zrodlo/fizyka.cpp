@@ -131,7 +131,7 @@ void Fizyka3W::wezKolizjePromien(
 
 	// weź pary: odległość (od początku promienia) punku kolizjii - obiekt, ułożone rosnąco według odległości (istnieją odległości ujemne)
 	float odl;
-	for(int i = 0; i < obiekt->ind.size()-2; ++i) {
+	for(int i = 0; i < obiekt->ind.size()-2; i += 3) {
 		if(wezKolizjaPromienTrojkat(
 			&odl, pocz, kier,
 			XMLoadFloat3(&obiekt->wierz.at(obiekt->ind.at(i)).poz),

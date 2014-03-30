@@ -108,8 +108,7 @@ void Logika::inicScena() {
 	obiektWybrany = swiat.tworzObiektRycerz();
 	swiat.tworzObiektSmok();
 	Tekst t;
-	t.pisz("abcdefghijklmnopqrstuvwxyz");
-	//t.pisz("abc");
+	t.pisz("d");
 	swiat.dodaj(t.wezObiektGraf());
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
