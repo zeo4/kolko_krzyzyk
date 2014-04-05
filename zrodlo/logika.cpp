@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "logika.h"
+#include "fizyka.h"
 
 void Logika::uwzglWejscie() {
 	BYTE stanKlawiatura[256];
@@ -9,26 +10,26 @@ void Logika::uwzglWejscie() {
 
 	if(obiektWybrany != NULL) {
 		if(stanKlawiatura[DIK_W] & 0x80) {
-			obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f));
 		}
 		if(stanKlawiatura[DIK_S] & 0x80) {
-			obiektWybrany->wykonajRuch(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f));
 		}
 		if(stanKlawiatura[DIK_A] & 0x80) {
-			obiektWybrany->wykonajRuch(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f));
 		}
 		if(stanKlawiatura[DIK_D] & 0x80) {
-			obiektWybrany->wykonajRuch(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f));
 		}
 	}
 	if(obiektKursor != NULL) {
 		if(stanMysz.lX != 0) {
 			float p = stanMysz.lX * 0.001f;
-			obiektKursor->wykonajRuch(XMVectorSet(p, +0.0f, +0.0f, +0.0f));
+			obiektKursor->wezFiz()->dodajPredkosc(XMVectorSet(p, +0.0f, +0.0f, +0.0f));
 		}
 		if(stanMysz.lY != 0) {
 			float p = -stanMysz.lY * 0.001f;
-			obiektKursor->wykonajRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
+			obiektKursor->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
 		}
 		if(stanMysz.rgbButtons[0] & 0x80) {
 			swiat.wezObPromien(&obiektWybrany, obiektKursor);
@@ -108,7 +109,7 @@ void Logika::inicScena() {
 	obiektWybrany = swiat.tworzObiektRycerz();
 	swiat.tworzObiektSmok();
 	Tekst t;
-	t.pisz("d");
+	t.pisz("fps: 60, to i tak duzo.");
 	swiat.dodaj(t.wezObiektGraf());
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");

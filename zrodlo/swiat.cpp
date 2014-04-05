@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "swiat.h"
+#include "fizyka.h"
 
 void Swiat::aktualizujMacProjekcja() {
 	XMStoreFloat4x4(&macProjekcja, XMMatrixPerspectiveFovLH(
@@ -135,16 +136,13 @@ void Swiat::dodaj(
 	) {
 	obiektySwiat.insert(ob);
 }
-void Swiat::tworzKolejnaKlatka() {
-	ListaObiekty::const_iterator it;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->aktualizujParamFiz();
-	}
-
+void Swiat::tworzKolejnaKlatka(
+	) {
 	wykonajKolizjeSiatka();
 
 	Obiekt3W::macProjekcja = macProjekcja;
 	Obiekt3W::macWidok = macWidok;
+	ListaObiekty::const_iterator it;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
 		(*it)->rysuj();
 	}
@@ -196,7 +194,7 @@ IObiekt* Swiat::tworzObiektRycerz() {
 		24,
 		"tekstura\\t2.jpg"
 	);
-	ob->wykonajRuch(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
+	ob->wezFiz()->dodajPredkosc(XMVectorSet(-2.0f, +0.0f, +2.0f, 0.0f));
 	obiektySwiat.insert(ob);
 	return ob;
 }
@@ -217,7 +215,7 @@ IObiekt* Swiat::tworzObiektSmok() {
 		indeksy, 6,
 		"tekstura\\t1.jpg"
 	);
-	ob->wykonajRuch(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
+	ob->wezFiz()->dodajPredkosc(XMVectorSet(+2.0f, +0.0f, +2.0f, 0.0f));
 	obiektySwiat.insert(ob);
 	return ob;
 }
@@ -269,9 +267,10 @@ void Swiat::wykonajKolizjeSiatka() const {
 
 	MapaKolizje_::const_iterator itA;
 	set<IObiekt const* const>::const_iterator itB;
+	WektObiekty3W_ obiektyRob;
 	for(itA = kolizje.begin(); itA != kolizje.end(); ++itA) {
 	for(itB = itA->second.begin(); itB != itA->second.end(); ++itB) {
-		itA->first->wykonajKolizjaSiatka(*itB);
+		itA->first->wezFiz()->wykonajKolizjaSiatka(&obiektyRob, *itB);
 	}
 	}
 }

@@ -81,11 +81,11 @@
     <ClCompile Include="zrodlo\gl.cpp" />
     <ClCompile Include="zrodlo\globalne.cpp" />
     <ClCompile Include="zrodlo\grafika.cpp" />
-    <ClCompile Include="zrodlo\ifizyka.cpp" />
     <ClCompile Include="zrodlo\listaObiekty.cpp" />
     <ClCompile Include="zrodlo\logika.cpp" />
     <ClCompile Include="zrodlo\obiekty.cpp" />
     <ClCompile Include="zrodlo\obiektyGra.cpp" />
+    <ClCompile Include="zrodlo\siatka.cpp" />
     <ClCompile Include="zrodlo\swiat.cpp" />
     <ClCompile Include="zrodlo\testy.cpp" />
     <ClCompile Include="zrodlo\wejscie.cpp" />
@@ -108,7 +108,6 @@
     <ClInclude Include="zrodlo\fizyka.h" />
     <ClInclude Include="zrodlo\globalne.h" />
     <ClInclude Include="zrodlo\grafika.h" />
-    <ClInclude Include="zrodlo\ifizyka.h" />
     <ClInclude Include="zrodlo\listaObiekty.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -117,6 +116,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="zrodlo\obiektyGra.h" />
+    <ClInclude Include="zrodlo\siatka.h" />
     <ClInclude Include="zrodlo\swiat.h" />
     <ClInclude Include="zrodlo\testy.h" />
     <ClInclude Include="zrodlo\typedefy.h" />

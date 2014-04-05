@@ -1,9 +1,10 @@
 ﻿#pragma once
 
 #include "obiektyGra.h"
+#include "fizyka.h"
 
 float Tekst::rozmPiks = 0.01;
-UINT Tekst::szerTekstura = 416;
+UINT Tekst::szerTekstura = 440;
 Obiekt3W* Tekst::tworzLitera(
 	char const		litera
 	) {
@@ -52,6 +53,8 @@ Obiekt3W* Tekst::tworzLitera(
 Tekst::Tekst(
 	) : literyGraf(new ObiektZbior)
 	{
+	literyGraf->wezFiz()->dodajPredkosc(XMVectorSet(-2.0f, +1.5f, +1.0f, +0.0f));
+
 	float *a = new float[3];
 	float *b = new float[3];
 	float *c = new float[3];
@@ -78,6 +81,22 @@ Tekst::Tekst(
 	float *x = new float[3];
 	float *y = new float[3];
 	float *z = new float[3];
+	float *znak0 = new float[3];
+	float *znak1 = new float[3];
+	float *znak2 = new float[3];
+	float *znak3 = new float[3];
+	float *znak4 = new float[3];
+	float *znak5 = new float[3];
+	float *znak6 = new float[3];
+	float *znak7 = new float[3];
+	float *znak8 = new float[3];
+	float *znak9 = new float[3];
+	float *spacja = new float[3];
+	float *wykrz = new float[3];
+	float *pytaj = new float[3];
+	float *dwukrop = new float[3];
+	float *przecin = new float[3];
+	float *krop = new float[3];
 	a[0] = 0; a[1] = 8; a[2] = 14;
 	b[0] = a[0] + a[1]; b[1] = 8; b[2] = 14;
 	c[0] = b[0] + b[1]; c[1] = 8; c[2] = 14;
@@ -104,6 +123,22 @@ Tekst::Tekst(
 	x[0] = w[0] + w[1]; x[1] = 8; x[2] = 14;
 	y[0] = x[0] + x[1]; y[1] = 8; y[2] = 14;
 	z[0] = y[0] + y[1]; z[1] = 8; z[2] = 14;
+	znak0[0] = z[0] + z[1]; znak0[1] = 8; znak0[2] = 14;
+	znak1[0] = znak0[0] + znak0[1]; znak1[1] = 8; znak1[2] = 14;
+	znak2[0] = znak1[0] + znak1[1]; znak2[1] = 8; znak2[2] = 14;
+	znak3[0] = znak2[0] + znak2[1]; znak3[1] = 8; znak3[2] = 14;
+	znak4[0] = znak3[0] + znak3[1]; znak4[1] = 8; znak4[2] = 14;
+	znak5[0] = znak4[0] + znak4[1]; znak5[1] = 8; znak5[2] = 14;
+	znak6[0] = znak5[0] + znak5[1]; znak6[1] = 8; znak6[2] = 14;
+	znak7[0] = znak6[0] + znak6[1]; znak7[1] = 8; znak7[2] = 14;
+	znak8[0] = znak7[0] + znak7[1]; znak8[1] = 8; znak8[2] = 14;
+	znak9[0] = znak8[0] + znak8[1]; znak9[1] = 8; znak9[2] = 14;
+	spacja[0] = znak9[0] + znak9[1]; spacja[1] = 8; spacja[2] = 14;
+	wykrz[0] = spacja[0] + spacja[1]; wykrz[1] = 8; wykrz[2] = 14;
+	pytaj[0] = wykrz[0] + wykrz[1]; pytaj[1] = 8; pytaj[2] = 14;
+	dwukrop[0] = pytaj[0] + pytaj[1]; dwukrop[1] = 8; dwukrop[2] = 14;
+	przecin[0] = dwukrop[0] + dwukrop[1]; przecin[1] = 8; przecin[2] = 14;
+	krop[0] = przecin[0] + przecin[1]; krop[1] = 8; krop[2] = 14;
 	mapaTekstura.insert(ParaLiteraPole_('a', a));
 	mapaTekstura.insert(ParaLiteraPole_('b', b));
 	mapaTekstura.insert(ParaLiteraPole_('c', c));
@@ -130,6 +165,22 @@ Tekst::Tekst(
 	mapaTekstura.insert(ParaLiteraPole_('x', x));
 	mapaTekstura.insert(ParaLiteraPole_('y', y));
 	mapaTekstura.insert(ParaLiteraPole_('z', z));
+	mapaTekstura.insert(ParaLiteraPole_('0', znak0));
+	mapaTekstura.insert(ParaLiteraPole_('1', znak1));
+	mapaTekstura.insert(ParaLiteraPole_('2', znak2));
+	mapaTekstura.insert(ParaLiteraPole_('3', znak3));
+	mapaTekstura.insert(ParaLiteraPole_('4', znak4));
+	mapaTekstura.insert(ParaLiteraPole_('5', znak5));
+	mapaTekstura.insert(ParaLiteraPole_('6', znak6));
+	mapaTekstura.insert(ParaLiteraPole_('7', znak7));
+	mapaTekstura.insert(ParaLiteraPole_('8', znak8));
+	mapaTekstura.insert(ParaLiteraPole_('9', znak9));
+	mapaTekstura.insert(ParaLiteraPole_(' ', spacja));
+	mapaTekstura.insert(ParaLiteraPole_('!', wykrz));
+	mapaTekstura.insert(ParaLiteraPole_('?', pytaj));
+	mapaTekstura.insert(ParaLiteraPole_(':', dwukrop));
+	mapaTekstura.insert(ParaLiteraPole_(',', przecin));
+	mapaTekstura.insert(ParaLiteraPole_('.', krop));
 }
 void Tekst::pisz(
 	string const		str
@@ -138,11 +189,10 @@ void Tekst::pisz(
 	float poz = +0.0f;
 	for(int i = 0; i < str.size(); ++i) {
 		ob = tworzLitera(str.at(i));
-		ob->wykonajRuch(XMVectorSet(poz, +0.0f, +0.0f, +0.0f));
+		ob->wezFiz()->dodajPredkosc(XMVectorSet(poz, +0.0f, +0.0f, +0.0f));
 		literyGraf->dodaj(ob);
 		poz += mapaTekstura.at(str.at(i))[1] * rozmPiks;
 	}
-	literyGraf->wykonajRuch(XMVectorSet(+0.0f, +0.0f, +1.0f, +0.0f));
 }
 IObiekt* const Tekst::wezObiektGraf(
 	) const {

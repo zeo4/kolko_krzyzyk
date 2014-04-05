@@ -54,10 +54,10 @@
     <ClCompile Include="zrodlo\grafika.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\ifizyka.cpp">
+    <ClCompile Include="zrodlo\obiektyGra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zrodlo\obiektyGra.cpp">
+    <ClCompile Include="zrodlo\siatka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,10 +106,10 @@
     <ClInclude Include="zrodlo\zasobyGraf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="zrodlo\ifizyka.h">
+    <ClInclude Include="zrodlo\obiektyGra.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="zrodlo\obiektyGra.h">
+    <ClInclude Include="zrodlo\siatka.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

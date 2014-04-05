@@ -11,6 +11,15 @@ void Grafika3WPodstawa::aktualizujCoObiekt() const {
 	// macierz SWP musi być transponowana przed wysłaniem do szadera
 	zasoby.daneCoObiekt.macSWP = XMMatrixTranspose(mSwiat * mWidok * mProjekcja);
 }
+void Grafika3WPodstawa::aktualizujPoz(
+	) {
+	// prędkość
+	XMStoreFloat4x4(
+		&obiekt->macPrzesun,
+		XMMatrixTranslationFromVector(XMLoadFloat3(&obiekt->v)) * XMLoadFloat4x4(&obiekt->macPrzesun)
+	);
+	obiekt->v = XMFLOAT3(0,0,0);
+}
 void Grafika3WPodstawa::wiaz() const {
 	wiazWierzcholki();
 	wiazIndeksy();
@@ -29,13 +38,15 @@ void Grafika3WPodstawa::wiazWierzcholki() const {
 		0, 1, &obiekt->bufWierz, &rozmiar, &przesuniecie
 	);
 }
+
 Grafika3WPodstawa::Grafika3WPodstawa(
 	Obiekt3W* const		ob
 	) : obiekt(ob)
 	{}
 Grafika3WPodstawa::~Grafika3WPodstawa() {}
-void Grafika3WPodstawa::rysuj() const {
-	obiekt->aktualizujPoz();
+void Grafika3WPodstawa::rysuj(
+	) {
+	aktualizujPoz();
 	aktualizujCoObiekt();
 	zasoby.wypelnijCoObiekt();
 	zasoby.wiazCoObiekt();
@@ -48,7 +59,8 @@ GrafikaZbiorPodstawa::GrafikaZbiorPodstawa(
 	) : obiekt(ob)
 	{}
 GrafikaZbiorPodstawa::~GrafikaZbiorPodstawa() {}
-void GrafikaZbiorPodstawa::rysuj() const {
+void GrafikaZbiorPodstawa::rysuj(
+	) {
 	ListaObiekty::const_iterator it;
 	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
 		(*it)->graf->rysuj();

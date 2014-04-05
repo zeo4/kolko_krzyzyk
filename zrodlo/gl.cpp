@@ -144,4 +144,5 @@ int WINAPI WinMain(
 // Napisać kolizje modeli tak aby się po sobie zsuwały. Wykorzystać siły (F).
 // Dorobić przy kolizjach wpływ od kolidujących obiektów i ich rodziców. Nie uwzględnia parametrów rodzica przy sprawdzaniu kolizjii.
 
-// Wybieranie nie działa we wszystkich punktach liter tekstu.
+// Nie sprawdzać kolizji obiektów z tego samego zbioru, lub przynajmniej rozróżniać czy sprawdzać czy nie w zależności od rodzaju zbioru (kolizyjny, niekolizyjny) albo rodzaju elementów w zbiorze (kolizyjne, niekolizyjne)
+// czy Obiekt3W::aktualizujPoz() nie powinna być IObiekt::aktualizujPoz()?

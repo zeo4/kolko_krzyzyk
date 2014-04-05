@@ -1,5 +1,4 @@
-#ifndef _SWIAT_H_
-#define _SWIAT_H_
+#pragma once
 
 #include "globalne.h"
 #include "debug.h"
@@ -52,4 +51,5 @@ public:
 	void				wezObPromien(IObiekt** const, Obiekt3W const* const) const;
 };
 
-#endif
+
+
