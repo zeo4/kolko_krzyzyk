@@ -14,7 +14,7 @@ class Tekst : public IObiektGra {
 	ObiektZbior* const		literyGraf;
 	float static			rozmPiks;
 	UINT static				szerTekstura;
-	Obiekt3W*				tworzLitera(char const);
+	Obiekt3w*				tworzLitera(char const);
 public:
 							Tekst();
 	void					pisz(string const);

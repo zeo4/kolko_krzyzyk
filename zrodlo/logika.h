@@ -7,7 +7,7 @@
 #include "obiektyGra.h"
 
 class Logika {
-	Obiekt3W*		obiektKursor;
+	Obiekt3w*		obiektKursor;
 	IObiekt*		obiektWybrany;
 	Swiat			swiat;
 	Wejscie			wejscie;

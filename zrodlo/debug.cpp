@@ -25,13 +25,16 @@ void Logi::piszTresc(
 		}
 	}
 }
-void Logi::piszNrWiersza() {
+void Logi::piszNrWiersza(
+	) {
 	plik << ++nrWiersza << "\t";
 }
-void Logi::piszCzas() {
+void Logi::piszCzas(
+	) {
 	plik << float((clock()-tikProgramStart))/CLOCKS_PER_SEC << "\t";
 }
-void Logi::piszNowaLinie() {
+void Logi::piszNowaLinie(
+	) {
 	plik << "\n";
 	piszNrWiersza();
 	//za pozostałe kolumny
@@ -40,7 +43,8 @@ void Logi::piszNowaLinie() {
 	}
 	piszWciecie();
 }
-void Logi::piszWciecie() {
+void Logi::piszWciecie(
+	) {
 	for(int i = 0; i < poziomAktWciecia; i++) {
 		plik << ".\t";
 	}
@@ -101,7 +105,8 @@ void Logi::piszStop(
 Logi logi;
 
 HRESULT wynik;
-Wyjatek::Wyjatek() : opis("")
+Wyjatek::Wyjatek(
+	) : opis("")
 	{}
 void SprawdzWynik(
 	HRESULT		wynik,

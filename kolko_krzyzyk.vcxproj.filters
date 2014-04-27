@@ -60,6 +60,9 @@
     <ClCompile Include="zrodlo\siatka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="zrodlo\drzewo8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="zrodlo\b.bat">
@@ -110,6 +113,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zrodlo\siatka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\drzewo8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

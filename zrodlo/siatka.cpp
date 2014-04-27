@@ -3,10 +3,10 @@
 #include "siatka.h"
 
 void SiatkaObiekty::dopiszObiekt(
-	float				x,
-	float				y,
-	float				z,
-	IObiekt* const		ob
+	float						x,
+	float						y,
+	float						z,
+	Obiekt3w const* const		ob
 	) {
 	siatka.insert(
 		pair<float const, Siatka2Obiekty_>(x, Siatka2Obiekty_())
@@ -15,7 +15,7 @@ void SiatkaObiekty::dopiszObiekt(
 		pair<float const, Siatka1Obiekty_>(y, Siatka1Obiekty_())
 	);
 	siatka.at(x).at(y).insert(
-		pair<float const, ObiektyObszar_>(z, ObiektyObszar_())
+		pair<float const, ZbiorOb3wStale_>(z, ZbiorOb3wStale_())
 	);
 	siatka.at(x).at(y).at(z).insert(ob);
 }
@@ -41,7 +41,7 @@ void SiatkaObiekty::czysc(
 	siatka.clear();
 }
 void SiatkaObiekty::ustawWspolnyObiekt(
-	IObiekt* const		ob
+	Obiekt3w* const		ob
 	) {
 	SiatkaObiekty::IteratorX itX;
 	SiatkaObiekty::IteratorY itY;
@@ -56,13 +56,15 @@ void SiatkaObiekty::ustawWspolnyObiekt(
 	}
 }
 void SiatkaObiekty::wezKolizje(
-	MapaKolizje_* const		kolizje
+	MapaOb3wObiekty3w_&		kolizje
 	) const {
+	kolizje.clear();
+
 	Siatka3Obiekty_::const_iterator it3;
 	Siatka2Obiekty_::const_iterator it2;
 	Siatka1Obiekty_::const_iterator it1;
-	ObiektyObszar_::const_iterator itA;
-	ObiektyObszar_::const_iterator itB;
+	ZbiorOb3wStale_::const_iterator itA;
+	ZbiorOb3wStale_::const_iterator itB;
 	for(it3 = siatka.begin(); it3 != siatka.end(); ++it3) {
 	for(it2 = it3->second.begin(); it2 != it3->second.end(); ++it2) {
 	for(it1 = it2->second.begin(); it1 != it2->second.end(); ++it1) {
@@ -72,23 +74,27 @@ void SiatkaObiekty::wezKolizje(
 			continue;
 		}
 
-		kolizje->insert(pair<IObiekt* const, set<IObiekt const* const>>(
-			*itA, set<IObiekt const* const>()
+		kolizje.insert(ParaOb3wObiekty3w_(
+			*itA, ZbiorOb3wStale_()
 		));
-		kolizje->at(*itA).insert(*itB);
+		kolizje.at(*itA).insert(*itB);
 	}
 	}
 	}
 	}
 	}
 }
-bool SiatkaObiekty::wezObiekty(
-	set<IObiekt* const>* const		obiekty,
-	float							x,
-	float							y,
-	float							z
+SiatkaObiekty::StalyIteratorX SiatkaObiekty::wezKon(
 	) const {
-	obiekty->clear();
+	return siatka.end();
+}
+bool SiatkaObiekty::wezObiekty(
+	ZbiorOb3wStale_&		obiekty,
+	float					x,
+	float					y,
+	float					z
+	) const {
+	obiekty.clear();
 
 	if(siatka.count(x) == 0) {
 		return false;
@@ -99,8 +105,16 @@ bool SiatkaObiekty::wezObiekty(
 	if(siatka.at(x).at(y).count(z) == 0) {
 		return false;
 	}
-	*obiekty = siatka.at(x).at(y).at(z);
+	obiekty = siatka.at(x).at(y).at(z);
 	return true;
+}
+SiatkaObiekty::StalyIteratorX SiatkaObiekty::wezPocz(
+	) const {
+	return siatka.begin();
+}
+UINT SiatkaObiekty::wezRozm(
+	) const {
+	return siatka.size();
 }
 
 

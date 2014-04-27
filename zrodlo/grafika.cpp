@@ -4,49 +4,43 @@
 
 IGrafika::~IGrafika() {}
 
-void Grafika3WPodstawa::aktualizujCoObiekt() const {
-	XMMATRIX mSwiat = XMLoadFloat4x4(&obiekt->macPrzesun);
+void Grafika3w::aktualizujCoObiekt(
+	) const {
+	XMMATRIX mSwiat = XMLoadFloat4x4(&obiekt->macSwiat);
 	XMMATRIX mWidok = XMLoadFloat4x4(&obiekt->macWidok);
 	XMMATRIX mProjekcja = XMLoadFloat4x4(&obiekt->macProjekcja);
 	// macierz SWP musi być transponowana przed wysłaniem do szadera
 	zasoby.daneCoObiekt.macSWP = XMMatrixTranspose(mSwiat * mWidok * mProjekcja);
 }
-void Grafika3WPodstawa::aktualizujPoz(
-	) {
-	// prędkość
-	XMStoreFloat4x4(
-		&obiekt->macPrzesun,
-		XMMatrixTranslationFromVector(XMLoadFloat3(&obiekt->v)) * XMLoadFloat4x4(&obiekt->macPrzesun)
-	);
-	obiekt->v = XMFLOAT3(0,0,0);
-}
-void Grafika3WPodstawa::wiaz() const {
+void Grafika3w::wiaz(
+	) const {
 	wiazWierzcholki();
 	wiazIndeksy();
 	wiazTekstura();
 }
-void Grafika3WPodstawa::wiazIndeksy() const {
+void Grafika3w::wiazIndeksy(
+	) const {
 	zasoby.render->IASetIndexBuffer(obiekt->bufIndeksy, DXGI_FORMAT_R32_UINT, 0);
 }
-void Grafika3WPodstawa::wiazTekstura() const {
+void Grafika3w::wiazTekstura(
+	) const {
 	zasoby.render->PSSetShaderResources(0, 1, &obiekt->widokTekstura);
 }
-void Grafika3WPodstawa::wiazWierzcholki() const {
+void Grafika3w::wiazWierzcholki(
+	) const {
 	UINT rozmiar = sizeof(Wierzcholek);
 	UINT przesuniecie = 0;
 	zasoby.render->IASetVertexBuffers(
 		0, 1, &obiekt->bufWierz, &rozmiar, &przesuniecie
 	);
 }
-
-Grafika3WPodstawa::Grafika3WPodstawa(
-	Obiekt3W* const		ob
+Grafika3w::Grafika3w(
+	Obiekt3w* const		ob
 	) : obiekt(ob)
 	{}
-Grafika3WPodstawa::~Grafika3WPodstawa() {}
-void Grafika3WPodstawa::rysuj(
+Grafika3w::~Grafika3w() {}
+void Grafika3w::rysuj(
 	) {
-	aktualizujPoz();
 	aktualizujCoObiekt();
 	zasoby.wypelnijCoObiekt();
 	zasoby.wiazCoObiekt();
@@ -54,12 +48,12 @@ void Grafika3WPodstawa::rysuj(
 	zasoby.render->DrawIndexed(obiekt->ind.size(), 0, 0);
 }
 
-GrafikaZbiorPodstawa::GrafikaZbiorPodstawa(
+GrafikaZbior::GrafikaZbior(
 	ObiektZbior* const		ob
 	) : obiekt(ob)
 	{}
-GrafikaZbiorPodstawa::~GrafikaZbiorPodstawa() {}
-void GrafikaZbiorPodstawa::rysuj(
+GrafikaZbior::~GrafikaZbior() {}
+void GrafikaZbior::rysuj(
 	) {
 	ListaObiekty::const_iterator it;
 	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {

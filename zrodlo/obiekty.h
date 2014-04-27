@@ -7,7 +7,9 @@
 #include "listaObiekty.h"
 
 class IFizyka;
+class Fizyka3w;
 class IGrafika;
+class Grafika3w;
 
 struct Wierzcholek {
 	XMFLOAT3		poz;
@@ -17,40 +19,46 @@ struct Wierzcholek {
 };
 
 class IObiekt {
+	friend class IFizyka;
 	friend class Fizyka3WKolizyjny;
 	friend class Fizyka3WNiekolizyjny;
 	friend class FizykaZbior;
 	friend class FizykaZbiorZalezny;
-	friend class GrafikaZbiorPodstawa;
+	friend class GrafikaZbior;
+	friend class Swiat;
 protected:
 	IFizyka*			fiz;
 	IGrafika*			graf;
-	SiatkaObiekty		siatka;
+	XMFLOAT4X4			macSwiat;
+	XMFLOAT4X4			macSwiatNast;
+	XMFLOAT3			obrot;
+	XMFLOAT3			omega;
+	XMFLOAT3			poz;
+	IObiekt const*		rodzic;
+	float				tRuch;
 	XMFLOAT3			v;
 public:
-						IObiekt();
+						IObiekt(XMFLOAT3 const);
 	virtual				~IObiekt();
-	void				aktualizujSiatka();
 	void				rysuj() const;
 	virtual void		ustawFizyka() = 0;
 	virtual void		ustawGrafika() = 0;
-	IFizyka*			wezFiz();
+	virtual void		ustawKolizje(MapaOb3wObiekty3w_ const* const) = 0;
+	IFizyka*			wezFiz() const;
+	IGrafika*			wezGraf() const;
 	virtual void		wezKolizjePromien(
 							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
 						) const = 0;
-	void				wezSiatka(SiatkaObiekty* const);
 };
 
-class Obiekt3W : public IObiekt {
-	friend class Fizyka3W;
-	friend class Fizyka3WKolizyjny;
-	friend class Fizyka3WNieopozniony;
-	friend class Grafika3WPodstawa;
+class Obiekt3w : public IObiekt {
+	friend class Fizyka3w;
+	friend class Grafika3w;
 	ID3D11Buffer*					bufIndeksy;
 	ID3D11Buffer*					bufWierz;
-	Fizyka3W*						fiz;
+	Fizyka3w*						fiz;
 	vector<DWORD>					ind;
-	XMFLOAT4X4						macPrzesun;
+	MapaOb3wObiekty3w_ const*		kolizje;
 	ID3D11ShaderResourceView*		widokTekstura;
 	vector<Wierzcholek>				wierz;
 	void							nadpiszIndeksy(
@@ -73,28 +81,30 @@ class Obiekt3W : public IObiekt {
 	void							wypelnijBufIndeksy();
 	void							wypelnijBufWierz();
 public:
+	static IObiekt*					test;
 	XMFLOAT4X4 static				macProjekcja;
 	XMFLOAT4X4 static				macWidok;
-									Obiekt3W(
+									Obiekt3w(
 										Wierzcholek const *const, UINT const,
 										DWORD const *const, UINT const,
+										XMFLOAT3 const,
 										string
 									);
-	virtual							~Obiekt3W();
+	virtual							~Obiekt3w();
 	void							ustawFizyka();
 	void							ustawGrafika();
+	void							ustawKolizje(MapaOb3wObiekty3w_ const* const);
+	Fizyka3w*						wezFiz() const;
 	void							wezKolizjePromien(
 										MapaFloatObiekt_* const,
 										XMVECTOR const, XMVECTOR const
 									) const;
-	XMVECTOR						wezPoz() const;
-	XMMATRIX						wezSwiat() const;
 };
 
 class ObiektZbior : public IObiekt {
 	friend class FizykaZbior;
 	friend class FizykaZbiorZalezny;
-	friend class GrafikaZbiorPodstawa;
+	friend class GrafikaZbior;
 	FizykaZbior*		fiz;
 	ListaObiekty		podobiekty;
 public:
@@ -103,6 +113,7 @@ public:
 	void				dodaj(IObiekt* const);
 	void				ustawFizyka();
 	void				ustawGrafika();
+	void				ustawKolizje(MapaOb3wObiekty3w_ const* const);
 	void				wezKolizjePromien(
 							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
 						) const;

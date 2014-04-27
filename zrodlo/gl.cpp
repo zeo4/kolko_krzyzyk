@@ -1,7 +1,6 @@
 #include "globalne.h"
 #include "debug.h"
 #include "zasobyGraf.h"
-#include "ifizyka.h"
 #include "obiekty.h"
 #include "fizyka.h"
 #include "grafika.h"
@@ -38,7 +37,8 @@ LRESULT CALLBACK ProcOknoGl(
 	// domyślna obsługa wiadomości
 	return DefWindowProc(uchOkno, wiad, paramW, paramL);
 }
-void PetlaWiad() {
+void PetlaWiad(
+	) {
 	// struktura wiadomości
 	MSG wiad;
 
@@ -143,6 +143,10 @@ int WINAPI WinMain(
 // Cała inicjalizacja do logów.
 // Napisać kolizje modeli tak aby się po sobie zsuwały. Wykorzystać siły (F).
 // Dorobić przy kolizjach wpływ od kolidujących obiektów i ich rodziców. Nie uwzględnia parametrów rodzica przy sprawdzaniu kolizjii.
-
 // Nie sprawdzać kolizji obiektów z tego samego zbioru, lub przynajmniej rozróżniać czy sprawdzać czy nie w zależności od rodzaju zbioru (kolizyjny, niekolizyjny) albo rodzaju elementów w zbiorze (kolizyjne, niekolizyjne)
-// czy Obiekt3W::aktualizujPoz() nie powinna być IObiekt::aktualizujPoz()?
+// Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
+// Dopisać kolizje dla szybko poruszających się obiektów.
+// Przerobić wskaźniki na referencje, gdzie to możliwe.
+
+// Drzewo8 ciężko sobie radzi gdy duży obiekt w kilku przestrzeniach? Na początku tak jest.
+// Drzewo8: Sprawdzić trzeci sposób wybierania do której gałęzi dodać obiekt. Nazwać dzieci gałęziami?

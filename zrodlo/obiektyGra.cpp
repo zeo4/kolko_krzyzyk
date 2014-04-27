@@ -5,7 +5,7 @@
 
 float Tekst::rozmPiks = 0.01;
 UINT Tekst::szerTekstura = 440;
-Obiekt3W* Tekst::tworzLitera(
+Obiekt3w* Tekst::tworzLitera(
 	char const		litera
 	) {
 	float piksTekstura = 1.0f/szerTekstura;
@@ -44,16 +44,17 @@ Obiekt3W* Tekst::tworzLitera(
 		2, 1, 3
 	};
 
-	return new Obiekt3W(
+	return new Obiekt3w(
 		wierzcholki, 4,
 		indeksy, 6,
+		XMFLOAT3(0,0,0),
 		"tekstura\\znaki tekstowe.jpg"
 	);
 }
 Tekst::Tekst(
 	) : literyGraf(new ObiektZbior)
 	{
-	literyGraf->wezFiz()->dodajPredkosc(XMVectorSet(-2.0f, +1.5f, +1.0f, +0.0f));
+	literyGraf->wezFiz()->zadajRuch(XMVectorSet(-2.0f, +1.5f, +1.0f, +0.0f), 0, 0, 0);
 
 	float *a = new float[3];
 	float *b = new float[3];
@@ -185,11 +186,11 @@ Tekst::Tekst(
 void Tekst::pisz(
 	string const		str
 	) {
-	Obiekt3W* ob;
+	Obiekt3w* ob;
 	float poz = +0.0f;
 	for(int i = 0; i < str.size(); ++i) {
 		ob = tworzLitera(str.at(i));
-		ob->wezFiz()->dodajPredkosc(XMVectorSet(poz, +0.0f, +0.0f, +0.0f));
+		ob->wezFiz()->zadajRuch(XMVectorSet(poz, +0.0f, +0.0f, +0.0f), 0, 0, 0);
 		literyGraf->dodaj(ob);
 		poz += mapaTekstura.at(str.at(i))[1] * rozmPiks;
 	}

@@ -3,7 +3,8 @@
 #include "globalne.h"
 #include "typedefy.h"
 
-class Obiekt3W;
+class Obiekt3w;
+class SiatkaObiekty;
 
 class IFizyka {
 	friend class Fizyka3WKolizyjny;
@@ -11,98 +12,112 @@ class IFizyka {
 	friend class ObiektZbior;
 	friend class FizykaZbior;
 protected:
-	virtual				~IFizyka();
-	bool				sprawdzKolizjaPudelkoPudelko(
-							FXMVECTOR const, FXMVECTOR const,
-							FXMVECTOR const, CXMVECTOR const
-						) const;
-	bool				sprawdzKolizjaTrojkatTrojkat(
-							FXMVECTOR const, FXMVECTOR const, FXMVECTOR const,
-							CXMVECTOR const, CXMVECTOR const, CXMVECTOR const
-						) const;
-	virtual void		wezKolidujaceZ3W(
-							WektObiekty3W_* const, Obiekt3W const* const
-						) const = 0;
-	bool				wezKolizjaOdcinekTrojkat(
-							float* const,
-							FXMVECTOR const, FXMVECTOR const,
-							FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
-						) const;
-	virtual void		wezKolizjePromien(
-							MapaFloatObiekt_* const,
-							XMVECTOR const, XMVECTOR const
-						) const = 0;
-	bool				wezKolizjaPromienTrojkat(
-							float* const,
-							FXMVECTOR const, FXMVECTOR const,
-							FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
-						) const;
+	IObiekt* const			obiekt;
+							IFizyka(IObiekt* const);
+	virtual					~IFizyka();
+	void					liczPoz();
+	bool					sprawdzKulaKula(
+								FXMVECTOR const, float const, FXMVECTOR const,
+								FXMVECTOR const, float const, CXMVECTOR const,
+								float* const
+							) const;
+	bool					sprawdzPromienKula(
+								XMVECTOR const, XMVECTOR const,
+								XMVECTOR const, float const,
+								float* const
+							) const;
+	bool					sprawdzKolizjaPudelkoPudelko(
+								FXMVECTOR const, FXMVECTOR const,
+								FXMVECTOR const, CXMVECTOR const
+							) const;
+	bool					sprawdzKolizjaTrojkatTrojkat(
+								FXMVECTOR const, FXMVECTOR const, FXMVECTOR const,
+								CXMVECTOR const, CXMVECTOR const, CXMVECTOR const
+							) const;
+	bool					wezKolizjaOdcinekTrojkat(
+								float* const,
+								FXMVECTOR const, FXMVECTOR const,
+								FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
+							) const;
+	virtual void			wezKolizjePromien(
+								MapaFloatObiekt_* const,
+								XMVECTOR const, XMVECTOR const
+							) const = 0;
+	bool					wezKolizjaPromienTrojkat(
+								float* const,
+								FXMVECTOR const, FXMVECTOR const,
+								FXMVECTOR const, CXMVECTOR const, CXMVECTOR const
+							) const;
+	void					wykonajRuch();
 public:
-	virtual void		aktualizujSiatka() = 0;
-	virtual void		dodajPredkosc(XMVECTOR const) = 0;
-	virtual void		wykonajKolizjaSiatka(
-							WektObiekty3W_* const, IObiekt const* const
-						) = 0;
+	virtual void			liczPozycje() = 0;
+	virtual void			uwzglednijKolizje() = 0;
+	virtual void			wezObiekty3W(ZbiorOb3w_* const) const = 0;
+	XMVECTOR				wezPoz() const;
+	void					wezPrzesunMacierz(
+								XMFLOAT4X4 const, XMVECTOR* const
+							) const;
+	virtual void			wezSiatka(SiatkaObiekty* const) const = 0;
+	virtual void			wykonajRuchy() = 0;
+	virtual void			zadajRuch(
+								XMVECTOR const, float const, float const, float const
+							) = 0;
 };
 
-class Fizyka3W : public IFizyka {
-	friend class Obiekt3W;
+// #############################################
+
+class Fizyka3w : public IFizyka {
+	friend class Obiekt3w;
 protected:
-	Obiekt3W* const		obiekt;
-						Fizyka3W(Obiekt3W* const);
-						~Fizyka3W();
-	bool				sprawdzKolizjaBryly(Obiekt3W const* const) const;
+	Obiekt3w* const		obiekt;
 	void				usunSwiatPkt(XMVECTOR* const) const;
 	void				usunSwiatWektor(XMVECTOR* const) const;
-	bool				wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const) const;
-	void				wezKolidujaceZ3W(
-							WektObiekty3W_* const, Obiekt3W const* const
-						) const;
 	void				wezKolizjePromien(
 							MapaFloatObiekt_* const,
 							XMVECTOR const, XMVECTOR const
 						) const;
 public:
-	void				aktualizujSiatka();
-	void				dodajPredkosc(XMVECTOR const);
+						Fizyka3w(Obiekt3w* const);
+						~Fizyka3w();
+	void				liczPozycje();
+	void				uwzglednijKolizje();
+	void				wezBrylaGraniczna(
+							XMVECTOR* const, XMVECTOR* const, float* const
+						) const;
+	void				wezObiekty3W(ZbiorOb3w_* const) const;
+	void				wezSiatka(SiatkaObiekty* const) const;
+	void				wykonajRuchy();
+	void				zadajRuch(
+							XMVECTOR const, float const, float const, float const
+						);
 };
 
-class Fizyka3WKolizyjny : public virtual Fizyka3W {
-	void		wykonajKolizjaBryly(Obiekt3W const* const);
-public:
-				Fizyka3WKolizyjny();
-	void		wykonajKolizjaSiatka(
-					WektObiekty3W_* const, IObiekt const* const
-				);
-};
-
-class Fizyka3WNiekolizyjny : public virtual Fizyka3W {
-public:
-				Fizyka3WNiekolizyjny();
-	void		wykonajKolizjaSiatka(
-					WektObiekty3W_* const, IObiekt const* const
-				);
-};
 // ---------------------------------------------
-class FizykaPostac : public virtual Fizyka3W, public Fizyka3WKolizyjny {
-	friend class Obiekt3W;
+
+class FizykaPostac : public virtual Fizyka3w {
+	friend class Obiekt3w;
 protected:
-	FizykaPostac(Obiekt3W* const);
+	FizykaPostac(Obiekt3w* const);
 public:
 };
-// =============================================
+
+// #############################################
+
 class FizykaZbior : public IFizyka {
 	friend class ObiektZbior;
 protected:
 	ObiektZbior* const		obiekt;
+public:
 							FizykaZbior(ObiektZbior* const);
 	virtual					~FizykaZbior();
-	void					aktualizujSiatka();
-	void					wezKolidujaceZ3W(
-								WektObiekty3W_* const, Obiekt3W const* const
-							) const;
-public:
-	void					dodajPredkosc(XMVECTOR const);
+	void					liczPozycje();
+	void					uwzglednijKolizje();
+	void					wezObiekty3W(ZbiorOb3w_* const) const;
+	void					wezSiatka(SiatkaObiekty* const) const;
+	void					wykonajRuchy();
+	void					zadajRuch(
+								XMVECTOR const, float const, float const, float const
+							);
 };
 
 class FizykaZbiorNiezalezny : public virtual FizykaZbior {
@@ -116,15 +131,14 @@ protected:
 				) const;
 public:
 				FizykaZbiorZalezny();
-	void		wykonajKolizjaSiatka(
-					WektObiekty3W_* const, IObiekt const* const
-				);
 };
 // ---------------------------------------------
+
 class FizykaTekst : public virtual FizykaZbior, public FizykaZbiorZalezny {
 	friend class ObiektZbior;
 protected:
 	FizykaTekst(ObiektZbior* const);
 public:
 };
-// =============================================
+
+// #############################################

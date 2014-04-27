@@ -3,33 +3,34 @@
 #include "logika.h"
 #include "fizyka.h"
 
-void Logika::uwzglWejscie() {
+void Logika::uwzglWejscie(
+	) {
 	BYTE stanKlawiatura[256];
 	DIMOUSESTATE stanMysz;
 	wejscie.wez(stanKlawiatura, &stanMysz);
 
 	if(obiektWybrany != NULL) {
 		if(stanKlawiatura[DIK_W] & 0x80) {
-			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f), 0, 0, 0);
 		}
 		if(stanKlawiatura[DIK_S] & 0x80) {
-			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f), 0, 0, 0);
 		}
 		if(stanKlawiatura[DIK_A] & 0x80) {
-			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f), 0, 0, 0);
 		}
 		if(stanKlawiatura[DIK_D] & 0x80) {
-			obiektWybrany->wezFiz()->dodajPredkosc(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f));
+			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f), 0, 0, 0);
 		}
 	}
 	if(obiektKursor != NULL) {
 		if(stanMysz.lX != 0) {
 			float p = stanMysz.lX * 0.001f;
-			obiektKursor->wezFiz()->dodajPredkosc(XMVectorSet(p, +0.0f, +0.0f, +0.0f));
+			obiektKursor->wezFiz()->zadajRuch(XMVectorSet(p, +0.0f, +0.0f, +0.0f), 0, 0, 0);
 		}
 		if(stanMysz.lY != 0) {
 			float p = -stanMysz.lY * 0.001f;
-			obiektKursor->wezFiz()->dodajPredkosc(XMVectorSet(+0.0f, p, +0.0f, +0.0f));
+			obiektKursor->wezFiz()->zadajRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f), 0, 0, 0);
 		}
 		if(stanMysz.rgbButtons[0] & 0x80) {
 			swiat.wezObPromien(&obiektWybrany, obiektKursor);
@@ -40,7 +41,8 @@ Logika::Logika(
 	HINSTANCE const		uchwyt
 	) : obiektKursor(NULL), obiektWybrany(NULL), wejscie(uchwyt)
 	{}
-void Logika::inic3W() {
+void Logika::inic3W(
+	) {
 	logi.piszStart("--->", "Logika::inic3W().");
 	try{
 	// twórz opis bufora tylnego
@@ -103,14 +105,19 @@ void Logika::inic3W() {
 	}
 	logi.piszStart("<---", "Logika::inic3W().");
 }
-void Logika::inicScena() {
+void Logika::inicScena(
+	) {
 	try{
 	obiektKursor = swiat.tworzObiektKursor();
 	obiektWybrany = swiat.tworzObiektRycerz();
-	swiat.tworzObiektSmok();
-	Tekst t;
-	t.pisz("fps: 60, to i tak duzo.");
-	swiat.dodaj(t.wezObiektGraf());
+	IObiekt* ob = swiat.tworzObiektSmok();
+	logi.pisz("kurs", to_string((UINT)obiektKursor));
+	logi.pisz("ryc", to_string((UINT)obiektWybrany));
+	logi.pisz("smok", to_string((UINT)ob));
+	Obiekt3w::test = obiektWybrany;
+	//Tekst t;
+	//t.pisz("fps: 60, to i tak duzo.");
+	//swiat.dodaj(t.wezObiektGraf());
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 	zasoby.tworzSzadWierz();
@@ -137,7 +144,8 @@ void Logika::inicScena() {
 	ObslugaWyjatek(wyj);
 	}
 }
-void Logika::tworzKolejnaKlatka() {
+void Logika::tworzKolejnaKlatka(
+	) {
 	// czyść widok bufora tylnego
 	const FLOAT kolor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	zasoby.render->ClearRenderTargetView(zasoby.widBufTyl, kolor);
@@ -148,7 +156,8 @@ void Logika::tworzKolejnaKlatka() {
 	zasoby.wiazSzadPiks();
 
 	uwzglWejscie();
-	swiat.tworzKolejnaKlatka();
+	swiat.wykonajFizyka();
+	swiat.wykonajGrafika();
 
 	zasoby.lancWym->Present(0, 0);
 }

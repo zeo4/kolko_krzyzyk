@@ -9,25 +9,24 @@ public:
 	virtual void		rysuj() = 0;
 };
 
-class Grafika3WPodstawa : public IGrafika {
+class Grafika3w : public IGrafika {
 	void				aktualizujCoObiekt() const;
-	void				aktualizujPoz();
 	void				wiaz() const;
 	void				wiazIndeksy() const;
 	void				wiazTekstura() const;
 	void				wiazWierzcholki() const;
 public:
-	Obiekt3W* const		obiekt;
-						Grafika3WPodstawa(Obiekt3W* const);
-	virtual				~Grafika3WPodstawa();
+	Obiekt3w* const		obiekt;
+						Grafika3w(Obiekt3w* const);
+	virtual				~Grafika3w();
 	virtual void		rysuj();
 };
 
-class GrafikaZbiorPodstawa : public IGrafika {
+class GrafikaZbior : public IGrafika {
 public:
 	ObiektZbior* const		obiekt;
-							GrafikaZbiorPodstawa(ObiektZbior* const);
-	virtual					~GrafikaZbiorPodstawa();
+							GrafikaZbior(ObiektZbior* const);
+	virtual					~GrafikaZbior();
 	virtual void			rysuj();
 };
 
