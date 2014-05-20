@@ -11,12 +11,7 @@
 // test
 HINSTANCE		uchAp;
 
-LRESULT CALLBACK ProcOknoGl(
-	HWND		uchOkno,
-	UINT		wiad,
-	WPARAM		paramW,
-	LPARAM		paramL
-	) {
+LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM paramL) {
 	// indywidualna obsługa wiadomości
 	switch(wiad){
 		// gdy wciśnięty klawisz
@@ -37,8 +32,7 @@ LRESULT CALLBACK ProcOknoGl(
 	// domyślna obsługa wiadomości
 	return DefWindowProc(uchOkno, wiad, paramW, paramL);
 }
-void PetlaWiad(
-	) {
+void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
@@ -64,12 +58,7 @@ void PetlaWiad(
 		}
 	}
 }
-int WINAPI WinMain(
-	HINSTANCE		uchAplikacji,
-	HINSTANCE		uchPoprzAplikacji,
-	PSTR			liniaKomend,
-	int				opcjaWysw
-	) {
+int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 
 	uchAp = uchAplikacji;
@@ -146,7 +135,6 @@ int WINAPI WinMain(
 // Nie sprawdzać kolizji obiektów z tego samego zbioru, lub przynajmniej rozróżniać czy sprawdzać czy nie w zależności od rodzaju zbioru (kolizyjny, niekolizyjny) albo rodzaju elementów w zbiorze (kolizyjne, niekolizyjne)
 // Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
 // Dopisać kolizje dla szybko poruszających się obiektów.
-// Przerobić wskaźniki na referencje, gdzie to możliwe.
 
-// Drzewo8 ciężko sobie radzi gdy duży obiekt w kilku przestrzeniach? Na początku tak jest.
-// Drzewo8: Sprawdzić trzeci sposób wybierania do której gałęzi dodać obiekt. Nazwać dzieci gałęziami?
+// Sprawdzić które szybsze dla siatki obiektów: multimap czy unordered_multimap?
+// Dokończyć przebudowę Drzewo8 pod optymalizację.

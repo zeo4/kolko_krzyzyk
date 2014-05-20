@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{24D5B1AF-7918-4BDC-9AB6-F166E92196CE}</ProjectGuid>
+    <ProjectGuid>{6AA4B425-98AB-4EC1-8F74-9899063555AE}</ProjectGuid>
     <RootNamespace>kolko_krzyzyk</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -41,12 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)zrodlo\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)zrodlo\</OutDir>
+    <OutDir>\zrodlo\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -73,13 +68,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\moonstone\main.cpp">
+    <ClInclude Include="zrodlo\debug.h" />
+    <ClInclude Include="zrodlo\drzewo8.h" />
+    <ClInclude Include="zrodlo\fizyka.h" />
+    <ClInclude Include="zrodlo\globalne.h" />
+    <ClInclude Include="zrodlo\grafika.h" />
+    <ClInclude Include="zrodlo\listaObiekty.h" />
+    <ClInclude Include="zrodlo\logika.h" />
+    <ClInclude Include="zrodlo\obiekty.h" />
+    <ClInclude Include="zrodlo\obiektyGra.h" />
+    <ClInclude Include="zrodlo\siatka.h" />
+    <ClInclude Include="zrodlo\swiat.h" />
+    <ClInclude Include="zrodlo\testy.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="zrodlo\typedefy.h" />
+    <ClInclude Include="zrodlo\wejscie.h" />
+    <ClInclude Include="zrodlo\zasobyGraf.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="zrodlo\debug.cpp" />
     <ClCompile Include="zrodlo\drzewo8.cpp" />
     <ClCompile Include="zrodlo\fizyka.cpp" />
-    <ClCompile Include="zrodlo\gl.cpp" />
+    <ClCompile Include="zrodlo\gl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="zrodlo\globalne.cpp" />
     <ClCompile Include="zrodlo\grafika.cpp" />
     <ClCompile Include="zrodlo\listaObiekty.cpp" />
@@ -88,42 +101,11 @@
     <ClCompile Include="zrodlo\obiektyGra.cpp" />
     <ClCompile Include="zrodlo\siatka.cpp" />
     <ClCompile Include="zrodlo\swiat.cpp" />
-    <ClCompile Include="zrodlo\testy.cpp" />
+    <ClCompile Include="zrodlo\testy.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="zrodlo\wejscie.cpp" />
     <ClCompile Include="zrodlo\zasobyGraf.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="zrodlo\b.bat" />
-    <None Include="zrodlo\c.bat" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="zrodlo\szader\efekty.fx">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="zrodlo\debug.h" />
-    <ClInclude Include="zrodlo\drzewo8.h" />
-    <ClInclude Include="zrodlo\fizyka.h" />
-    <ClInclude Include="zrodlo\globalne.h" />
-    <ClInclude Include="zrodlo\grafika.h" />
-    <ClInclude Include="zrodlo\listaObiekty.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="zrodlo\logika.h" />
-    <ClInclude Include="zrodlo\obiekty.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="zrodlo\obiektyGra.h" />
-    <ClInclude Include="zrodlo\siatka.h" />
-    <ClInclude Include="zrodlo\swiat.h" />
-    <ClInclude Include="zrodlo\testy.h" />
-    <ClInclude Include="zrodlo\typedefy.h" />
-    <ClInclude Include="zrodlo\wejscie.h" />
-    <ClInclude Include="zrodlo\zasobyGraf.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

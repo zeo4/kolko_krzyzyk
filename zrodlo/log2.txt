@@ -1,0 +1,119 @@
+Nr	t[s]	dt[tik]	Tytul	Tresc
+-------------------------------------------------------------
+1	0.01	11	--->	Tworzenie swiata.
+2	0.012	2	<---	Tworzenie swiata.
+3	0.019	7	OK	Tworzenie wejscia kontrolerow.
+4	0.02	1	OK	Tworzenie klawiatury.
+5	0.021	1	OK	Tworzenie myszy
+6	0.022	1	OK	Ustawienie formatu danych klawiatury.
+7	0.023	1	OK	Ustawienie wspolpracy klawiatury z oknem gry.
+8	0.025	2	OK	Rezerwacja klawiatury.
+9	0.026	1	OK	Ustawienie formatu danych myszy.
+10	0.026	0	OK	Ustawienie wspolpracy myszy z oknem gry.
+11	0.027	1	OK	Rezerwacja myszy.
+12	0.028	1	--->	Logika::inic3W().
+13	0.046	18	OK	.	Tworz interfejsy: karty, renderowania i lancucha.
+14	0.047	1	OK	.	Przypisz bufor tylny do interfejsu.
+15	0.047	0	OK	.	Tworz widok bufora tylnego.
+16	0.048	1	OK	.	Tworzenie bufora glebi i szablonu.
+17	0.049	1	OK	.	Tworzenie widoku glebi i szablonu.
+18	0.049	0	<---	.	Logika::inic3W().
+19	0.05	1	OK	.	.	Wgraj wierzcholki.
+20	0.05	0	OK	.	.	Wgraj indeksy.
+21	0.057	7	OK	.	.	Wgranie tekstury.
+22	0.058	1	OK	.	.	Tworz bufor z laczeniem 1.
+23	0.059	1	OK	.	.	Tworz bufor z laczeniem 2.
+24	0.06	1	OK	.	.	Wypelnij bufor wierzcholkow.
+25	0.061	1	OK	.	.	Wypelnij bufor indeksow.
+26	0.062	1	OK	.	.	Wgraj wierzcholki.
+27	0.063	1	OK	.	.	Wgraj indeksy.
+28	0.075	12	OK	.	.	Wgranie tekstury.
+29	0.076	1	OK	.	.	Tworz bufor z laczeniem 1.
+30	0.077	1	OK	.	.	Tworz bufor z laczeniem 2.
+31	0.077	0	OK	.	.	Wypelnij bufor wierzcholkow.
+32	0.078	1	OK	.	.	Wypelnij bufor indeksow.
+33	0.079	1	OK	.	.	Wgraj wierzcholki.
+34	0.08	1	OK	.	.	Wgraj indeksy.
+35	0.085	5	OK	.	.	Wgranie tekstury.
+36	0.086	1	OK	.	.	Tworz bufor z laczeniem 1.
+37	0.087	1	OK	.	.	Tworz bufor z laczeniem 2.
+38	0.088	1	OK	.	.	Wypelnij bufor wierzcholkow.
+39	0.089	1	OK	.	.	Wypelnij bufor indeksow.
+40	0.089	0	--->	.	.	Tworz ObiektZbior.
+41	0.09	1	<---	.	.	.	Tworz ObiektZbior.
+42	0.095	5	OK	.	.	.	.	Wgraj szader wierzcholkow: 
+43	0.097	2	OK	.	.	.	.	Tworz szader wierzcholkow.
+44	0.101	4	OK	.	.	.	.	Wgraj szader pikseli: 
+45	0.103	2	OK	.	.	.	.	Tworz szader pikseli.
+46	0.105	2	OK	.	.	.	.	Tworz strukture wejscia.
+47	0.105	0	OK	.	.	.	.	Wiaz strukture wejscia.
+48	0.106	1	OK	.	.	.	.	Tworzenie rzutni.
+49	0.106	0	OK	.	.	.	.	Wiazanie rzutni.
+50	0.107	1	OK	.	.	.	.	Tworz bufor z laczeniem 4.
+51	0.108	1	OK	.	.	.	.	Tworzenie bufora aktualizowanego co obiekt.
+52	0.108	0	OK	.	.	.	.	Tworzenie stanu probkowania.
+53	0.109	1	OK	.	.	.	.	Wiazanie stanu probkowania.
+54	0.174	65	1	.	.	.	.	
+55	0.272	98	2	.	.	.	.	
+56	0.344	72	1	.	.	.	.	
+57	0.441	97	2	.	.	.	.	
+58	0.503	62	1	.	.	.	.	
+59	0.599	96	2	.	.	.	.	
+60	0.661	62	1	.	.	.	.	
+61	0.756	95	2	.	.	.	.	
+62	0.816	60	1	.	.	.	.	
+63	0.913	97	2	.	.	.	.	
+64	0.974	61	1	.	.	.	.	
+65	1.097	123	2	.	.	.	.	
+66	1.161	64	1	.	.	.	.	
+67	1.262	101	2	.	.	.	.	
+68	1.323	61	1	.	.	.	.	
+69	1.416	93	2	.	.	.	.	
+70	1.476	60	1	.	.	.	.	
+71	1.573	97	2	.	.	.	.	
+72	1.634	61	1	.	.	.	.	
+73	1.73	96	2	.	.	.	.	
+74	1.791	61	1	.	.	.	.	
+75	1.887	96	2	.	.	.	.	
+76	1.95	63	1	.	.	.	.	
+77	2.05	100	2	.	.	.	.	
+78	2.138	88	1	.	.	.	.	
+79	2.268	130	2	.	.	.	.	
+80	2.331	63	1	.	.	.	.	
+81	2.427	96	2	.	.	.	.	
+82	2.488	61	1	.	.	.	.	
+83	2.582	94	2	.	.	.	.	
+84	2.644	62	1	.	.	.	.	
+85	2.741	97	2	.	.	.	.	
+86	2.802	61	1	.	.	.	.	
+87	2.897	95	2	.	.	.	.	
+88	2.958	61	1	.	.	.	.	
+89	3.053	95	2	.	.	.	.	
+90	3.115	62	1	.	.	.	.	
+91	3.21	95	2	.	.	.	.	
+92	3.278	68	1	.	.	.	.	
+93	3.382	104	2	.	.	.	.	
+94	3.441	59	1	.	.	.	.	
+95	3.534	93	2	.	.	.	.	
+96	3.597	63	1	.	.	.	.	
+97	3.693	96	2	.	.	.	.	
+98	3.696	3	START	.	.	.	.	Niszczenie kontrolerow.
+99	3.697	1	OK	.	.	.	.	.	Niszczenie myszy.
+100	3.698	1	OK	.	.	.	.	.	Niszczenie klawiatury.
+101	3.699	1	OK	.	.	.	.	.	Niszczenie wejscia.
+102	3.7	1	STOP	.	.	.	.	Niszczenie kontrolerow.
+103	3.701	1	--->	.	.	.	.	Niszcz obiekt 3W.
+104	3.702	1	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+105	3.703	1	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+106	3.704	1	OK	.	.	.	.	.	Zwolnij widok tekstury.
+107	3.706	2	<---	.	.	.	.	Niszcz obiekt 3W.
+108	3.707	1	--->	.	.	.	.	Niszcz obiekt 3W.
+109	3.708	1	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+110	3.709	1	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+111	3.709	0	OK	.	.	.	.	.	Zwolnij widok tekstury.
+112	3.71	1	<---	.	.	.	.	Niszcz obiekt 3W.
+113	3.711	1	--->	.	.	.	.	Niszcz obiekt 3W.
+114	3.711	0	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+115	3.712	1	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+116	3.713	1	OK	.	.	.	.	.	Zwolnij widok tekstury.
+117	3.713	0	<---	.	.	.	.	Niszcz obiekt 3W.

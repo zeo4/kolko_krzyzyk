@@ -15,65 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="zrodlo\gl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\moonstone\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\globalne.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\wejscie.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\logika.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\testy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\swiat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\fizyka.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\zasobyGraf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\obiekty.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\listaObiekty.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\grafika.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\obiektyGra.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\siatka.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zrodlo\drzewo8.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="zrodlo\b.bat">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="zrodlo\c.bat">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="zrodlo\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\drzewo8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zrodlo\fizyka.h">
@@ -94,6 +39,12 @@
     <ClInclude Include="zrodlo\obiekty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zrodlo\obiektyGra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zrodlo\siatka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="zrodlo\swiat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -109,19 +60,52 @@
     <ClInclude Include="zrodlo\zasobyGraf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="zrodlo\obiektyGra.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zrodlo\siatka.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zrodlo\drzewo8.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="zrodlo\szader\efekty.fx">
+    <ClCompile Include="zrodlo\debug.cpp">
       <Filter>Source Files</Filter>
-    </FxCompile>
+    </ClCompile>
+    <ClCompile Include="zrodlo\drzewo8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\fizyka.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\gl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\globalne.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\grafika.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\listaObiekty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\logika.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\obiekty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\obiektyGra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\siatka.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\swiat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\testy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\wejscie.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zrodlo\zasobyGraf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

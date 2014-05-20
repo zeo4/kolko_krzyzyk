@@ -12,8 +12,10 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <forward_list>
 #include <deque>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <fstream>
 #include <ctime>
@@ -30,13 +32,19 @@ using std::string;
 using std::to_string;
 using std::vector;
 using std::list;
+using std::forward_list;
 using std::deque;
 using std::map;
+using std::multimap;
+using std::unordered_multimap;
 using std::set;
 using std::pair;
+using std::tuple;
+using std::get;
 
 // ilość tików przy starcie programu
 UINT extern tikProgramStart;
+UINT extern tikPoprzedni;
 
 HWND extern uchOknoGl;
 float extern szerRend;

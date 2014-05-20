@@ -52,10 +52,8 @@ Obiekt3w* Tekst::tworzLitera(
 	);
 }
 Tekst::Tekst(
-	) : literyGraf(new ObiektZbior)
+	) : literyGraf(new ObiektZbior(XMFLOAT3(-1.0f, -1.0f, +4.0f)))
 	{
-	literyGraf->wezFiz()->zadajRuch(XMVectorSet(-2.0f, +1.5f, +1.0f, +0.0f), 0, 0, 0);
-
 	float *a = new float[3];
 	float *b = new float[3];
 	float *c = new float[3];

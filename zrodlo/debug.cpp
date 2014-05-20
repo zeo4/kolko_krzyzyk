@@ -3,14 +3,10 @@
 #include "debug.h"
 
 bool Logi::flgWlaczone = true;
-void Logi::piszTytul(
-	string const		tytul
-	) {
+void Logi::piszTytul(string const tytul) {
 	plik << tytul << "\t";
 }
-void Logi::piszTresc(
-	string const		tresc
-	) {
+void Logi::piszTresc(string const tresc) {
 	piszWciecie();
 
 	UINT i = -1;
@@ -25,16 +21,17 @@ void Logi::piszTresc(
 		}
 	}
 }
-void Logi::piszNrWiersza(
-	) {
+void Logi::piszNrWiersza() {
 	plik << ++nrWiersza << "\t";
 }
-void Logi::piszCzas(
-	) {
-	plik << float((clock()-tikProgramStart))/CLOCKS_PER_SEC << "\t";
+void Logi::piszCzas() {
+	UINT tik = clock();
+	plik << float(tik - tikProgramStart) / CLOCKS_PER_SEC << "\t";
+	plik << float(tik - tikPoprzedni) / CLOCKS_PER_SEC << "\t";
+	plik << tik - tikPoprzedni << "\t";
+	tikPoprzedni = tik;
 }
-void Logi::piszNowaLinie(
-	) {
+void Logi::piszNowaLinie() {
 	plik << "\n";
 	piszNrWiersza();
 	//za pozostałe kolumny
@@ -43,29 +40,23 @@ void Logi::piszNowaLinie(
 	}
 	piszWciecie();
 }
-void Logi::piszWciecie(
-	) {
+void Logi::piszWciecie() {
 	for(int i = 0; i < poziomAktWciecia; i++) {
 		plik << ".\t";
 	}
 }
-Logi::Logi(
-	char const* const		nazwa
-	) : nazwaPliku(nazwa), nrWiersza(0), poziomAktWciecia(0), tabowDoTresci(0) {
+Logi::Logi(char const* const nazwa) : nazwaPliku(nazwa), nrWiersza(0), poziomAktWciecia(0), tabowDoTresci(0) {
 	// otwórz wyczyszczony
 	plik.open(nazwaPliku, std::ios::trunc);
 
 	// pisz nagłówki
-	plik << "Nr\t" << "t[s]\t" << "Tytul\t" << "Tresc";
+	plik << "Nr\t" << "t[s]\t" << "dt[s]\t" << "dt[tik]\t" << "Tytul\t" << "Tresc";
 	plik << "\n-------------------------------------------------------------";
-	tabowDoTresci = 3;
+	tabowDoTresci = 5;
 
 	plik.close();
 }
-void Logi::pisz(
-	string const		tytul,
-	string const		tresc
-	) {
+void Logi::pisz(string const tytul, string const tresc) {
 	if(flgWlaczone == false) {
 		return;
 	}
@@ -80,10 +71,7 @@ void Logi::pisz(
 
 	plik.close();
 }
-void Logi::piszStart(
-	string const		tytul,
-	string const		tresc
-	) {
+void Logi::piszStart(string const tytul, string const tresc) {
 	if(flgWlaczone == false) {
 		return;
 	}
@@ -91,10 +79,7 @@ void Logi::piszStart(
 	pisz(tytul, tresc);
 	++poziomAktWciecia;
 }
-void Logi::piszStop(
-	string const		tytul,
-	string const		tresc
-	) {
+void Logi::piszStop(string const tytul, string const tresc) {
 	if(flgWlaczone == false) {
 		return;
 	}
@@ -105,13 +90,9 @@ void Logi::piszStop(
 Logi logi;
 
 HRESULT wynik;
-Wyjatek::Wyjatek(
-	) : opis("")
+Wyjatek::Wyjatek() : opis("")
 	{}
-void SprawdzWynik(
-	HRESULT		wynik,
-	string		opis
-	) {
+void SprawdzWynik(HRESULT wynik, string opis) {
 	if(FAILED(wynik)){
 		Wyjatek wyj;
 		wyj.opis = opis;
@@ -120,9 +101,7 @@ void SprawdzWynik(
 		logi.pisz("OK", opis);
 	}
 }
-void ObslugaWyjatek(
-	Wyjatek		wyj
-	) {
+void ObslugaWyjatek(Wyjatek wyj) {
 	logi.pisz("BLAD", wyj.opis);
 }
 

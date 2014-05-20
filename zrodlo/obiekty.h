@@ -41,9 +41,8 @@ public:
 						IObiekt(XMFLOAT3 const);
 	virtual				~IObiekt();
 	void				rysuj() const;
-	virtual void		ustawFizyka() = 0;
 	virtual void		ustawGrafika() = 0;
-	virtual void		ustawKolizje(MapaOb3wObiekty3w_ const* const) = 0;
+	virtual void		ustawKolizje(MapaSasiedzi_ const* const) = 0;
 	IFizyka*			wezFiz() const;
 	IGrafika*			wezGraf() const;
 	virtual void		wezKolizjePromien(
@@ -53,12 +52,14 @@ public:
 
 class Obiekt3w : public IObiekt {
 	friend class Fizyka3w;
+	friend class Fizyka3wKoliz;
+	friend class Fizyka3wNiekoliz;
 	friend class Grafika3w;
 	ID3D11Buffer*					bufIndeksy;
 	ID3D11Buffer*					bufWierz;
 	Fizyka3w*						fiz;
 	vector<DWORD>					ind;
-	MapaOb3wObiekty3w_ const*		kolizje;
+	MapaSasiedzi_ const*			sasiedzi;
 	ID3D11ShaderResourceView*		widokTekstura;
 	vector<Wierzcholek>				wierz;
 	void							nadpiszIndeksy(
@@ -91,9 +92,10 @@ public:
 										string
 									);
 	virtual							~Obiekt3w();
-	void							ustawFizyka();
+	void							ustawFizykaLitera();
+	void							ustawFizykaPostac();
 	void							ustawGrafika();
-	void							ustawKolizje(MapaOb3wObiekty3w_ const* const);
+	void							ustawKolizje(MapaSasiedzi_ const* const);
 	Fizyka3w*						wezFiz() const;
 	void							wezKolizjePromien(
 										MapaFloatObiekt_* const,
@@ -108,12 +110,12 @@ class ObiektZbior : public IObiekt {
 	FizykaZbior*		fiz;
 	ListaObiekty		podobiekty;
 public:
-						ObiektZbior();
+						ObiektZbior(XMFLOAT3 const);
 	virtual				~ObiektZbior();
 	void				dodaj(IObiekt* const);
-	void				ustawFizyka();
+	void				ustawFizykaTekst();
 	void				ustawGrafika();
-	void				ustawKolizje(MapaOb3wObiekty3w_ const* const);
+	void				ustawKolizje(MapaSasiedzi_ const* const);
 	void				wezKolizjePromien(
 							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
 						) const;

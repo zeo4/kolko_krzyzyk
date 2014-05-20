@@ -1,0 +1,167 @@
+Nr	t[s]	dt[s]	Tytul	Tresc
+-------------------------------------------------------------
+1	0.01	0.012	--->	Tworzenie swiata.
+2	0.011	0.001	<---	Tworzenie swiata.
+3	0.018	0.007	OK	Tworzenie wejscia kontrolerow.
+4	0.021	0.003	OK	Tworzenie klawiatury.
+5	0.021	0	OK	Tworzenie myszy
+6	0.023	0.002	OK	Ustawienie formatu danych klawiatury.
+7	0.023	0	OK	Ustawienie wspolpracy klawiatury z oknem gry.
+8	0.025	0.002	OK	Rezerwacja klawiatury.
+9	0.026	0.001	OK	Ustawienie formatu danych myszy.
+10	0.027	0.001	OK	Ustawienie wspolpracy myszy z oknem gry.
+11	0.028	0.001	OK	Rezerwacja myszy.
+12	0.028	0	--->	Logika::inic3W().
+13	0.05	0.022	OK	.	Tworz interfejsy: karty, renderowania i lancucha.
+14	0.051	0.001	OK	.	Przypisz bufor tylny do interfejsu.
+15	0.051	0	OK	.	Tworz widok bufora tylnego.
+16	0.052	0.001	OK	.	Tworzenie bufora glebi i szablonu.
+17	0.053	0.001	OK	.	Tworzenie widoku glebi i szablonu.
+18	0.055	0.002	<---	.	Logika::inic3W().
+19	0.056	0.001	OK	.	.	Wgraj wierzcholki.
+20	0.057	0.001	OK	.	.	Wgraj indeksy.
+21	0.063	0.006	OK	.	.	Wgranie tekstury.
+22	0.064	0.001	OK	.	.	Tworz bufor z laczeniem 1.
+23	0.065	0.001	OK	.	.	Tworz bufor z laczeniem 2.
+24	0.066	0.001	OK	.	.	Wypelnij bufor wierzcholkow.
+25	0.067	0.001	OK	.	.	Wypelnij bufor indeksow.
+26	0.067	0	OK	.	.	Wgraj wierzcholki.
+27	0.068	0.001	OK	.	.	Wgraj indeksy.
+28	0.08	0.012	OK	.	.	Wgranie tekstury.
+29	0.081	0.001	OK	.	.	Tworz bufor z laczeniem 1.
+30	0.082	0.001	OK	.	.	Tworz bufor z laczeniem 2.
+31	0.083	0.001	OK	.	.	Wypelnij bufor wierzcholkow.
+32	0.084	0.001	OK	.	.	Wypelnij bufor indeksow.
+33	0.084	0	OK	.	.	Wgraj wierzcholki.
+34	0.085	0.001	OK	.	.	Wgraj indeksy.
+35	0.09	0.005	OK	.	.	Wgranie tekstury.
+36	0.091	0.001	OK	.	.	Tworz bufor z laczeniem 1.
+37	0.091	0	OK	.	.	Tworz bufor z laczeniem 2.
+38	0.092	0.001	OK	.	.	Wypelnij bufor wierzcholkow.
+39	0.093	0.001	OK	.	.	Wypelnij bufor indeksow.
+40	0.094	0.001	--->	.	.	Tworz ObiektZbior.
+41	0.094	0	<---	.	.	.	Tworz ObiektZbior.
+42	0.095	0.001	OK	.	.	.	.	Wgraj wierzcholki.
+43	0.096	0.001	OK	.	.	.	.	Wgraj indeksy.
+44	0.098	0.002	OK	.	.	.	.	Wgranie tekstury.
+45	0.099	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+46	0.099	0	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+47	0.1	0.001	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+48	0.101	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+49	0.101	0	OK	.	.	.	.	Wgraj wierzcholki.
+50	0.102	0.001	OK	.	.	.	.	Wgraj indeksy.
+51	0.105	0.003	OK	.	.	.	.	Wgranie tekstury.
+52	0.107	0.002	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+53	0.108	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+54	0.108	0	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+55	0.109	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+56	0.11	0.001	OK	.	.	.	.	Wgraj wierzcholki.
+57	0.11	0	OK	.	.	.	.	Wgraj indeksy.
+58	0.112	0.002	OK	.	.	.	.	Wgranie tekstury.
+59	0.113	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+60	0.114	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+61	0.114	0	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+62	0.115	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+63	0.116	0.001	OK	.	.	.	.	Wgraj wierzcholki.
+64	0.116	0	OK	.	.	.	.	Wgraj indeksy.
+65	0.118	0.002	OK	.	.	.	.	Wgranie tekstury.
+66	0.119	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+67	0.12	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+68	0.12	0	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+69	0.121	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+70	0.122	0.001	OK	.	.	.	.	Wgraj wierzcholki.
+71	0.122	0	OK	.	.	.	.	Wgraj indeksy.
+72	0.124	0.002	OK	.	.	.	.	Wgranie tekstury.
+73	0.125	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+74	0.126	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+75	0.127	0.001	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+76	0.128	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+77	0.128	0	OK	.	.	.	.	Wgraj wierzcholki.
+78	0.129	0.001	OK	.	.	.	.	Wgraj indeksy.
+79	0.131	0.002	OK	.	.	.	.	Wgranie tekstury.
+80	0.132	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+81	0.133	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+82	0.134	0.001	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+83	0.135	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+84	0.135	0	OK	.	.	.	.	Wgraj wierzcholki.
+85	0.136	0.001	OK	.	.	.	.	Wgraj indeksy.
+86	0.138	0.002	OK	.	.	.	.	Wgranie tekstury.
+87	0.139	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+88	0.139	0	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+89	0.14	0.001	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+90	0.141	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+91	0.141	0	OK	.	.	.	.	Wgraj wierzcholki.
+92	0.142	0.001	OK	.	.	.	.	Wgraj indeksy.
+93	0.144	0.002	OK	.	.	.	.	Wgranie tekstury.
+94	0.145	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 1.
+95	0.146	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 2.
+96	0.146	0	OK	.	.	.	.	Wypelnij bufor wierzcholkow.
+97	0.147	0.001	OK	.	.	.	.	Wypelnij bufor indeksow.
+98	0.152	0.005	OK	.	.	.	.	Wgraj szader wierzcholkow: 
+99	0.154	0.002	OK	.	.	.	.	Tworz szader wierzcholkow.
+100	0.159	0.005	OK	.	.	.	.	Wgraj szader pikseli: 
+101	0.161	0.002	OK	.	.	.	.	Tworz szader pikseli.
+102	0.162	0.001	OK	.	.	.	.	Tworz strukture wejscia.
+103	0.163	0.001	OK	.	.	.	.	Wiaz strukture wejscia.
+104	0.164	0.001	OK	.	.	.	.	Tworzenie rzutni.
+105	0.164	0	OK	.	.	.	.	Wiazanie rzutni.
+106	0.165	0.001	OK	.	.	.	.	Tworz bufor z laczeniem 4.
+107	0.166	0.001	OK	.	.	.	.	Tworzenie bufora aktualizowanego co obiekt.
+108	0.167	0.001	OK	.	.	.	.	Tworzenie stanu probkowania.
+109	0.167	0	OK	.	.	.	.	Wiazanie stanu probkowania.
+110	0.17	0.003	test	.	.	.	.	przed
+111	0.29	0.12	1	.	.	.	.	
+112	1.153	0.863	2	.	.	.	.	
+113	1.164	0.011	test	.	.	.	.	po
+114	1.174	0.01	test	.	.	.	.	przed
+115	1.307	0.133	1	.	.	.	.	
+116	2.033	0.726	2	.	.	.	.	
+117	2.045	0.012	test	.	.	.	.	po
+118	2.048	0.003	test	.	.	.	.	przed
+119	2.19	0.142	1	.	.	.	.	
+120	2.913	0.723	2	.	.	.	.	
+121	2.924	0.011	test	.	.	.	.	po
+122	2.927	0.003	test	.	.	.	.	przed
+123	3.054	0.127	1	.	.	.	.	
+124	3.826	0.772	2	.	.	.	.	
+125	3.838	0.012	test	.	.	.	.	po
+126	3.841	0.003	test	.	.	.	.	przed
+127	3.971	0.13	1	.	.	.	.	
+128	4.731	0.76	2	.	.	.	.	
+129	4.742	0.011	test	.	.	.	.	po
+130	4.745	0.003	test	.	.	.	.	przed
+131	4.872	0.127	1	.	.	.	.	
+132	5.602	0.73	2	.	.	.	.	
+133	5.614	0.012	test	.	.	.	.	po
+134	5.617	0.003	test	.	.	.	.	przed
+135	5.748	0.131	1	.	.	.	.	
+136	6.457	0.709	2	.	.	.	.	
+137	6.468	0.011	test	.	.	.	.	po
+138	6.471	0.003	test	.	.	.	.	przed
+139	6.597	0.126	1	.	.	.	.	
+140	7.296	0.699	2	.	.	.	.	
+141	7.308	0.012	test	.	.	.	.	po
+142	7.31	0.002	test	.	.	.	.	przed
+143	7.434	0.124	1	.	.	.	.	
+144	8.155	0.721	2	.	.	.	.	
+145	8.167	0.012	test	.	.	.	.	po
+146	8.173	0.006	START	.	.	.	.	Niszczenie kontrolerow.
+147	8.181	0.008	OK	.	.	.	.	.	Niszczenie myszy.
+148	8.186	0.005	OK	.	.	.	.	.	Niszczenie klawiatury.
+149	8.186	0	OK	.	.	.	.	.	Niszczenie wejscia.
+150	8.187	0.001	STOP	.	.	.	.	Niszczenie kontrolerow.
+151	8.187	0	--->	.	.	.	.	Niszcz obiekt 3W.
+152	8.188	0.001	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+153	8.188	0	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+154	8.189	0.001	OK	.	.	.	.	.	Zwolnij widok tekstury.
+155	8.189	0	<---	.	.	.	.	Niszcz obiekt 3W.
+156	8.19	0.001	--->	.	.	.	.	Niszcz obiekt 3W.
+157	8.19	0	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+158	8.191	0.001	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+159	8.191	0	OK	.	.	.	.	.	Zwolnij widok tekstury.
+160	8.192	0.001	<---	.	.	.	.	Niszcz obiekt 3W.
+161	8.192	0	--->	.	.	.	.	Niszcz obiekt 3W.
+162	8.193	0.001	OK	.	.	.	.	.	Zwolnij bufor indeksow.
+163	8.193	0	OK	.	.	.	.	.	Zwolnij bufor wierzcholkow.
+164	8.194	0.001	OK	.	.	.	.	.	Zwolnij widok tekstury.
+165	8.194	0	<---	.	.	.	.	Niszcz obiekt 3W.

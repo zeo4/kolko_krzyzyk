@@ -3,8 +3,7 @@
 #include "logika.h"
 #include "fizyka.h"
 
-void Logika::uwzglWejscie(
-	) {
+void Logika::uwzglWejscie() {
 	BYTE stanKlawiatura[256];
 	DIMOUSESTATE stanMysz;
 	wejscie.wez(stanKlawiatura, &stanMysz);
@@ -37,12 +36,9 @@ void Logika::uwzglWejscie(
 		}
 	}
 }
-Logika::Logika(
-	HINSTANCE const		uchwyt
-	) : obiektKursor(NULL), obiektWybrany(NULL), wejscie(uchwyt)
+Logika::Logika(HINSTANCE const uchwyt) : obiektKursor(NULL), obiektWybrany(NULL), wejscie(uchwyt)
 	{}
-void Logika::inic3W(
-	) {
+void Logika::inic3W() {
 	logi.piszStart("--->", "Logika::inic3W().");
 	try{
 	// twórz opis bufora tylnego
@@ -105,19 +101,16 @@ void Logika::inic3W(
 	}
 	logi.piszStart("<---", "Logika::inic3W().");
 }
-void Logika::inicScena(
-	) {
+void Logika::inicScena() {
 	try{
 	obiektKursor = swiat.tworzObiektKursor();
 	obiektWybrany = swiat.tworzObiektRycerz();
-	IObiekt* ob = swiat.tworzObiektSmok();
-	logi.pisz("kurs", to_string((UINT)obiektKursor));
-	logi.pisz("ryc", to_string((UINT)obiektWybrany));
-	logi.pisz("smok", to_string((UINT)ob));
-	Obiekt3w::test = obiektWybrany;
-	//Tekst t;
+	swiat.tworzObiektSmok();
+	Tekst t;
 	//t.pisz("fps: 60, to i tak duzo.");
+	//t.pisz("fpsabcd:");
 	//swiat.dodaj(t.wezObiektGraf());
+	//Obiekt3w::test = t.wezObiektGraf();
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 	zasoby.tworzSzadWierz();
@@ -144,8 +137,7 @@ void Logika::inicScena(
 	ObslugaWyjatek(wyj);
 	}
 }
-void Logika::tworzKolejnaKlatka(
-	) {
+void Logika::tworzKolejnaKlatka() {
 	// czyść widok bufora tylnego
 	const FLOAT kolor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	zasoby.render->ClearRenderTargetView(zasoby.widBufTyl, kolor);

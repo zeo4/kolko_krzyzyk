@@ -3,32 +3,25 @@
 #include "globalne.h"
 #include "typedefy.h"
 
-class IObiekt;
+class Obiekt3w;
+
+class Hasz {
+public:
+	//UINT		operator()(UINT const) const;
+	UINT		operator()(tuple<float const, float const, float const> const) const;
+};
 
 class SiatkaObiekty {
-	typedef map<float const, ZbiorOb3wStale_>		Siatka1Obiekty_;
-	typedef map<float const, Siatka1Obiekty_>		Siatka2Obiekty_;
-	typedef map<float const, Siatka2Obiekty_>		Siatka3Obiekty_;
-	Siatka3Obiekty_		siatka;
+	typedef tuple<float, float, float>									KluczSiatka_;
+	//typedef unordered_multimap<KluczSiatka_, Obiekt3w* const, Hasz>		Siatka_;
+	typedef multimap<KluczSiatka_ const, Obiekt3w* const>				Siatka_;
+	typedef pair<KluczSiatka_ const, Obiekt3w* const>					ParaSiatka_;
+	Siatka_					siatka;
+	void					liczNrObszar(KluczSiatka_* const) const;
 public:
-	typedef Siatka3Obiekty_::iterator			IteratorX;
-	typedef Siatka3Obiekty_::const_iterator		StalyIteratorX;
-	typedef Siatka2Obiekty_::iterator			IteratorY;
-	typedef Siatka2Obiekty_::const_iterator		StalyIteratorY;
-	typedef Siatka1Obiekty_::iterator			IteratorZ;
-	typedef Siatka1Obiekty_::const_iterator		StalyIteratorZ;
-	typedef ZbiorOb3wStale_::iterator			IteratorOb;
-	typedef ZbiorOb3wStale_::const_iterator		StalyIteratorOb;
-	void				dopiszObiekt(float, float, float, Obiekt3w const* const);
-	void				dopiszSiatka(SiatkaObiekty const);
-	void				czysc();
-	void				ustawWspolnyObiekt(Obiekt3w* const);
-	void				wezKolizje(MapaOb3wObiekty3w_&) const;
-	StalyIteratorX		wezKon() const;
-	bool				wezObiekty(
-							ZbiorOb3wStale_&, float, float, float
-						) const;
-	StalyIteratorX		wezPocz() const;
-	UINT				wezRozm() const;
+	static float const		rozmObszar;
+	void					czysc();
+	void					dodajObiekt(Obiekt3w* const);
+	void					wezSasiedzi(MapaSasiedzi_* const) const;
 };
 
