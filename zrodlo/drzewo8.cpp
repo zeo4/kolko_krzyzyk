@@ -126,28 +126,29 @@ void Drzewo8::dopiszSasiedzi(MapaSasiedzi_* const mapaSasiedzi, ZbiorLiscie_* co
 }
 byte Drzewo8::liczObszary(Obiekt3w* const ob) const {
 	byte obszary = ~0;
-	XMVECTOR sr0, sr1, sr2, odl1, odl2;
+	XMVECTOR sr0, sr1, sr2;
 	float prom;
 	ob->wezFiz()->wezBrylaGraniczna(&sr1, &sr2, &prom);
 	sr0 = XMLoadFloat3(&sr);
-	odl1 = XMVectorAbs(sr0 - sr1);
-	odl2 = XMVectorAbs(sr0 - sr2);
+	XMFLOAT3 odl1, odl2;
+	XMStoreFloat3(&odl1, XMVectorAbs(sr0 - sr1));
+	XMStoreFloat3(&odl2, XMVectorAbs(sr0 - sr2));
 
-	if(XMVectorGetX(odl1) > r && XMVectorGetX(odl2) > r) {
+	if(odl1.x > r && odl2.x > r) {
 		if(XMVectorGetX(sr1) < sr.x && XMVectorGetX(sr2) < sr.x) {
 			obszary = obszary & 85;
 		} else if(XMVectorGetX(sr1) > sr.x && XMVectorGetX(sr2) > sr.x) {
 			obszary = obszary & 170;
 		}
 	}
-	if(XMVectorGetY(odl1) > r && XMVectorGetY(odl2) > r) {
+	if(odl1.y > r && odl2.y > r) {
 		if(XMVectorGetY(sr1) < sr.y && XMVectorGetY(sr2) < sr.y) {
 			obszary = obszary & 51;
 		} else if(XMVectorGetY(sr1) > sr.y && XMVectorGetY(sr2) > sr.y) {
 			obszary = obszary & 204;
 		}
 	}
-	if(XMVectorGetZ(odl1) > r && XMVectorGetZ(odl2) > r) {
+	if(odl1.z > r && odl2.z > r) {
 		if(XMVectorGetZ(sr1) < sr.z && XMVectorGetZ(sr2) < sr.z) {
 			obszary = obszary & 15;
 		} else if(XMVectorGetZ(sr1) > sr.z && XMVectorGetZ(sr2) > sr.z) {
