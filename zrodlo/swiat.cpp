@@ -36,10 +36,9 @@ void Swiat::aktualizujSasiedzi() {
 		}
 	}
 	logi.pisz("1", "");
-	//logi.pisz("ttt", to_string(Drzewo8::il));
 	//siatka.wezSasiedzi(&sasiedzi);
 	drzewo8.wezSasiedzi(&sasiedzi);
-	logi.pisz("2", "");
+	logi.pisz("2", to_string(sasiedzi.size()));
 }
 void Swiat::niszczObiektSwiat(IObiekt* const ob) {
 	if(obiektySwiat.count(ob) != 0) {
