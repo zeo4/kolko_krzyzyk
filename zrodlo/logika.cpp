@@ -108,9 +108,9 @@ void Logika::inicScena() {
 	swiat.tworzObiektSmok();
 	Tekst t;
 	//t.pisz("fps: 60, to i tak duzo.");
-	t.pisz("fpsabcd:");
-	swiat.dodaj(t.wezObiektGraf());
-	Obiekt3w::test = t.wezObiektGraf();
+	//t.pisz("fpsabcd:");
+	//swiat.dodaj(t.wezObiektGraf());
+	//Obiekt3w::test = t.wezObiektGraf();
 	
 	zasoby.wgrajSzadWierz("szader\\efekty.fx", "SW");
 	zasoby.tworzSzadWierz();

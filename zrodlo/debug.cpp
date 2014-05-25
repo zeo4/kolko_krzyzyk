@@ -28,7 +28,6 @@ void Logi::piszCzas() {
 	UINT tik = clock();
 	plik << float(tik - tikProgramStart) / CLOCKS_PER_SEC << "\t";
 	plik << float(tik - tikPoprzedni) / CLOCKS_PER_SEC << "\t";
-	plik << tik - tikPoprzedni << "\t";
 	tikPoprzedni = tik;
 }
 void Logi::piszNowaLinie() {
@@ -50,9 +49,9 @@ Logi::Logi(char const* const nazwa) : nazwaPliku(nazwa), nrWiersza(0), poziomAkt
 	plik.open(nazwaPliku, std::ios::trunc);
 
 	// pisz nagłówki
-	plik << "Nr\t" << "t[s]\t" << "dt[s]\t" << "dt[tik]\t" << "Tytul\t" << "Tresc";
+	plik << "Nr\t" << "t[s]\t" << "dt[s]\t" << "Tytul\t" << "Tresc";
 	plik << "\n-------------------------------------------------------------";
-	tabowDoTresci = 5;
+	tabowDoTresci = 4;
 
 	plik.close();
 }
