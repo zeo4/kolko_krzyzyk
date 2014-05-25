@@ -9,10 +9,10 @@ Wierzcholek::Wierzcholek(float x, float y, float z) : poz(x, y, z)
 Wierzcholek::Wierzcholek(/*kształt*/ float x, float y, float z, /*tekstura*/ float u, float v) : poz(x, y, z), pozTekstury(u, v)
 	{}
 
-IObiekt::IObiekt(XMFLOAT3 const pozPocz) : fiz(NULL), graf(NULL), poz(pozPocz), rodzic(NULL), tRuch(1.0f)
+IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tRuch(1.0f)
 	{
 	XMStoreFloat4x4(&macSwiat, XMMatrixIdentity());
-	XMStoreFloat4x4(&macSwiatNast, XMMatrixIdentity());
+	XMStoreFloat4x4(&macSwiatBezkol, XMMatrixIdentity());
 }
 IObiekt::~IObiekt() {}
 void IObiekt::rysuj() const {

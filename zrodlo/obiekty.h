@@ -30,10 +30,10 @@ protected:
 	IFizyka*			fiz;
 	IGrafika*			graf;
 	XMFLOAT4X4			macSwiat;
-	XMFLOAT4X4			macSwiatNast;
+	XMFLOAT4X4			macSwiatBezkol;
 	XMFLOAT3			obrot;
 	XMFLOAT3			omega;
-	XMFLOAT3			poz;
+	XMFLOAT3			przes;
 	IObiekt const*		rodzic;
 	float				tRuch;
 	XMFLOAT3			v;

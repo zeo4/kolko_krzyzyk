@@ -6,7 +6,7 @@
 IFizyka::IFizyka(IObiekt* const ob) : obiekt (ob)
 	{}
 IFizyka::~IFizyka() {}
-void IFizyka::liczPoz() {
+void IFizyka::liczSwiatBezkol() {
 	// licz macierz obrotu
 	XMVECTOR kx, ky, kz, k;
 	kx = XMQuaternionRotationNormal(
@@ -26,16 +26,31 @@ void IFizyka::liczPoz() {
 
 	// licz macierz przesunięcia
 	XMMATRIX macPrzes = XMMatrixTranslationFromVector(
-		XMLoadFloat3(&obiekt->poz) + XMLoadFloat3(&obiekt->v) * obiekt->tRuch
+		XMLoadFloat3(&obiekt->przes) + XMLoadFloat3(&obiekt->v) * obiekt->tRuch
 	);
 
 	// licz macierz świata
 	if(obiekt->rodzic != NULL) {
-		XMMATRIX macSwiatRodzic = XMLoadFloat4x4(&obiekt->rodzic->macSwiatNast);
-		XMStoreFloat4x4(&obiekt->macSwiatNast, macObrot * macPrzes * macSwiatRodzic);
+		XMMATRIX macSwiatRodzic = XMLoadFloat4x4(&obiekt->rodzic->macSwiatBezkol);
+		XMStoreFloat4x4(&obiekt->macSwiatBezkol, macObrot * macPrzes * macSwiatRodzic);
 	} else {
-		XMStoreFloat4x4(&obiekt->macSwiatNast, macObrot * macPrzes);
+		XMStoreFloat4x4(&obiekt->macSwiatBezkol, macObrot * macPrzes);
 	}
+}
+void IFizyka::liczSwiatParam() {
+	// aktualizuj parametry
+	obiekt->tRuch -= 0.1f; // żeby nie lądował za bryłą graniczną
+	obiekt->obrot.x += obiekt->omega.x * obiekt->tRuch;
+	obiekt->obrot.y += obiekt->omega.y * obiekt->tRuch;
+	obiekt->obrot.z += obiekt->omega.z * obiekt->tRuch;
+	obiekt->omega = XMFLOAT3(0,0,0);
+	obiekt->przes.x += obiekt->v.x * obiekt->tRuch;
+	obiekt->przes.y += obiekt->v.y * obiekt->tRuch;
+	obiekt->przes.z += obiekt->v.z * obiekt->tRuch;
+	obiekt->v = XMFLOAT3(0,0,0);
+	liczSwiatBezkol();
+	obiekt->macSwiat = obiekt->macSwiatBezkol;
+	obiekt->tRuch = 1.0f;
 }
 bool IFizyka::sprawdzKulaKula(FXMVECTOR const sr1, float const r1, FXMVECTOR const przes1, FXMVECTOR const sr2, float const r2, CXMVECTOR const przes2, float* const t) const {
 	if(r1 < 0 || r2 < 0) {
@@ -138,27 +153,12 @@ bool IFizyka::wezKolizjaPromienTrojkat(float* const t, FXMVECTOR const pocz, FXM
 		return false;
 	}
 }
-void IFizyka::wykonajRuch() {
-	// aktualizuj parametry
-	obiekt->tRuch -= 0.1f; // żeby nie lądował za bryłą graniczną
-	obiekt->obrot.x += obiekt->omega.x * obiekt->tRuch;
-	obiekt->obrot.y += obiekt->omega.y * obiekt->tRuch;
-	obiekt->obrot.z += obiekt->omega.z * obiekt->tRuch;
-	obiekt->omega = XMFLOAT3(0,0,0);
-	obiekt->poz.x += obiekt->v.x * obiekt->tRuch;
-	obiekt->poz.y += obiekt->v.y * obiekt->tRuch;
-	obiekt->poz.z += obiekt->v.z * obiekt->tRuch;
-	obiekt->v = XMFLOAT3(0,0,0);
-	liczPoz();
-	obiekt->macSwiat = obiekt->macSwiatNast;
-	obiekt->tRuch = 1.0f;
-}
-XMVECTOR IFizyka::wezPoz() const {
-	XMVECTOR poz;
+XMVECTOR IFizyka::wezPrzes() const {
+	XMVECTOR przes;
 	XMMatrixDecompose(
-		&XMVectorSet(0,0,0,0), &XMVectorSet(0,0,0,0), &poz, XMLoadFloat4x4(&obiekt->macSwiat)
+		&XMVectorSet(0,0,0,0), &XMVectorSet(0,0,0,0), &przes, XMLoadFloat4x4(&obiekt->macSwiat)
 	);
-	return poz;
+	return przes;
 }
 void IFizyka::wezPrzesunMacierz(XMFLOAT4X4 const mac, XMVECTOR* const przes) const {
 	*przes = XMVectorSet(mac._41, mac._42, mac._43, 0.0f);
@@ -198,20 +198,20 @@ void Fizyka3w::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR co
 Fizyka3w::Fizyka3w(Obiekt3w* const ob) : IFizyka(ob), obiekt(ob)
 	{}
 Fizyka3w::~Fizyka3w() {}
-void Fizyka3w::liczPozycje() {
-	liczPoz();
+void Fizyka3w::liczSwiatyBezkol() {
+	liczSwiatBezkol();
 }
 void Fizyka3w::wezBrylaGraniczna(XMVECTOR* const sr1, XMVECTOR* const sr2, float* const r) const {
 	wezPrzesunMacierz(obiekt->macSwiat, sr1);
-	wezPrzesunMacierz(obiekt->macSwiatNast, sr2);
+	wezPrzesunMacierz(obiekt->macSwiatBezkol, sr2);
 	*r = 1.0f;
 }
 void Fizyka3w::wezObiekty3W(ZbiorOb3w_* const obiekty) const {
 	obiekty->clear();
 	obiekty->insert(obiekt);
 }
-void Fizyka3w::wykonajRuchy() {
-	wykonajRuch();
+void Fizyka3w::liczSwiatyParam() {
+	liczSwiatParam();
 }
 void Fizyka3w::zadajRuch(XMVECTOR const przes, float const obrotX, float const obrotY, float const obrotZ) {
 	XMFLOAT3 przesRob;
@@ -281,12 +281,12 @@ void FizykaZbior::liczCzasRuch() {
 		}
 	}
 }
-void FizykaZbior::liczPozycje() {
-	liczPoz();
+void FizykaZbior::liczSwiatyBezkol() {
+	liczSwiatBezkol();
 
 	ListaObiekty::const_iterator it;
 	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
-		(*it)->wezFiz()->liczPozycje();
+		(*it)->wezFiz()->liczSwiatyBezkol();
 	}
 }
 void FizykaZbior::wezObiekty3W(ZbiorOb3w_* const obiekty) const {
@@ -299,14 +299,14 @@ void FizykaZbior::wezObiekty3W(ZbiorOb3w_* const obiekty) const {
 		obiekty->insert(obiektyRob.begin(), obiektyRob.end());
 	}
 }
-void FizykaZbior::wykonajRuchy() {
+void FizykaZbior::liczSwiatyParam() {
 	// wykonaj ruch obiektu
-	wykonajRuch();
+	liczSwiatParam();
 	
 	// wykonaj ruch podobiektów
 	ListaObiekty::const_iterator it;
 	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
-		(*it)->fiz->wykonajRuchy();
+		(*it)->fiz->liczSwiatyParam();
 	}
 }
 void FizykaZbior::zadajRuch(XMVECTOR const przes, float const obrotX, float const obrotY, float const obrotZ) {

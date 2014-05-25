@@ -15,18 +15,19 @@ protected:
 	IObiekt* const			obiekt;
 							IFizyka(IObiekt* const);
 	virtual					~IFizyka();
-	void					liczPoz();
+	void					liczSwiatBezkol();
+	void					liczSwiatParam();
 	bool					sprawdzKulaKula(FXMVECTOR const, float const,
 								FXMVECTOR const, FXMVECTOR const, float const,
 								CXMVECTOR const, float* const) const;
-	bool					sprawdzPromienKula(XMVECTOR const, XMVECTOR const,
-								XMVECTOR const, float const, float* const) const;
 	bool					sprawdzKolizjaPudelkoPudelko(FXMVECTOR const,
 								FXMVECTOR const, FXMVECTOR const, CXMVECTOR const
 								) const;
 	bool					sprawdzKolizjaTrojkatTrojkat(FXMVECTOR const,
 								FXMVECTOR const, FXMVECTOR const, CXMVECTOR const,
 								CXMVECTOR const, CXMVECTOR const) const;
+	bool					sprawdzPromienKula(XMVECTOR const, XMVECTOR const,
+								XMVECTOR const, float const, float* const) const;
 	bool					wezKolizjaOdcinekTrojkat(float* const, FXMVECTOR const,
 								FXMVECTOR const, FXMVECTOR const, CXMVECTOR const,
 								CXMVECTOR const) const;
@@ -35,15 +36,14 @@ protected:
 	bool					wezKolizjaPromienTrojkat(float* const, FXMVECTOR const,
 								FXMVECTOR const, FXMVECTOR const, CXMVECTOR const,
 								CXMVECTOR const) const;
-	void					wykonajRuch();
 public:
 	virtual void			liczCzasRuch() = 0;
-	virtual void			liczPozycje() = 0;
+	virtual void			liczSwiatyBezkol() = 0;
+	virtual void			liczSwiatyParam() = 0;
 	virtual void			wezObiekty3W(ZbiorOb3w_* const) const = 0;
-	XMVECTOR				wezPoz() const;
+	XMVECTOR				wezPrzes() const;
 	void					wezPrzesunMacierz(XMFLOAT4X4 const, XMVECTOR* const
 								) const;
-	virtual void			wykonajRuchy() = 0;
 	virtual void			zadajRuch(XMVECTOR const, float const, float const,
 								float const) = 0;
 };
@@ -61,11 +61,11 @@ protected:
 public:
 						Fizyka3w(Obiekt3w* const);
 						~Fizyka3w();
-	void				liczPozycje();
+	void				liczSwiatyBezkol();
+	void				liczSwiatyParam();
 	void				wezBrylaGraniczna(XMVECTOR* const, XMVECTOR* const,
 							float* const) const;
 	void				wezObiekty3W(ZbiorOb3w_* const) const;
-	void				wykonajRuchy();
 	void				zadajRuch(XMVECTOR const, float const, float const,
 							float const);
 };
@@ -106,9 +106,9 @@ public:
 							FizykaZbior(ObiektZbior* const);
 	virtual					~FizykaZbior();
 	void					liczCzasRuch();
-	void					liczPozycje();
+	void					liczSwiatyBezkol();
+	void					liczSwiatyParam();
 	void					wezObiekty3W(ZbiorOb3w_* const) const;
-	void					wykonajRuchy();
 	void					zadajRuch(
 								XMVECTOR const, float const, float const, float const
 							);

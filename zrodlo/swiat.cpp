@@ -204,7 +204,7 @@ void Swiat::wezObPromien(IObiekt** const ob, Obiekt3w const* const obWybierajacy
 
 	// początek i kierunek promienia wyboru
 	XMVECTOR pocz1 = XMLoadFloat3(&pozKamera);
-	XMVECTOR kier1 = obWybierajacy->wezFiz()->wezPoz();
+	XMVECTOR kier1 = obWybierajacy->wezFiz()->wezPrzes();
 	kier1 = kier1 - pocz1;
 
 	// obiekty kolidujące z promieniem wyboru, ułożone od najbliższych początku promienia do najdalszych
@@ -234,9 +234,9 @@ void Swiat::wykonajFizyka() {
 
 	ListaObiekty::const_iterator it;
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->wezFiz()->liczPozycje();
+		(*it)->wezFiz()->liczSwiatyBezkol();
 		(*it)->wezFiz()->liczCzasRuch();
-		(*it)->wezFiz()->wykonajRuchy();
+		(*it)->wezFiz()->liczSwiatyParam();
 	}
 }
 void Swiat::wykonajGrafika() {
