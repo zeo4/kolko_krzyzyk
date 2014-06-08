@@ -5,12 +5,6 @@
 
 class Obiekt3w;
 
-class Hasz {
-public:
-	//UINT		operator()(UINT const) const;
-	UINT		operator()(tuple<float const, float const, float const> const) const;
-};
-
 class SiatkaObiekty {
 	typedef tuple<float, float, float>									KluczSiatka_;
 	//typedef unordered_multimap<KluczSiatka_, Obiekt3w* const, Hasz>		Siatka_;

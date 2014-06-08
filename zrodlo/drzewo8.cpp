@@ -4,7 +4,17 @@
 #include "obiekty.h"
 #include "fizyka.h"
 
-Drzewo8::Drzewo8(XMFLOAT3 const srodek, UINT const prom) : sr(srodek), r(prom), przes(XMFLOAT3(-(srodek.x - prom), -(srodek.y - prom), -(srodek.z - prom))) {}
+#include <memory>
+using std::allocator;
+
+Drzewo8::Drzewo8(XMFLOAT3 const srodek) : sr(srodek), r(32), pktMin(XMFLOAT3(-(srodek.x - 32), -(srodek.y - 32), -(srodek.z - 32))) {}
+void Drzewo8::czysc() {
+	liscie.clear();
+	Galezie_::const_iterator it;
+	for(it = galezie.begin(); it != galezie.end(); ++it) {
+		it->second->czysc();
+	}
+}
 void Drzewo8::dodaj(Obiekt3w* const ob) {
 	if(galezie.size() == 0) {
 		XMVECTOR sr1, sr2, R;
@@ -13,8 +23,8 @@ void Drzewo8::dodaj(Obiekt3w* const ob) {
 		UINT x, y, z;
 		ob->wezFiz()->wezBrylaGraniczna(&sr1, &sr2, &prom);
 		R = XMVectorSet(prom, prom, prom, 0.0f);
-		XMStoreFloat3(&min, XMVectorFloor(sr1 - R + XMLoadFloat3(&przes)));
-		XMStoreFloat3(&maks, XMVectorFloor(sr1 + R + XMLoadFloat3(&przes)));
+		XMStoreFloat3(&min, XMVectorFloor(sr1 - R + XMLoadFloat3(&pktMin)));
+		XMStoreFloat3(&maks, XMVectorFloor(sr1 + R + XMLoadFloat3(&pktMin)));
 		for(z = min.z; z < maks.z; ++z) {
 		for(y = min.y; y < maks.y; ++y) {
 		for(x = min.x; x < maks.x; ++x) {
@@ -29,6 +39,18 @@ uint64_t Drzewo8::liczMorton(UINT const x, UINT const y, UINT const z) const {
 	nr = zMorton[(z >> 14) & 0x7F] | yMorton[(y >> 14) & 0x7F] | xMorton[(x >> 14) & 0x7F];
 	nr = (nr << 21) | zMorton[(z >> 7) & 0x7F] | yMorton[(y >> 7) & 0x7F] | xMorton[(x >> 7) & 0x7F];
 	return (nr << 21) | zMorton[z & 0x7F] | yMorton[y & 0x7F] | xMorton[x & 0x7F];
+}
+UINT Drzewo8::wezRozm() const {
+	if(galezie.size() > 0) {
+		Galezie_::const_iterator it;
+		UINT il = 0;
+		for(it = galezie.begin(); it != galezie.end(); ++it) {
+			il += it->second->wezRozm();
+		}
+		return il;
+	} else {
+		return liscie.size();
+	}
 }
 void Drzewo8::wezSasiedzi(MapaSasiedzi_* const mapaSasiedzi) const {
 	mapaSasiedzi->clear();

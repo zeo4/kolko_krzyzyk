@@ -10,6 +10,7 @@ class IFizyka;
 class Fizyka3w;
 class IGrafika;
 class Grafika3w;
+class Drzewo8;
 
 struct Wierzcholek {
 	XMFLOAT3		poz;
@@ -35,14 +36,14 @@ protected:
 	XMFLOAT3			omega;
 	XMFLOAT3			przes;
 	IObiekt const*		rodzic;
-	float				tRuch;
+	float				tKolizja;
 	XMFLOAT3			v;
 public:
 						IObiekt(XMFLOAT3 const);
 	virtual				~IObiekt();
 	void				rysuj() const;
 	virtual void		ustawGrafika() = 0;
-	virtual void		ustawKolizje(MapaSasiedzi_ const* const) = 0;
+	virtual void		ustawSasiedzi(MapaSasiedzi_ const* const) = 0;
 	IFizyka*			wezFiz() const;
 	IGrafika*			wezGraf() const;
 	virtual void		wezKolizjePromien(
@@ -89,18 +90,16 @@ public:
 										Wierzcholek const *const, UINT const,
 										DWORD const *const, UINT const,
 										XMFLOAT3 const,
-										string
-									);
+										string);
 	virtual							~Obiekt3w();
 	void							ustawFizykaLitera();
 	void							ustawFizykaPostac();
 	void							ustawGrafika();
-	void							ustawKolizje(MapaSasiedzi_ const* const);
+	virtual void					ustawSasiedzi(MapaSasiedzi_ const* const);
 	Fizyka3w*						wezFiz() const;
 	void							wezKolizjePromien(
 										MapaFloatObiekt_* const,
-										XMVECTOR const, XMVECTOR const
-									) const;
+										XMVECTOR const, XMVECTOR const) const;
 };
 
 class ObiektZbior : public IObiekt {
@@ -115,7 +114,7 @@ public:
 	void				dodaj(IObiekt* const);
 	void				ustawFizykaTekst();
 	void				ustawGrafika();
-	void				ustawKolizje(MapaSasiedzi_ const* const);
+	void				ustawSasiedzi(MapaSasiedzi_ const* const);
 	void				wezKolizjePromien(
 							MapaFloatObiekt_* const, XMVECTOR const, XMVECTOR const
 						) const;

@@ -16,6 +16,7 @@
 #include <deque>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 #include <fstream>
 #include <ctime>
@@ -37,6 +38,8 @@ using std::deque;
 using std::map;
 using std::multimap;
 using std::unordered_multimap;
+using std::unordered_map;
+using std::unordered_set;
 using std::set;
 using std::pair;
 using std::tuple;

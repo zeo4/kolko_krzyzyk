@@ -2,9 +2,9 @@
 
 #include "globalne.h"
 #include "typedefy.h"
+#include "drzewo8.h"
 
 class Obiekt3w;
-class SiatkaObiekty;
 
 class IFizyka {
 	friend class Fizyka3WKolizyjny;
@@ -37,7 +37,7 @@ protected:
 								FXMVECTOR const, FXMVECTOR const, CXMVECTOR const,
 								CXMVECTOR const) const;
 public:
-	virtual void			liczCzasRuch() = 0;
+	virtual void			liczCzasKolizja() = 0;
 	virtual void			liczSwiatyBezkol() = 0;
 	virtual void			liczSwiatyParam() = 0;
 	virtual void			wezObiekty3W(ZbiorOb3w_* const) const = 0;
@@ -72,14 +72,14 @@ public:
 
 class Fizyka3wKoliz : public virtual Fizyka3w {
 public:
-				Fizyka3wKoliz();
-	void		liczCzasRuch();
+						Fizyka3wKoliz();
+	virtual void		liczCzasKolizja();
 };
 
 class Fizyka3wNiekoliz : public virtual Fizyka3w {
 public:
-				Fizyka3wNiekoliz();
-	void		liczCzasRuch();
+						Fizyka3wNiekoliz();
+	virtual void		liczCzasKolizja();
 };
 
 // ---------------------------------------------
@@ -105,7 +105,7 @@ protected:
 public:
 							FizykaZbior(ObiektZbior* const);
 	virtual					~FizykaZbior();
-	void					liczCzasRuch();
+	virtual void			liczCzasKolizja();
 	void					liczSwiatyBezkol();
 	void					liczSwiatyParam();
 	void					wezObiekty3W(ZbiorOb3w_* const) const;

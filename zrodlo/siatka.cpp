@@ -5,10 +5,6 @@
 #include "obiekty.h"
 #include "fizyka.h"
 
-UINT Hasz::operator()(tuple<float const, float const, float const> const) const {
-	return 1;
-}
-
 float const SiatkaObiekty::rozmObszar = +0.5f;
 void SiatkaObiekty::czysc() {
 	siatka.clear();

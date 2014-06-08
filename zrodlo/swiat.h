@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "obiekty.h"
 #include "listaObiekty.h"
+#include "drzewo8.h"
 
 class Swiat {
 private:

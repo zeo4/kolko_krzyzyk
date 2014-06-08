@@ -11,22 +11,22 @@ void IFizyka::liczSwiatBezkol() {
 	XMVECTOR kx, ky, kz, k;
 	kx = XMQuaternionRotationNormal(
 		XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f),
-		obiekt->obrot.x + obiekt->omega.x * obiekt->tRuch
+		obiekt->obrot.x + obiekt->omega.x * obiekt->tKolizja
 	);
 	ky = XMQuaternionRotationNormal(
 		XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f),
-		obiekt->obrot.y + obiekt->omega.y * obiekt->tRuch
+		obiekt->obrot.y + obiekt->omega.y * obiekt->tKolizja
 	);
 	kz = XMQuaternionRotationNormal(
 		XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f),
-		obiekt->obrot.z + obiekt->omega.z * obiekt->tRuch
+		obiekt->obrot.z + obiekt->omega.z * obiekt->tKolizja
 	);
 	k = XMQuaternionMultiply(kz, XMQuaternionMultiply(kx,ky));
 	XMMATRIX macObrot = XMMatrixRotationQuaternion(k);
 
 	// licz macierz przesunięcia
 	XMMATRIX macPrzes = XMMatrixTranslationFromVector(
-		XMLoadFloat3(&obiekt->przes) + XMLoadFloat3(&obiekt->v) * obiekt->tRuch
+		XMLoadFloat3(&obiekt->przes) + XMLoadFloat3(&obiekt->v) * obiekt->tKolizja
 	);
 
 	// licz macierz świata
@@ -39,18 +39,18 @@ void IFizyka::liczSwiatBezkol() {
 }
 void IFizyka::liczSwiatParam() {
 	// aktualizuj parametry
-	obiekt->tRuch -= 0.1f; // żeby nie lądował za bryłą graniczną
-	obiekt->obrot.x += obiekt->omega.x * obiekt->tRuch;
-	obiekt->obrot.y += obiekt->omega.y * obiekt->tRuch;
-	obiekt->obrot.z += obiekt->omega.z * obiekt->tRuch;
+	obiekt->tKolizja -= 0.1f; // żeby nie lądował za bryłą graniczną
+	obiekt->obrot.x += obiekt->omega.x * obiekt->tKolizja;
+	obiekt->obrot.y += obiekt->omega.y * obiekt->tKolizja;
+	obiekt->obrot.z += obiekt->omega.z * obiekt->tKolizja;
 	obiekt->omega = XMFLOAT3(0,0,0);
-	obiekt->przes.x += obiekt->v.x * obiekt->tRuch;
-	obiekt->przes.y += obiekt->v.y * obiekt->tRuch;
-	obiekt->przes.z += obiekt->v.z * obiekt->tRuch;
+	obiekt->przes.x += obiekt->v.x * obiekt->tKolizja;
+	obiekt->przes.y += obiekt->v.y * obiekt->tKolizja;
+	obiekt->przes.z += obiekt->v.z * obiekt->tKolizja;
 	obiekt->v = XMFLOAT3(0,0,0);
 	liczSwiatBezkol();
 	obiekt->macSwiat = obiekt->macSwiatBezkol;
-	obiekt->tRuch = 1.0f;
+	obiekt->tKolizja = 1.0f;
 }
 bool IFizyka::sprawdzKulaKula(FXMVECTOR const sr1, float const r1, FXMVECTOR const przes1, FXMVECTOR const sr2, float const r2, CXMVECTOR const przes2, float* const t) const {
 	if(r1 < 0 || r2 < 0) {
@@ -226,7 +226,7 @@ void Fizyka3w::zadajRuch(XMVECTOR const przes, float const obrotX, float const o
 
 Fizyka3wKoliz::Fizyka3wKoliz() : Fizyka3w(NULL)
 	{}
-void Fizyka3wKoliz::liczCzasRuch() {
+void Fizyka3wKoliz::liczCzasKolizja() {
 	if(obiekt->sasiedzi->size() == 0) {
 		return;
 	}
@@ -237,15 +237,15 @@ void Fizyka3wKoliz::liczCzasRuch() {
 	// licz czas kolizji obiektu
 	XMVECTOR pozPrzed, pozPo, kier, pozRob;
 	float r, rRob, t;
-	ZbiorSasiedzi_::const_iterator it;
+	Sasiedzi_::const_iterator it;
 	wezBrylaGraniczna(&pozPrzed, &pozPo, &r);
 	kier = pozPo - pozPrzed;
 	for(it = obiekt->sasiedzi->at(obiekt).begin(); it != obiekt->sasiedzi->at(obiekt).end(); ++it) {
 		(*it)->fiz->wezBrylaGraniczna(&pozRob, &pozRob, &rRob);
 		if(sprawdzKulaKula(pozPrzed, r, kier, pozRob, rRob, XMVectorSet(0,0,0,0), &t)) {
 			if(t >= 0.0f) {
-				if(t < obiekt->tRuch) {
-					obiekt->tRuch = t;
+				if(t < obiekt->tKolizja) {
+					obiekt->tKolizja = t;
 				}
 			}
 		}
@@ -254,8 +254,8 @@ void Fizyka3wKoliz::liczCzasRuch() {
 
 Fizyka3wNiekoliz::Fizyka3wNiekoliz() : Fizyka3w(NULL)
 	{}
-void Fizyka3wNiekoliz::liczCzasRuch() {
-	obiekt->tRuch = 1.0f;
+void Fizyka3wNiekoliz::liczCzasKolizja() {
+	obiekt->tKolizja = 1.0f;
 }
 
 // ---------------------------------------------
@@ -271,13 +271,13 @@ FizykaPostac::FizykaPostac(Obiekt3w* const ob) : Fizyka3w(ob)
 FizykaZbior::FizykaZbior(ObiektZbior* const ob) : IFizyka(ob), obiekt(ob)
 	{}
 FizykaZbior::~FizykaZbior() {}
-void FizykaZbior::liczCzasRuch() {
+void FizykaZbior::liczCzasKolizja() {
 	ListaObiekty::const_iterator it;
-	obiekt->tRuch = 1.0f;
+	obiekt->tKolizja = 1.0f;
 	for(it = obiekt->podobiekty.begin(); it != obiekt->podobiekty.end(); ++it) {
-		(*it)->fiz->liczCzasRuch();
-		if((*it)->tRuch < obiekt->tRuch) {
-			obiekt->tRuch = (*it)->tRuch;
+		(*it)->fiz->liczCzasKolizja();
+		if((*it)->tKolizja < obiekt->tKolizja) {
+			obiekt->tKolizja = (*it)->tKolizja;
 		}
 	}
 }

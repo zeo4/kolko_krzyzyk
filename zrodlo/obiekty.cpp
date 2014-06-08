@@ -9,7 +9,7 @@ Wierzcholek::Wierzcholek(float x, float y, float z) : poz(x, y, z)
 Wierzcholek::Wierzcholek(/*kształt*/ float x, float y, float z, /*tekstura*/ float u, float v) : poz(x, y, z), pozTekstury(u, v)
 	{}
 
-IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tRuch(1.0f)
+IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tKolizja(1.0f)
 	{
 	XMStoreFloat4x4(&macSwiat, XMMatrixIdentity());
 	XMStoreFloat4x4(&macSwiatBezkol, XMMatrixIdentity());
@@ -153,7 +153,7 @@ void Obiekt3w::ustawFizykaPostac() {
 void Obiekt3w::ustawGrafika() {
 	graf = new Grafika3w(this);
 }
-void Obiekt3w::ustawKolizje(MapaSasiedzi_ const* const s) {
+void Obiekt3w::ustawSasiedzi(MapaSasiedzi_ const* const s) {
 	sasiedzi = s;
 }
 Fizyka3w* Obiekt3w::wezFiz() const {
@@ -186,10 +186,10 @@ void ObiektZbior::ustawFizykaTekst() {
 void ObiektZbior::ustawGrafika() {
 	graf = new GrafikaZbior(this);
 }
-void ObiektZbior::ustawKolizje(MapaSasiedzi_ const* const s) {
+void ObiektZbior::ustawSasiedzi(MapaSasiedzi_ const* const s) {
 	ListaObiekty::const_iterator it;
 	for(it = podobiekty.begin(); it != podobiekty.end(); ++it) {
-		(*it)->ustawKolizje(s);
+		(*it)->ustawSasiedzi(s);
 	}
 }
 void ObiektZbior::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR const pocz, XMVECTOR const kier) const {

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "globalne.h"
 #include "debug.h"
 #include "zasobyGraf.h"
@@ -7,6 +9,7 @@
 #include "wejscie.h"
 #include "swiat.h"
 #include "logika.h"
+#include "pamiec.h"
 
 // test
 HINSTANCE		uchAp;
@@ -60,6 +63,7 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
+	MenadzerPula<int> p;
 
 	uchAp = uchAplikacji;
 
@@ -136,5 +140,5 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
 // Dopisać kolizje dla szybko poruszających się obiektów.
 
-// Sprawdzić które szybsze dla siatki obiektów: multimap czy unordered_multimap?
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
+// MenadzerPula::dodaj_segment(): Uwzględniać przesunięcie wynikające z wyrównywania bloków pamięci.
