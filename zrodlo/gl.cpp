@@ -64,6 +64,9 @@ void PetlaWiad() {
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 	MenadzerPula<int> p;
+	int* wsk = p.przydziel(4);
+	p.tworz(wsk, 2);
+	p.zwolnij(wsk, 4);
 
 	uchAp = uchAplikacji;
 

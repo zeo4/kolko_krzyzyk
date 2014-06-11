@@ -13,3 +13,4 @@ zrodlo/kolko_krzyzyk.exe
 zrodlo/kolko_krzyzyk.ilk
 zrodlo/kolko_krzyzyk.pdb
 *.txt
+zrodlo/*.txt

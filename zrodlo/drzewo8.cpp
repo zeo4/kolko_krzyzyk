@@ -3,9 +3,10 @@
 #include "drzewo8.h"
 #include "obiekty.h"
 #include "fizyka.h"
+#include <functional>
+#include "pamiec.h"
 
-#include <memory>
-using std::allocator;
+using std::less;
 
 Drzewo8::Drzewo8(XMFLOAT3 const srodek) : sr(srodek), r(32), pktMin(XMFLOAT3(-(srodek.x - 32), -(srodek.y - 32), -(srodek.z - 32))) {}
 void Drzewo8::czysc() {
