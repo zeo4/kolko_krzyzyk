@@ -16,16 +16,16 @@ private:
 	void**				_pierwszy_wolny;
 	size_t const		_rozm_ob;
 	list<void*>			_segmenty;
-	void*				dodaj_segment(size_t const);
-	inline void*		rownaj_przod(void* const, uint32_t const) const;
+	void				dodaj_segment(size_t const);
+	inline uint8_t		rownaj_przod(void**const) const;
 public:
 						MenadzerPula();
 						~MenadzerPula();
-	void				niszcz(T*);
+	inline void			niszcz(T*);
 	T*					przydziel(size_t);
 						template<class...A>
 	void				tworz(T*, A&&...);
-	void				zwolnij(void*, size_t);
+	inline void			zwolnij(void*);
 };
 template<class T>
 MenadzerPula<T>::MenadzerPula() : _rozm_ob(sizeof(T)) {
@@ -38,23 +38,21 @@ MenadzerPula<T>::~MenadzerPula() {
 	for(it = _segmenty.begin(); it != _segmenty.end(); ++it) {
 		free(*it);
 	}
-
 	_pierwszy_wolny = null;
 }
 template<class T>
-void* MenadzerPula<T>::dodaj_segment(size_t rozm_segment) {
+void MenadzerPula<T>::dodaj_segment(size_t rozm_segment) {
 	_pierwszy_wolny = (void**)malloc(rozm_segment);
 	_segmenty.push_back(_pierwszy_wolny);
+	uint8_t przes = rownaj_przod(_pierwszy_wolny);
 
 	// twórz listę bloków pamięci segmentu
 	void** wsk = _pierwszy_wolny;
-	for(size_t i = 0; i < (rozm_segment/_rozm_ob)-1; ++i) {
+	for(uint32_t i = 0; i < (rozm_segment-przes)/_rozm_ob; ++i) {
 		*wsk = reinterpret_cast<char*>(wsk) + _rozm_ob;
 		wsk = (void**)*wsk;
 	}
 	*wsk = null;
-
-	return _pierwszy_wolny;
 }
 template<class T>
 void MenadzerPula<T>::niszcz(T* wsk) {
@@ -73,17 +71,17 @@ T* MenadzerPula<T>::przydziel(size_t rozm_pamiec) {
 	return wsk;
 }
 template<class T>
-void* MenadzerPula<T>::rownaj_przod(void* const adres, uint32_t const rozmZmienna) const {
-	return (void*)(((uint32_t)adres + rozmZmienna) & ~(rozmZmienna-1));
+uint8_t MenadzerPula<T>::rownaj_przod(void**const adres) const {
+	uint8_t przes = ( ((uintptr_t)(*adres) + 3) & ~3 ) - (uintptr_t)(*adres);
+	*adres = (void*)((uintptr_t)(*adres) + przes);
+	return przes;
 }
 template<class T> template<class...A>
 void MenadzerPula<T>::tworz(T* wsk, A&&...argumenty) {
 	new(wsk) T(forward<A>(argumenty)...);
 }
 template<class T>
-void MenadzerPula<T>::zwolnij(void* wsk, size_t rozm_pamiec) {
-	assert(_rozm_ob == rozm_pamiec);
-
+void MenadzerPula<T>::zwolnij(void* wsk) {
 	*((void**)wsk) = _pierwszy_wolny;
 	_pierwszy_wolny = (void**)wsk;
 }

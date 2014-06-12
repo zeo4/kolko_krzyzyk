@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 	MenadzerPula<int> p;
 	int* wsk = p.przydziel(4);
 	p.tworz(wsk, 2);
-	p.zwolnij(wsk, 4);
+	p.zwolnij(wsk);
 
 	uchAp = uchAplikacji;
 
@@ -144,4 +144,4 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Dopisać kolizje dla szybko poruszających się obiektów.
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
-// MenadzerPula::dodaj_segment(): Uwzględniać przesunięcie wynikające z wyrównywania bloków pamięci.
+// Zrobić własny pojemnik na obiekty 3w.
