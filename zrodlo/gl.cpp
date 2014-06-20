@@ -10,6 +10,7 @@
 #include "swiat.h"
 #include "logika.h"
 #include "pamiec.h"
+#include <mapa.h>
 
 // test
 HINSTANCE		uchAp;
@@ -63,10 +64,14 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	MenadzerPula<int> p;
-	int* wsk = p.przydziel(4);
-	p.tworz(wsk, 2);
-	p.zwolnij(wsk);
+	Mapa<int,int> m;
+	Mapa<int,int>::Iter_ it = m.wez_pocz();
+	//++it;
+	//--it;
+	//it++;
+	//it--;
+	//*it;
+	//it.skocz_o(2);
 
 	uchAp = uchAplikacji;
 
@@ -145,3 +150,4 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
+// Rozwiązać problem z dodaj_segment (access violation).

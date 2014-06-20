@@ -22,7 +22,7 @@ public:
 						MenadzerPula();
 						~MenadzerPula();
 	inline void			niszcz(T*);
-	T*					przydziel(size_t);
+	T*					przydziel();
 						template<class...A>
 	void				tworz(T*, A&&...);
 	inline void			zwolnij(void*);
@@ -30,7 +30,7 @@ public:
 template<class T>
 MenadzerPula<T>::MenadzerPula() : _rozm_ob(sizeof(T)) {
 	assert(_rozm_ob >= sizeof(void*));
-	dodaj_segment(10000);
+	dodaj_segment(100000);
 }
 template<class T>
 MenadzerPula<T>::~MenadzerPula() {
@@ -59,11 +59,9 @@ void MenadzerPula<T>::niszcz(T* wsk) {
 	wsk->~T();
 }
 template<class T>
-T* MenadzerPula<T>::przydziel(size_t rozm_pamiec) {
-	assert(_rozm_ob == rozm_pamiec);
-	
+T* MenadzerPula<T>::przydziel() {
 	if(_pierwszy_wolny == null) {
-		dodaj_segment(10000);
+		dodaj_segment(100000);
 	}
 
 	T* wsk = (T*)_pierwszy_wolny;
