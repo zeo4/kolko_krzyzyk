@@ -33,6 +33,7 @@ public:
 	void						pisz(string const, string const);
 	void						pisz_start(string const, string const);
 	void						pisz_stop(string const, string const);
+	void						czas();
 } extern logi;
 
 // do obsługi błędów / wyjątków

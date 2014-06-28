@@ -146,9 +146,7 @@ IteratorDwojka<K,W,M> Mapa<K,W,M,MP>::wez_pocz() const {
 }
 template<class K, class W, class M, class MP>
 void Mapa<K,W,M,MP>::wstaw(K const& klucz, W const& wart) {
-	logi.pisz("1111", "");
 	Dwojka_* d = _men_pam.przydziel();
-	logi.pisz("2222", "");
 	d->klucz = klucz;
 	d->wart = wart;
 

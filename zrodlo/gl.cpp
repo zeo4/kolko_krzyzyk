@@ -66,9 +66,7 @@ void PetlaWiad() {
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 	Mapa<int,int> m;
-	m.wstaw(1,1);
-	m.wstaw(2,2);
-	m.wstaw(0,0);
+	//m.wstaw(2,2);
 	//Mapa<int,int>::Iter_ it = m.wez_pocz();
 	//++it;
 	//--it;
@@ -152,5 +150,3 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
-// Rozwiązać problem z dodaj_segment (access violation).
-// Przerobić dt na mikrosekundy.

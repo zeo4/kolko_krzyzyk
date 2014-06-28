@@ -23,6 +23,11 @@ Logi::Logi(char const* const nazwa) : _nazwa_plik(nazwa), _nr_wiersz(0), _wcieci
 
 	_plik.close();
 }
+void Logi::czas() {
+	QueryPerformanceCounter(&_t_nowy);
+	pisz_calosc("czas", "czas");
+	QueryPerformanceCounter(&_t_stary);
+}
 void Logi::pisz(string const tytul, string const tresc) {
 	QueryPerformanceCounter(&_t_nowy);
 	pisz_calosc(tytul, tresc);
