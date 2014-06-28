@@ -6,7 +6,7 @@
 #include "drzewo8.h"
 
 Swiat::Swiat() {
-	logi.piszStart("--->", "Tworzenie swiata.");
+	logi.pisz_start("--->", "Tworzenie swiata.");
 
 	pozKamera = XMFLOAT3(+0.0f, +0.0f, -0.5f);
 	celKamera = XMFLOAT3(+0.0f, +0.0f, +0.0f);
@@ -18,7 +18,7 @@ Swiat::Swiat() {
 	odlDalszaPlaszcz = 100.0f;
 	aktualizujMacProjekcja();
 
-	logi.piszStop("<---", "Tworzenie swiata.");
+	logi.pisz_stop("<---", "Tworzenie swiata.");
 }
 Swiat::~Swiat() {
 	niszczObiektySwiat();

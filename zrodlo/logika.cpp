@@ -39,7 +39,7 @@ void Logika::uwzglWejscie() {
 Logika::Logika(HINSTANCE const uchwyt) : obiektKursor(NULL), obiektWybrany(NULL), wejscie(uchwyt)
 	{}
 void Logika::inic3W() {
-	logi.piszStart("--->", "Logika::inic3W().");
+	logi.pisz_start("--->", "Logika::inic3W().");
 	try{
 	// twórz opis bufora tylnego
 	DXGI_MODE_DESC opisBufTylny;
@@ -99,7 +99,7 @@ void Logika::inic3W() {
 	catch(Wyjatek wyj){
 	ObslugaWyjatek(wyj);
 	}
-	logi.piszStart("<---", "Logika::inic3W().");
+	logi.pisz_stop("<---", "Logika::inic3W().");
 }
 void Logika::inicScena() {
 	try{

@@ -2,90 +2,115 @@
 
 #include "debug.h"
 
-bool Logi::flgWlaczone = true;
-void Logi::piszTytul(string const tytul) {
-	plik << tytul << "\t";
+using namespace std::chrono;
+
+Logi::Logi(char const* const nazwa) : _nazwa_plik(nazwa), _nr_wiersz(0), _wciecie_taby(0), _poz_wiersz_ost(0) {
+	QueryPerformanceCounter(&_t_start);
+	_t_stary = _t_start;
+	QueryPerformanceFrequency(&_tiki_na_sek);
+
+	// otwórz wyczyszczony
+	_plik.open(_nazwa_plik, std::ios::trunc);
+	_plik << std::setprecision(2) << std::fixed;
+
+	// pisz nagłówki
+	_plik << "Nr"; pisz_tab();
+	_plik << "t[s]"; pisz_tab();
+	_plik << "dt[ms]"; pisz_tab();
+	_plik << "Tytul"; pisz_tab();
+	_plik << "Tresc";
+	_plik << "\n-------------------------------------------------------------";
+
+	_plik.close();
 }
-void Logi::piszTresc(string const tresc) {
-	piszWciecie();
+void Logi::pisz(string const tytul, string const tresc) {
+	QueryPerformanceCounter(&_t_nowy);
+	pisz_calosc(tytul, tresc);
+	QueryPerformanceCounter(&_t_stary);
+}
+void Logi::pisz_calosc(string const tytul, string const tresc) {
+	_plik.open(_nazwa_plik, std::ios::app);
+	_plik << "\n";
+	_poz_wiersz_ost = _plik.tellp();
+	pisz_nr_wiersz();
+	pisz_czas();
+	pisz_tytul(tytul);
+	pisz_tresc(tresc);
+	_plik.close();
+}
+void Logi::pisz_czas() {
+	_plik << double(_t_nowy.QuadPart - _t_start.QuadPart) / _tiki_na_sek.QuadPart;
+	pisz_tab();
+	_plik << std::setprecision(4);
+	_plik << double(_t_nowy.QuadPart - _t_stary.QuadPart) * 1000 / _tiki_na_sek.QuadPart;
+	_plik << std::setprecision(2);
+	pisz_tab();
+}
+void Logi::pisz_nowa_linia() {
+	_plik << "\n";
+	_poz_wiersz_ost = _plik.tellp();
+
+	pisz_nr_wiersz();
+	pisz_odstep(_tab_tresc - (_plik.tellp() - _poz_wiersz_ost));
+	pisz_wciecie();
+}
+void Logi::pisz_nr_wiersz() {
+	_plik << ++_nr_wiersz;
+	pisz_tab();
+}
+void Logi::pisz_start(string const tytul, string const tresc) {
+	QueryPerformanceCounter(&_t_nowy);
+	pisz_calosc(tytul, tresc);
+	++_wciecie_taby;
+	QueryPerformanceCounter(&_t_stary);
+}
+void Logi::pisz_stop(string const tytul, string const tresc) {
+	QueryPerformanceCounter(&_t_nowy);
+	--_wciecie_taby;
+	pisz_calosc(tytul, tresc);
+	QueryPerformanceCounter(&_t_stary);
+}
+void Logi::pisz_odstep(uint8_t const odstep) {
+	for(uint8_t i = 0; i < odstep; ++i) {
+		_plik << " ";
+	}
+}
+void Logi::pisz_tab() {
+	uint32_t poz = _plik.tellp() - _poz_wiersz_ost;
+	for(short i = 0; i < _taby.size(); ++i) {
+		if(poz < _taby[i]) {
+			pisz_odstep(_taby[i] - poz);
+			break;
+		}
+	}
+}
+void Logi::pisz_tresc(string const tresc) {
+	pisz_wciecie();
 
 	UINT i = -1;
 	while(++i != tresc.length()) {
 		switch(tresc[i]) {
 		case '\n':
-			piszNowaLinie();
+			pisz_nowa_linia();
 			break;
 		default:
-			plik << tresc[i];
+			_plik << tresc[i];
 			break;
 		}
 	}
 }
-void Logi::piszNrWiersza() {
-	plik << ++nrWiersza << "\t";
+void Logi::pisz_tytul(string const tytul) {
+	_plik << tytul;
+	pisz_tab();
 }
-void Logi::piszCzas() {
-	UINT tik = clock();
-	plik << float(tik - tikProgramStart) / CLOCKS_PER_SEC << "\t";
-	plik << float(tik - tikPoprzedni) / CLOCKS_PER_SEC << "\t";
-	tikPoprzedni = tik;
-}
-void Logi::piszNowaLinie() {
-	plik << "\n";
-	piszNrWiersza();
-	//za pozostałe kolumny
-	for(int i = 0; i < tabowDoTresci-1; i++) {
-		plik << "\t";
-	}
-	piszWciecie();
-}
-void Logi::piszWciecie() {
-	for(int i = 0; i < poziomAktWciecia; i++) {
-		plik << ".\t";
+void Logi::pisz_wciecie() {
+	for(short i = 0; i < _wciecie_taby; ++i) {
+		_plik << ".";
+		pisz_tab();
 	}
 }
-Logi::Logi(char const* const nazwa) : nazwaPliku(nazwa), nrWiersza(0), poziomAktWciecia(0), tabowDoTresci(0) {
-	// otwórz wyczyszczony
-	plik.open(nazwaPliku, std::ios::trunc);
-
-	// pisz nagłówki
-	plik << "Nr\t" << "t[s]\t" << "dt[s]\t" << "Tytul\t" << "Tresc";
-	plik << "\n-------------------------------------------------------------";
-	tabowDoTresci = 4;
-
-	plik.close();
-}
-void Logi::pisz(string const tytul, string const tresc) {
-	if(flgWlaczone == false) {
-		return;
-	}
-
-	plik.open(nazwaPliku, std::ios::app);
-
-	plik << "\n";
-	piszNrWiersza();
-	piszCzas();
-	piszTytul(tytul);
-	piszTresc(tresc);
-
-	plik.close();
-}
-void Logi::piszStart(string const tytul, string const tresc) {
-	if(flgWlaczone == false) {
-		return;
-	}
-
-	pisz(tytul, tresc);
-	++poziomAktWciecia;
-}
-void Logi::piszStop(string const tytul, string const tresc) {
-	if(flgWlaczone == false) {
-		return;
-	}
-
-	--poziomAktWciecia;
-	pisz(tytul, tresc);
-}
+short Logi::_tab_tresc = 34;
+vector<short> Logi::_taby = {8, 17, 26, 34, 38, 42, 46, 50, 54, 58, 62, 66};
 Logi logi;
 
 HRESULT wynik;

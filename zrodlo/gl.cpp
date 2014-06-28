@@ -11,6 +11,7 @@
 #include "logika.h"
 #include "pamiec.h"
 #include <mapa.h>
+#include <chrono>
 
 // test
 HINSTANCE		uchAp;
@@ -65,7 +66,10 @@ void PetlaWiad() {
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 	Mapa<int,int> m;
-	Mapa<int,int>::Iter_ it = m.wez_pocz();
+	m.wstaw(1,1);
+	m.wstaw(2,2);
+	m.wstaw(0,0);
+	//Mapa<int,int>::Iter_ it = m.wez_pocz();
 	//++it;
 	//--it;
 	//it++;
@@ -74,8 +78,6 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 	//it.skocz_o(2);
 
 	uchAp = uchAplikacji;
-
-	tikProgramStart = clock();
 
 	// twórz klasę okna głównego
 	WNDCLASSEX klasaOkno;
@@ -151,3 +153,4 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
 // Rozwiązać problem z dodaj_segment (access violation).
+// Przerobić dt na mikrosekundy.

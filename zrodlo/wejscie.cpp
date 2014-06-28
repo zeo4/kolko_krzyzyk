@@ -53,7 +53,7 @@ Wejscie::Wejscie(
 	inicjalizuj();
 }
 Wejscie::~Wejscie() {
-	logi.piszStart("START", "Niszczenie kontrolerow.");
+	logi.pisz_start("START", "Niszczenie kontrolerow.");
 	if(mysz != NULL) {
 		mysz->Unacquire();
 		mysz->Release();
@@ -68,7 +68,7 @@ Wejscie::~Wejscie() {
 		wejscie->Release();
 		logi.pisz("OK", "Niszczenie wejscia.");
 	}
-	logi.piszStop("STOP", "Niszczenie kontrolerow.");
+	logi.pisz_stop("STOP", "Niszczenie kontrolerow.");
 }
 void Wejscie::wez(
 	BYTE* const				stanKlawiatura,

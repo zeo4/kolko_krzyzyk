@@ -134,11 +134,11 @@ Obiekt3w::Obiekt3w(Wierzcholek const *const wierzcholki, UINT const ilWierzcholk
 	ustawGrafika();
 }
 Obiekt3w::~Obiekt3w() {
-	logi.piszStart("--->", "Niszcz obiekt 3W.");
+	logi.pisz_start("--->", "Niszcz obiekt 3W.");
 	usunBufIndeksy();
 	usunBufWierz();
 	usunWidokTekstura();
-	logi.piszStop("<---", "Niszcz obiekt 3W.");
+	logi.pisz_stop("<---", "Niszcz obiekt 3W.");
 }
 void Obiekt3w::ustawFizykaLitera() {
 	FizykaLitera* ob = new FizykaLitera(this);
@@ -169,10 +169,10 @@ void Obiekt3w::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR co
 
 ObiektZbior::ObiektZbior(XMFLOAT3 const pozPocz) : IObiekt(pozPocz)
 	{
-	logi.piszStart("--->", "Tworz ObiektZbior.");
+	logi.pisz_start("--->", "Tworz ObiektZbior.");
 	ustawFizykaTekst();
 	ustawGrafika();
-	logi.piszStart("<---", "Tworz ObiektZbior.");
+	logi.pisz_stop("<---", "Tworz ObiektZbior.");
 }
 ObiektZbior::~ObiektZbior() {}
 void ObiektZbior::dodaj(IObiekt* const ob) {

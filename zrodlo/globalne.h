@@ -45,10 +45,6 @@ using std::pair;
 using std::tuple;
 using std::get;
 
-// ilość tików przy starcie programu
-UINT extern tikProgramStart;
-UINT extern tikPoprzedni;
-
 HWND extern uchOknoGl;
 float extern szerRend;
 float extern wysRend;
