@@ -9,9 +9,10 @@
 #include "wejscie.h"
 #include "swiat.h"
 #include "logika.h"
-#include "pamiec.h"
 #include <mapa.h>
 #include <chrono>
+
+#include <lista_lin.h>
 
 // test
 HINSTANCE		uchAp;
@@ -65,15 +66,16 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	Mapa<int,int> m;
-	//m.wstaw(2,2);
-	//Mapa<int,int>::Iter_ it = m.wez_pocz();
-	//++it;
-	//--it;
-	//it++;
-	//it--;
-	//*it;
-	//it.skocz_o(2);
+	ListaLin<int> ll;
+	ListaLin<int>::Iter_ it;
+	logi.czas();
+	for(int i = 0; i < 80000; ++i) {
+		ll.wstaw_kon(1);
+	}
+	int i = 0;
+	logi.czas();
+	for(it = ll.wez_pocz(); it != ll.wez_kon(); ++it) {*it;}
+	logi.czas();
 
 	uchAp = uchAplikacji;
 
@@ -147,6 +149,8 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Nie sprawdzać kolizji obiektów z tego samego zbioru, lub przynajmniej rozróżniać czy sprawdzać czy nie w zależności od rodzaju zbioru (kolizyjny, niekolizyjny) albo rodzaju elementów w zbiorze (kolizyjne, niekolizyjne)
 // Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
 // Dopisać kolizje dla szybko poruszających się obiektów.
+// PamiecLin: Zastanowić się jak rezerwować zadają ilość pamięci.
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
+// IteratorDwojka<K,W,M> IteratorDwojka<K,W,M>::operator++(int) - przerobić ++*this i --*this na szybsze.

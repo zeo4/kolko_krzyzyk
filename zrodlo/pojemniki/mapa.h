@@ -1,16 +1,7 @@
 ﻿#pragma once
 
-#include <pamiec.h>
-
-template<class T>
-class Mniej {
-public:
-	inline bool		operator()(T const, T const) const;
-};
-template<class T>
-bool Mniej<T>::operator()(T const ob1, T const ob2) const {
-	return ob1 < ob2;
-}
+#include <pamiec_pula.h>
+#include <operatory.h>
 
 template<class K, class W>
 class Dwojka {
@@ -36,7 +27,7 @@ public:
 	IteratorDwojka		operator++(int);
 	IteratorDwojka&		operator--();
 	IteratorDwojka		operator--(int);
-	Dwojka_*const&		operator->() const;
+	Dwojka_*&			operator->() const;
 	Dwojka_&			operator*() const;
 	bool				operator<(IteratorDwojka const&) const;
 	bool				operator==(IteratorDwojka const&) const;
@@ -78,7 +69,7 @@ IteratorDwojka<K,W,M> IteratorDwojka<K,W,M>::operator--(int) {
 	return it;
 }
 template<class K, class W, class M>
-Dwojka<K,W>*const& IteratorDwojka<K,W,M>::operator->() const {
+Dwojka<K,W>*& IteratorDwojka<K,W,M>::operator->() const {
 	return _wsk;
 }
 template<class K, class W, class M>
@@ -91,11 +82,11 @@ bool IteratorDwojka<K,W,M>::operator<(IteratorDwojka const& it) const {
 }
 template<class K, class W, class M>
 bool IteratorDwojka<K,W,M>::operator==(IteratorDwojka const& it) const {
-	return _el == &*it;
+	return _wsk == &*it;
 }
 template<class K, class W, class M>
 bool IteratorDwojka<K,W,M>::operator!=(IteratorDwojka const& it) const {
-	return _el != &*it;
+	return _wsk != &*it;
 }
 template<class K, class W, class M>
 void IteratorDwojka<K,W,M>::skocz_o(uint32_t const& il) {
@@ -104,7 +95,7 @@ void IteratorDwojka<K,W,M>::skocz_o(uint32_t const& il) {
 	}
 }
 
-template<class K, class W, class M = Mniej<K>, class MP = MenadzerPula<Dwojka<K,W>>>
+template<class K, class W, class M = Mniej<K>, class MP = PamiecPula<Dwojka<K,W>>>
 class Mapa {
 	#define null 0
 	typedef Dwojka<K,W>					Dwojka_;

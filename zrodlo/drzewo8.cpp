@@ -4,7 +4,7 @@
 #include "obiekty.h"
 #include "fizyka.h"
 #include <functional>
-#include <pamiec.h>
+#include <pamiec_pula.h>
 #include <mapa.h>
 
 using std::less;
