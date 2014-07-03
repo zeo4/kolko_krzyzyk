@@ -4,7 +4,7 @@
 #include <operatory.h>
 #include <iteratory_wezel.h>
 
-template<class T, class M = Mniej<T>, class P = PamiecLin<Wezel<T>>>
+template<class T, class M = FunMniej<T>, class P = PamiecLin<Wezel<T>>>
 class ListaLin {
 public:
 	typedef IterWezel<T,M>		Iter_;
@@ -12,6 +12,7 @@ public:
 	Iter_				wez_pocz() const;
 	Iter_				wez_kon() const;
 	void				wstaw_kon(T const&);
+	void				czysc();
 private:
 	P					_pamiec;
 	Wezel<T>*			_pierwszy;
@@ -19,6 +20,12 @@ private:
 };
 template<class T, class M, class P>
 ListaLin<T,M,P>::ListaLin() : _pierwszy(_pamiec.przydziel()), _ostatni(_pierwszy) {
+}
+template<class T, class M, class P>
+void ListaLin<T,M,P>::czysc() {
+	_pamiec.czysc();
+	_ostatni->przed = 0;
+	_pierwszy = _ostatni;
 }
 template<class T, class M, class P>
 IterWezel<T,M> ListaLin<T,M,P>::wez_pocz() const {

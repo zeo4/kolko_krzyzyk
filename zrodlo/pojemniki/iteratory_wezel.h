@@ -14,23 +14,23 @@ template<class T>
 Wezel<T>::Wezel() : przed(0), po(0) {
 }
 
-template<class T, class M = Mniej<K>>
+template<class T, class M = FunMniej<K>>
 class IterWezel {
 public:
-					IterWezel();
-					IterWezel(Wezel<T>&);
-	IterWezel&		operator++();
-	IterWezel		operator++(int);
-	IterWezel&		operator--();
-	IterWezel		operator--(int);
-	Wezel<T>*&		operator->() const;
-	Wezel<T>&		operator*() const;
-	bool			operator<(IterWezel const&) const;
-	bool			operator==(IterWezel const&) const;
-	bool			operator!=(IterWezel const&) const;
+						IterWezel();
+						IterWezel(Wezel<T>&);
+	IterWezel&			operator++();
+	IterWezel			operator++(int);
+	IterWezel&			operator--();
+	IterWezel			operator--(int);
+	Wezel<T>*const&		operator->() const;
+	Wezel<T>&			operator*() const;
+	bool				operator<(IterWezel const&) const;
+	bool				operator==(IterWezel const&) const;
+	bool				operator!=(IterWezel const&) const;
 private:
-	M				_mniej;
-	Wezel<T>*		_wezel;
+	M					_mniej;
+	Wezel<T>*			_wezel;
 };
 template<class T, class M>
 IterWezel<T,M>::IterWezel() : _wezel(0) {
@@ -61,7 +61,7 @@ IterWezel<T,M> IterWezel<T,M>::operator--(int) {
 	return it;
 }
 template<class T, class M>
-Wezel<T>*& IterWezel<T,M>::operator->() const {
+Wezel<T>*const& IterWezel<T,M>::operator->() const {
 	return _wezel;
 }
 template<class T, class M>

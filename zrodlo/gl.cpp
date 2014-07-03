@@ -13,6 +13,7 @@
 #include <chrono>
 
 #include <lista_lin.h>
+#include <zbior_hasz_lin.h>
 
 // test
 HINSTANCE		uchAp;
@@ -67,15 +68,17 @@ void PetlaWiad() {
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 	ListaLin<int> ll;
-	ListaLin<int>::Iter_ it;
+	ZbiorHaszLin<int> zh;
 	logi.czas();
 	for(int i = 0; i < 80000; ++i) {
-		ll.wstaw_kon(1);
+		//ll.wstaw_kon(1);
+		zh.wstaw_kon(1);
 	}
-	int i = 0;
 	logi.czas();
-	for(it = ll.wez_pocz(); it != ll.wez_kon(); ++it) {*it;}
+	zh.haszuj();
 	logi.czas();
+	zh.wez_il();
+	zh.czysc();
 
 	uchAp = uchAplikacji;
 
