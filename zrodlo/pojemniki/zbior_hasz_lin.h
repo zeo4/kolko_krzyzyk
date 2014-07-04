@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <operatory.h>
+#include <lista_lin.h>
 #include <pamiec_lin.h>
 
 template<class T, class FH = FunHasz<T>>

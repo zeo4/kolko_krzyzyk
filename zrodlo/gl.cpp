@@ -156,4 +156,5 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
+// Przerobić mapa.h podobnie do zbior_hasz_lin.h.
 // IteratorDwojka<K,W,M> IteratorDwojka<K,W,M>::operator++(int) - przerobić ++*this i --*this na szybsze.
