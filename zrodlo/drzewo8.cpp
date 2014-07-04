@@ -68,7 +68,7 @@ void Drzewo8::wezSasiedzi(MapaSasiedzi_* const mapaSasiedzi) const {
 			if(it1 == it2) {
 				continue;
 			}
-			zh.wstaw_kon(it1->second);
+			//zh.wstaw_kon(it1->second);
 
 			//if(mapaSasiedzi->count(it1->second) == 0) {
 			//	mapaSasiedzi->insert(ParaSasiedzi_(it1->second, Sasiedzi_()));

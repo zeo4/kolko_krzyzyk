@@ -12,7 +12,7 @@
 #include <mapa.h>
 #include <chrono>
 
-#include <lista_lin.h>
+#include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
 
 // test
@@ -67,18 +67,17 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	ListaLin<int> ll;
 	ZbiorHaszLin<int> zh;
 	logi.czas();
 	for(int i = 0; i < 80000; ++i) {
-		//ll.wstaw_kon(1);
 		zh.wstaw_kon(1);
 	}
 	logi.czas();
 	zh.haszuj();
 	logi.czas();
-	zh.wez_il();
+	logi.pisz("il", to_string(zh.wez_il()));
 	zh.czysc();
+	zh.wstaw_kon(2);
 
 	uchAp = uchAplikacji;
 
