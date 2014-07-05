@@ -14,6 +14,7 @@
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
+#include <kolektor.h>
 
 // test
 HINSTANCE		uchAp;
@@ -67,17 +68,12 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	ZbiorHaszLin<int> zh;
+	Kolektor<int> k;
 	logi.czas();
 	for(int i = 0; i < 80000; ++i) {
-		zh.wstaw_kon(1);
+		k.wstaw_kon(1);
 	}
 	logi.czas();
-	zh.haszuj();
-	logi.czas();
-	logi.pisz("il", to_string(zh.wez_il()));
-	zh.czysc();
-	zh.wstaw_kon(2);
 
 	uchAp = uchAplikacji;
 
