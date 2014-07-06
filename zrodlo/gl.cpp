@@ -14,7 +14,7 @@
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
-#include <kolektor.h>
+#include <kolektor_hasz.h>
 
 // test
 HINSTANCE		uchAp;
@@ -68,11 +68,13 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	Kolektor<int> k;
+	KolektorHasz<int> k;
 	logi.czas();
 	for(int i = 0; i < 80000; ++i) {
 		k.wstaw_kon(1);
 	}
+	logi.czas();
+	k.haszuj();
 	logi.czas();
 
 	uchAp = uchAplikacji;
@@ -151,5 +153,3 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
-// Przerobić mapa.h podobnie do zbior_hasz_lin.h.
-// IteratorDwojka<K,W,M> IteratorDwojka<K,W,M>::operator++(int) - przerobić ++*this i --*this na szybsze.
