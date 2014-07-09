@@ -9,12 +9,11 @@
 #include "wejscie.h"
 #include "swiat.h"
 #include "logika.h"
-#include <mapa.h>
 #include <chrono>
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
-#include <kolektor_hasz.h>
+#include <wektor.h>
 
 // test
 HINSTANCE		uchAp;
@@ -68,13 +67,14 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	KolektorHasz<int> k;
+	Wektor<int> w;
 	logi.czas();
-	for(int i = 0; i < 80000; ++i) {
-		k.wstaw_kon(1);
+	for(int i = 80000; i > 0; --i) {
+		w.wstaw_kon(i);
 	}
 	logi.czas();
-	k.haszuj();
+	//w.uloz_unikat();
+	w.uloz();
 	logi.czas();
 
 	uchAp = uchAplikacji;

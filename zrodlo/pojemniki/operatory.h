@@ -5,11 +5,11 @@
 template<class T>
 class FunHasz {
 public:
-	inline uint32_t		operator()(T const) const;
+	inline uint32_t		operator()(T const&) const;
 };
 template<class T>
-uint32_t FunHasz<T>::operator()(T const wart) const {
-	return wart;
+uint32_t FunHasz<T>::operator()(T const& wart) const {
+	return *((uint32_t*)(&wart));
 }
 
 template<class T>
