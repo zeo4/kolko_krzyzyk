@@ -2,18 +2,42 @@
 
 #include <stdint.h>
 #include <obiekty.h>
+#include <string>
 
 #include "fizyka.h"
 #include "grafika.h"
 
+using std::string;
+
 Obiekty3w::Obiekty3w() {
 }
-void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t il_indeksy) {
+void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t il_indeksy, string sciezka) {
+	uint32_t il;
+
+	// wgraj wierzchołki, współrzędne tekstur
 	_mapa_wierz.wstaw_kon({_wierz.wez_il(), il_wierz});
+	il = _wierz.wez_il_rezerw();
 	_wierz.wstaw_zakres_kon(wierz, il_wierz);
 	_tekstury.wstaw_zakres_kon(tekstury, il_wierz);
+	if(il < _wierz.wez_il_rezerw()) {
+		_buf_wierz->Release();
+		_buf_tekstury->Release();
+		tworz_bufor<XMFLOAT3>(D3D11_BIND_VERTEX_BUFFER, _wierz.wez_il_rezerw(), _buf_wierz);
+		tworz_bufor<XMFLOAT2>(D3D11_BIND_VERTEX_BUFFER, _wsp_tekstury.wez_il_rezerw(), _buf_wsp_tekstury);
+	}
+
+	// wgraj indeksy
 	_mapa_indeksy.wstaw_kon({_indeksy.wez_il(), il_indeksy});
+	il = _indeksy.wez_il_rezerw();
 	_indeksy.wstaw_zakres_kon(indeksy, il_indeksy);
+	if(il < _indeksy.wez_il_rezerw()) {
+		_buf_indeksy->Release();
+		tworz_bufor<DWORD>(D3D11_BIND_INDEX_BUFFER, _indeksy.wez_il_rezerw(), _buf_indeksy);
+	}
+
+	// wgraj tekstury
+	_wid_tekstury.wstaw_kon();
+	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, sciezka.c_str(), 0, 0, &(_wid_tekstury[_wid_tekstury.wez_il()-1]), 0);
 }
 
 IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tKolizja(1.0f)

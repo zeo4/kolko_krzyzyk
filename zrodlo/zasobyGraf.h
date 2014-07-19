@@ -3,15 +3,11 @@
 #include "globalne.h"
 #include "debug.h"
 
-template<class TYP>
-void tworzBufor(
-	UINT const			flgLaczenie,
-	UINT const			ilEl, // ilość elementów danych bufora
-	ID3D11Buffer*&		bufor // interfejs bufora
-	) {
+template<class T>
+void tworz_bufor(UINT const flgLaczenie, UINT const ilEl, ID3D11Buffer*& bufor) {
 	D3D11_BUFFER_DESC opisBuf;
 	ZeroMemory(&opisBuf, sizeof(opisBuf));
-	opisBuf.ByteWidth = sizeof(TYP) * ilEl;
+	opisBuf.ByteWidth = sizeof(T) * ilEl;
 	opisBuf.Usage = D3D11_USAGE_DEFAULT;
 	opisBuf.BindFlags = flgLaczenie;
 	opisBuf.CPUAccessFlags = 0;

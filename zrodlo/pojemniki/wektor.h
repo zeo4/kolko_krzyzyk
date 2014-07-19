@@ -10,17 +10,18 @@ public:
 						~Wektor();
 	inline T&			operator[](uint32_t const&);
 	void				rezerwuj(uint32_t const&);
+	inline void			wstaw_kon();
 	inline void			wstaw_kon(T const&);
 	inline void			wstaw_zakres_kon(T const*, uint32_t);
+	inline void			licz_zakres(uint32_t&, uint32_t&) const;
 	void				uloz();
 	void				uloz_unikat();
+	inline uint32_t		wez_il_rezerw() const;
 	inline uint32_t		wez_il() const;
 	inline void			czysc();
 protected:
 	uint8_t				_rozm_el;
 	H					_f_hasz;
-	uint32_t			_hasz_min;
-	uint32_t			_hasz_maks;
 	uint32_t			_il_rezerw;
 	uint32_t			_il;
 	T*					_tab;
@@ -41,6 +42,20 @@ void Wektor<T,H>::czysc() {
 	_il = 0;
 }
 template<class T, class H>
+void Wektor<T,H>::licz_zakres(uint32_t& hasz_min, uint32_t& hasz_maks) const {
+	hasz_min = _f_hasz(tab[0]);
+	hasz_maks = hasz_min;
+	uint32_t hasz;
+	for(uint32_t i = 1; i < _il; ++i) {
+		hasz = _f_hasz(tab[i]);
+		if(hasz < hasz_min) {
+			hasz_min = hasz;
+		} else if(hasz > hasz_maks) {
+			hasz_maks = hasz;
+		}
+	}
+}
+template<class T, class H>
 void Wektor<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
 	T*const pam = (T*)malloc(il*_rozm_el);
@@ -52,8 +67,10 @@ void Wektor<T,H>::rezerwuj(uint32_t const& il) {
 template<class T, class H>
 void Wektor<T,H>::uloz() {
 	if(_il < 2) return;
-
-	uint32_t i, il_zakres = _hasz_maks-_hasz_min+1;
+	
+	uint32_t hasz_min, hasz_maks;
+	licz_zakres(hasz_min, hasz_maks);
+	uint32_t i, il_zakres = hasz_maks-hasz_min+1;
 	T*const tab = (T*)malloc(_il*_rozm_el);
 	uint32_t*const powtorzenia = (uint32_t*)malloc(il_zakres*sizeof(uint32_t));
 	uint32_t*const indeksy = (uint32_t*)malloc(il_zakres*sizeof(uint32_t));
@@ -61,7 +78,7 @@ void Wektor<T,H>::uloz() {
 
 	for(i = 0; i < _il; ++i) {
 		tab[i] = _tab[i];
-		++(powtorzenia[_f_hasz(_tab[i])-_hasz_min]);
+		++(powtorzenia[_f_hasz(_tab[i])-hasz_min]);
 	}
 
 	indeksy[0] = 0;
@@ -72,16 +89,22 @@ void Wektor<T,H>::uloz() {
 	ZeroMemory(powtorzenia, il_zakres*sizeof(uint32_t));
 	uint32_t hasz;
 	for(i = 0; i < _il; ++i) {
-		hasz = _f_hasz(tab[i])-_hasz_min;
+		hasz = _f_hasz(tab[i])-hasz_min;
 		_tab[indeksy[hasz] + powtorzenia[hasz]] = tab[i];
 		++(powtorzenia[hasz]);
 	}
+
+	free(tab);
+	free(powtorzenia);
+	free(indeksy);
 }
 template<class T, class H>
 void Wektor<T,H>::uloz_unikat() {
 	if(_il < 2) return;
 
-	uint32_t i, il, indeks, il_zakres = _hasz_maks-_hasz_min+1;
+	uint32_t hasz_min, hasz_maks;
+	licz_zakres(hasz_min, hasz_maks);
+	uint32_t i, il, indeks, il_zakres = hasz_maks-hasz_min+1;
 	T*const tab = (T*)malloc(il_zakres*_rozm_el);
 	bool*const maska = (bool*)malloc(il_zakres);
 	ZeroMemory(maska, il_zakres);
@@ -89,7 +112,7 @@ void Wektor<T,H>::uloz_unikat() {
 	// przepisz sortując / usuwając podwójne elementy
 	il = 0;
 	for(i = 0; i < _il; ++i) {
-		indeks = _f_hasz(_tab[i])-_hasz_min;
+		indeks = _f_hasz(_tab[i])-hasz_min;
 		if(maska[indeks] == false) {
 			tab[indeks] = _tab[i];
 			maska[indeks] = true;
@@ -113,18 +136,20 @@ uint32_t Wektor<T,H>::wez_il() const {
 	return _il;
 }
 template<class T, class H>
-void Wektor<T,H>::wstaw_kon(T const& el) {
-	uint32_t hasz_el = _f_hasz(el);
-	if(_il == 0) {
-		_hasz_min = hasz_el;
-		_hasz_maks = hasz_el;
-	} else if(hasz_el < _hasz_min) {
-		_hasz_min = hasz_el;
-	} else if(hasz_el > _hasz_maks) {
-		_hasz_maks = hasz_el;
-	}
+uint32_t Wektor<T,H>::wez_il_rezerw() const {
+	return _il_rezerw;
+}
+template<class T, class H>
+void Wektor<T,H>::wstaw_kon() {
 	if(_il == _il_rezerw) {
-		rezerwuj(_il_rezerw*4);
+		rezerwuj(_il_rezerw*2);
+	}
+	_tab[_il++] = 0;
+}
+template<class T, class H>
+void Wektor<T,H>::wstaw_kon(T const& el) {
+	if(_il == _il_rezerw) {
+		rezerwuj(_il_rezerw*2);
 	}
 	_tab[_il++] = el;
 }
