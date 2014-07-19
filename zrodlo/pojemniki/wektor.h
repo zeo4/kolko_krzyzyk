@@ -1,6 +1,7 @@
 ﻿# pragma once
 
 #include <stdint.h>
+#include <operatory.h>
 
 template<class T, class H = FunHasz<T>>
 class Wektor {
@@ -49,49 +50,36 @@ void Wektor<T,H>::rezerwuj(uint32_t const& il) {
 }
 template<class T, class H>
 void Wektor<T,H>::uloz() {
-	uint32_t il, ind1_pocz, ind1_kon, ind2_pocz, ind2_kon, il_gr = 1;
-	T* t = (T*)malloc(_il*_rozm_el);
-	while(il_gr < _il) {
-		il = 0; ind1_pocz = 0; ind1_kon = 0; ind2_pocz = 0, ind2_kon = 0;
-		while(il < _il) {
-			ind1_pocz = ind2_kon;
-			ind1_kon = ind1_pocz + il_gr;
-			ind2_pocz = ind1_kon;
-			ind2_kon = ind2_pocz + il_gr;
+	if(_il < 2) return;
 
-			// gdy grup-a/y przekracz-a/ają ilość wszystkich elementów
-			if(ind1_kon > _il) {
-				ind1_kon = _il;
-				ind2_kon = _il;
-			} else if(ind2_kon > _il) {
-				ind2_kon = _il;
-			}
+	uint32_t i, il_zakres = _hasz_maks-_hasz_min+1;
+	T*const tab = (T*)malloc(_il*_rozm_el);
+	uint32_t*const powtorzenia = (uint32_t*)malloc(il_zakres*sizeof(uint32_t));
+	uint32_t*const indeksy = (uint32_t*)malloc(il_zakres*sizeof(uint32_t));
+	ZeroMemory(powtorzenia, il_zakres*sizeof(uint32_t));
 
-			// układaj elementy grup
-			while(ind1_pocz < ind1_kon && ind2_pocz < ind2_kon) {
-				if(_f_hasz(_tab[ind1_pocz]) <= _f_hasz(_tab[ind2_pocz])) {
-					t[il++] = _tab[ind1_pocz];
-					++ind1_pocz;
-				} else {
-					t[il++] = _tab[ind2_pocz];
-					++ind2_pocz;
-				}
-			}
-			while(ind1_pocz < ind1_kon) {
-				t[il++] = _tab[ind1_pocz];
-				++ind1_pocz;
-			}
-			while(ind2_pocz < ind2_kon) {
-				t[il++] = _tab[ind2_pocz];
-				++ind2_pocz;
-			}
-		}
-		memmove(_tab, t, il*_rozm_el);
-		il_gr *= 2;
+	for(i = 0; i < _il; ++i) {
+		tab[i] = _tab[i];
+		++(powtorzenia[_f_hasz(_tab[i])-_hasz_min]);
+	}
+
+	indeksy[0] = 0;
+	for(i = 1; i < il_zakres; ++i) {
+		indeksy[i] = indeksy[i-1] + powtorzenia[i-1];
+	}
+
+	ZeroMemory(powtorzenia, il_zakres*sizeof(uint32_t));
+	uint32_t hasz;
+	for(i = 0; i < _il; ++i) {
+		hasz = _f_hasz(tab[i])-_hasz_min;
+		_tab[indeksy[hasz] + powtorzenia[hasz]] = tab[i];
+		++(powtorzenia[hasz]);
 	}
 }
 template<class T, class H>
 void Wektor<T,H>::uloz_unikat() {
+	if(_il < 2) return;
+
 	uint32_t i, il, indeks, il_zakres = _hasz_maks-_hasz_min+1;
 	T*const tab = (T*)malloc(il_zakres*_rozm_el);
 	bool*const maska = (bool*)malloc(il_zakres);

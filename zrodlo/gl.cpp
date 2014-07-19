@@ -67,15 +67,6 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	Wektor<int> w;
-	logi.czas();
-	for(int i = 80000; i > 0; --i) {
-		w.wstaw_kon(i);
-	}
-	logi.czas();
-	//w.uloz_unikat();
-	w.uloz();
-	logi.czas();
 
 	uchAp = uchAplikacji;
 
@@ -153,3 +144,4 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // Zrobić własny pojemnik na obiekty 3w.
+// Wektor::uloz(): zoptymalizować / uporządkować / przetestować czy dobrze sortuje.
