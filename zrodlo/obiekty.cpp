@@ -1,13 +1,20 @@
 ﻿#pragma once
 
-#include "obiekty.h"
+#include <stdint.h>
+#include <obiekty.h>
+
 #include "fizyka.h"
 #include "grafika.h"
 
-Wierzcholek::Wierzcholek(float x, float y, float z) : poz(x, y, z)
-	{}
-Wierzcholek::Wierzcholek(/*kształt*/ float x, float y, float z, /*tekstura*/ float u, float v) : poz(x, y, z), pozTekstury(u, v)
-	{}
+Obiekty3w::Obiekty3w() {
+}
+void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t il_indeksy) {
+	_mapa_wierz.wstaw_kon({_wierz.wez_il(), il_wierz});
+	_wierz.wstaw_zakres_kon(wierz, il_wierz);
+	_tekstury.wstaw_zakres_kon(tekstury, il_wierz);
+	_mapa_indeksy.wstaw_kon({_indeksy.wez_il(), il_indeksy});
+	_indeksy.wstaw_zakres_kon(indeksy, il_indeksy);
+}
 
 IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tKolizja(1.0f)
 	{

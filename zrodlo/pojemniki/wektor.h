@@ -11,6 +11,7 @@ public:
 	inline T&			operator[](uint32_t const&);
 	void				rezerwuj(uint32_t const&);
 	inline void			wstaw_kon(T const&);
+	inline void			wstaw_zakres_kon(T const*, uint32_t);
 	void				uloz();
 	void				uloz_unikat();
 	inline uint32_t		wez_il() const;
@@ -126,6 +127,12 @@ void Wektor<T,H>::wstaw_kon(T const& el) {
 		rezerwuj(_il_rezerw*4);
 	}
 	_tab[_il++] = el;
+}
+template<class T, class H>
+void Wektor<T,H>::wstaw_zakres_kon(T const* tab, uint32_t il) {
+	for(uint32_t i = 0; i < il; ++i) {
+		wstaw_kon(tab[i]);
+	}
 }
 
 
