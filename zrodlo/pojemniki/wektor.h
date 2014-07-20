@@ -5,6 +5,10 @@
 
 template<class T, class H = FunHasz<T>>
 class Wektor {
+	struct Segment {
+		uint32_t		pocz;
+		uint32_t		il;
+	};
 public:
 						Wektor();
 						~Wektor();
@@ -18,6 +22,8 @@ public:
 	void				uloz_unikat();
 	inline uint32_t		wez_il_rezerw() const;
 	inline uint32_t		wez_il() const;
+	void				usun(uint32_t, uint32_t);
+	void				upakuj();
 	inline void			czysc();
 protected:
 	uint8_t				_rozm_el;
@@ -25,6 +31,8 @@ protected:
 	uint32_t			_il_rezerw;
 	uint32_t			_il;
 	T*					_tab;
+	T*					_tab_rob;
+	Wektor<Segment>		_usuniete;
 };
 template<class T, class H>
 Wektor<T,H>::Wektor()
@@ -63,10 +71,12 @@ template<class T, class H>
 void Wektor<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
 
-	T*const pam1 = (T*)malloc(il*_rozm_el);
-	memmove(pam1, _tab, _il_rezerw*_rozm_el);
+	free(_tab_rob);
+	_tab_rob = (T*)malloc(il*_rozm_el);
+	memmove(_tab_rob, _tab, _il_rezerw*_rozm_el);
 	free(_tab);
-	_tab = pam1;
+	_tab = _tab_rob;
+	_tab_rob = (T*)malloc(il*_rozm_el);
 	_il_rezerw = il;
 }
 template<class T, class H>
@@ -137,6 +147,26 @@ void Wektor<T,H>::uloz_unikat() {
 	free(maska);
 }
 template<class T, class H>
+void Wektor<T,H>::upakuj() {
+	_usuniete.uloz_unikat();
+	T* wsk1 = _tab_rob;
+	T* wsk2 = _tab;
+	uint32_t il;
+	for(uint32_t i = 0; i < _usuniete.wez_il(); ++i) {
+		il = (&_tab[_usuniete[i].pocz])-wsk2;
+		memmove(wsk1, wsk2, il*_rozm_el);
+		wsk1 += il;
+		wsk2 += il + _usuniete[i].il;
+	}
+	wsk1 = _tab_rob;
+	_tab_rob = _tab;
+	_tab = wsk1;
+}
+template<class T, class H>
+void Wektor<T,H>::usun(uint32_t pocz, uint32_t il = 1) {
+	_usuniete.wstaw_kon({pocz, il});
+}
+template<class T, class H>
 uint32_t Wektor<T,H>::wez_il() const {
 	return _il;
 }
@@ -165,17 +195,7 @@ void Wektor<T,H>::wstaw_zakres_kon(T const* tab, uint32_t il) {
 	}
 }
 
-/*template<class T, class H = FunHasz<T>>
-class WektorMen : public Wektor<T,H> {
-	struct Segment{
-		uint32_t		pocz;
-		uint32_t		il;
-	};
-public:
-protected:
-	Segment*			_seg;
-	//uint32_t*			
-};*/
+
 
 
 
