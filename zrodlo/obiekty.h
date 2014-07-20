@@ -24,6 +24,7 @@ public:
 								DWORD*, uint32_t,
 								string
 							);
+	void					niszcz_ob(uint32_t);
 };
 
 

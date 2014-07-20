@@ -43,9 +43,9 @@ void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
-	Logika logika(uchAp);
-	logika.inic3W();
-	logika.inicScena();
+	//Logika logika(uchAp);
+	//logika.inic3W();
+	//logika.inicScena();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -61,7 +61,7 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			logika.tworzKolejnaKlatka();
+			//logika.tworzKolejnaKlatka();
 		}
 	}
 }
@@ -143,5 +143,3 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // PamiecLin: Zastanowić się jak rezerwować zadają ilość pamięci.
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
-// Zrobić własny pojemnik na obiekty 3w.
-// Wektor::uloz(): zoptymalizować / uporządkować / przetestować czy dobrze sortuje.

@@ -11,6 +11,9 @@ using std::string;
 
 Obiekty3w::Obiekty3w() {
 }
+void Obiekty3w::niszcz_ob(uint32_t nr) {
+
+}
 void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t il_indeksy, string sciezka) {
 	uint32_t il;
 
@@ -25,6 +28,8 @@ void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz,
 		tworz_bufor<XMFLOAT3>(D3D11_BIND_VERTEX_BUFFER, _wierz.wez_il_rezerw(), _buf_wierz);
 		tworz_bufor<XMFLOAT2>(D3D11_BIND_VERTEX_BUFFER, _wsp_tekstury.wez_il_rezerw(), _buf_wsp_tekstury);
 	}
+	zasoby.render->UpdateSubresource(_buf_wierz, 0, 0, &(_wierz[0]), 0, 0);
+	zasoby.render->UpdateSubresource(_buf_wsp_tekstury, 0, 0, &(_wsp_tekstury[0]), 0, 0);
 
 	// wgraj indeksy
 	_mapa_indeksy.wstaw_kon({_indeksy.wez_il(), il_indeksy});
@@ -34,6 +39,7 @@ void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz,
 		_buf_indeksy->Release();
 		tworz_bufor<DWORD>(D3D11_BIND_INDEX_BUFFER, _indeksy.wez_il_rezerw(), _buf_indeksy);
 	}
+	zasoby.render->UpdateSubresource(_buf_indeksy, 0, 0, &(_indeksy[0]), 0, 0);
 
 	// wgraj tekstury
 	_wid_tekstury.wstaw_kon();

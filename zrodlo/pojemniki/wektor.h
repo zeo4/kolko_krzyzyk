@@ -10,7 +10,7 @@ public:
 						~Wektor();
 	inline T&			operator[](uint32_t const&);
 	void				rezerwuj(uint32_t const&);
-	inline void			wstaw_kon();
+	inline uint32_t		wstaw_kon();
 	inline void			wstaw_kon(T const&);
 	inline void			wstaw_zakres_kon(T const*, uint32_t);
 	inline void			licz_zakres(uint32_t&, uint32_t&) const;
@@ -27,7 +27,11 @@ protected:
 	T*					_tab;
 };
 template<class T, class H>
-Wektor<T,H>::Wektor() : _rozm_el(sizeof(T)), _il_rezerw(4096), _il(0), _tab((T*)malloc(_il_rezerw*_rozm_el)) {
+Wektor<T,H>::Wektor()
+	: _rozm_el(sizeof(T)),
+	_il_rezerw(4096),
+	_il(0),
+	_tab((T*)malloc(_il_rezerw*_rozm_el)) {
 }
 template<class T, class H>
 Wektor<T,H>::~Wektor() {
@@ -58,16 +62,17 @@ void Wektor<T,H>::licz_zakres(uint32_t& hasz_min, uint32_t& hasz_maks) const {
 template<class T, class H>
 void Wektor<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
-	T*const pam = (T*)malloc(il*_rozm_el);
-	memmove(pam, _tab, _il_rezerw*_rozm_el);
+
+	T*const pam1 = (T*)malloc(il*_rozm_el);
+	memmove(pam1, _tab, _il_rezerw*_rozm_el);
 	free(_tab);
-	_tab = pam;
+	_tab = pam1;
 	_il_rezerw = il;
 }
 template<class T, class H>
 void Wektor<T,H>::uloz() {
 	if(_il < 2) return;
-	
+
 	uint32_t hasz_min, hasz_maks;
 	licz_zakres(hasz_min, hasz_maks);
 	uint32_t i, il_zakres = hasz_maks-hasz_min+1;
@@ -140,7 +145,7 @@ uint32_t Wektor<T,H>::wez_il_rezerw() const {
 	return _il_rezerw;
 }
 template<class T, class H>
-void Wektor<T,H>::wstaw_kon() {
+uint32_t Wektor<T,H>::wstaw_kon() {
 	if(_il == _il_rezerw) {
 		rezerwuj(_il_rezerw*2);
 	}
@@ -159,6 +164,19 @@ void Wektor<T,H>::wstaw_zakres_kon(T const* tab, uint32_t il) {
 		wstaw_kon(tab[i]);
 	}
 }
+
+/*template<class T, class H = FunHasz<T>>
+class WektorMen : public Wektor<T,H> {
+	struct Segment{
+		uint32_t		pocz;
+		uint32_t		il;
+	};
+public:
+protected:
+	Segment*			_seg;
+	//uint32_t*			
+};*/
+
 
 
 
