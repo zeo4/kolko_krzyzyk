@@ -21,10 +21,10 @@ public:
 							Obiekty3w();
 	void					tworz_ob(
 								XMFLOAT3*, XMFLOAT2*, uint32_t,
-								DWORD*, uint32_t,
+								DWORD*, uint32_t const&,
 								string
 							);
-	void					niszcz_ob(uint32_t);
+	void					niszcz_ob(uint32_t const&);
 };
 
 

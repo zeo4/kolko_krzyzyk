@@ -11,10 +11,10 @@ using std::string;
 
 Obiekty3w::Obiekty3w() {
 }
-void Obiekty3w::niszcz_ob(uint32_t nr) {
+void Obiekty3w::niszcz_ob(uint32_t const& nr) {
 
 }
-void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t il_indeksy, string sciezka) {
+void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t const& il_indeksy, string sciezka) {
 	uint32_t il;
 
 	// wgraj wierzchołki, współrzędne tekstur
