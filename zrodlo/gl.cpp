@@ -2,18 +2,11 @@
 
 #include "globalne.h"
 #include "debug.h"
-#include "zasobyGraf.h"
-#include "obiekty.h"
-#include "fizyka.h"
-#include "grafika.h"
-#include "wejscie.h"
-#include "swiat.h"
 #include "logika.h"
-#include <chrono>
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
-#include <wektor.h>
+//#include <wektor.h>
 
 // test
 HINSTANCE		uchAp;
@@ -43,9 +36,9 @@ void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
-	//Logika logika(uchAp);
-	//logika.inic3W();
-	//logika.inicScena();
+	Logika logika(uchAp);
+	logika.inic3W();
+	logika.inicScena();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -61,7 +54,7 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			//logika.tworzKolejnaKlatka();
+			logika.tworzKolejnaKlatka();
 		}
 	}
 }
