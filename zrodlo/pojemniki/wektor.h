@@ -3,10 +3,6 @@
 #include <stdint.h>
 #include <operatory.h>
 
-struct Segment {
-	uint32_t		pocz;
-	uint32_t		il;
-};
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
 class WektorPodstawa {
@@ -77,7 +73,6 @@ template<class T, class H = FunHasz<T>>
 class WektorWpis : public WektorPodstawa<T,H> {
 public:
 	inline T&			operator[](uint32_t const&) const;
-	inline uint32_t		wstaw_kon();
 	inline void			wstaw_kon(T const&);
 	void				uloz();
 	void				uloz_unikat();
@@ -154,13 +149,6 @@ void WektorWpis<T,H>::uloz_unikat() {
 	free(maska);
 }
 template<class T, class H>
-uint32_t WektorWpis<T,H>::wstaw_kon() {
-	if(_il == _il_rezerw) {
-		rezerwuj(_il_rezerw*2);
-	}
-	_tab[_il++] = 0;
-}
-template<class T, class H>
 void WektorWpis<T,H>::wstaw_kon(T const& el) {
 	if(_il == _il_rezerw) {
 		rezerwuj(_il_rezerw*2);
@@ -209,14 +197,14 @@ void WektorStos<T,H>::wstaw(T const& el) {
 }
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
-class WektorSeg : WektorPodstawa<T,H> {
+class WektorZachSeg : WektorPodstawa<T,H> {
 	struct Segment {
 		uint32_t				pocz;
 		uint32_t				il;
 	};
 public:
-								WektorSeg();
-								~WektorSeg();
+								WektorZachSeg();
+								~WektorZachSeg();
 	T*							operator[](uint32_t const&) const;
 	void						rezerwuj(uint32_t const&);
 	uint32_t					wstaw_kon(T const*const&, uint32_t const&);
@@ -230,7 +218,7 @@ protected:
 	WektorWpis<uint32_t>		_seg_usuniete;
 };
 template<class T, class H>
-WektorSeg<T,H>::WektorSeg()
+WektorZachSeg<T,H>::WektorZachSeg()
 	: _tab_rob((T*)malloc(_il_rezerw*_rozm_el)),
 	_seg_wolne((uint32_t*)malloc(_il_rezerw*4)),
 	_il_seg_wolne(0) {
@@ -239,17 +227,17 @@ WektorSeg<T,H>::WektorSeg()
 	}
 }
 template<class T, class H>
-WektorSeg<T,H>::~WektorSeg() {
+WektorZachSeg<T,H>::~WektorZachSeg() {
 	free(_tab_rob);
 	free(_seg);
 	free(_seg_wolne);
 }
 template<class T, class H>
-T* WektorSeg<T,H>::operator[](uint32_t const& nr) const {
+T* WektorZachSeg<T,H>::operator[](uint32_t const& nr) const {
 	return &_tab[_seg[nr].pocz];
 }
 template<class T, class H>
-void WektorSeg<T,H>::rezerwuj(uint32_t const& il) {
+void WektorZachSeg<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
 
 	uint32_t* pam1 = (uint32_t*)malloc(il*4);
@@ -274,7 +262,7 @@ void WektorSeg<T,H>::rezerwuj(uint32_t const& il) {
 	_seg = pam2;
 }
 template<class T, class H>
-void WektorSeg<T,H>::upakuj() {
+void WektorZachSeg<T,H>::upakuj() {
 	_seg_usuniete.uloz_unikat();
 	uint32_t ind1 = 0, ind2 = 0, il, j, przes_akt = 0;
 	uint32_t* przes = (uint32_t*)malloc(_il*4);
@@ -312,12 +300,12 @@ void WektorSeg<T,H>::upakuj() {
 	_tab_rob = wsk;
 }
 template<class T, class H>
-void WektorSeg<T,H>::usun(uint32_t const& nr) {
+void WektorZachSeg<T,H>::usun(uint32_t const& nr) {
 	zapobiegać przed usunięciem nieistniejącego segmentu
 	_seg_usuniete.wstaw_kon(nr);
 }
 template<class T, class H>
-uint32_t WektorSeg<T,H>::wstaw_kon(T const*const& t, uint32_t const& il = 1) {
+uint32_t WektorZachSeg<T,H>::wstaw_kon(T const*const& t, uint32_t const& il = 1) {
 	while(_il+il > _il_rezerw) {
 		rezerwuj(_il_rezerw*2);
 	}

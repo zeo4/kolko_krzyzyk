@@ -4,27 +4,23 @@
 #include <wektor.h>
 
 class Obiekty3w {
-	struct Segment {
-		uint32_t			pocz;
-		uint32_t			il;
-	};
-	Wektor<XMFLOAT3>						_wierz;
-	ID3D11Buffer*							_buf_wierz;
-	Wektor<XMFLOAT2>						_wsp_tekstury;
-	ID3D11Buffer*							_buf_wsp_tekstury;
-	Wektor<Segment>							_mapa_wierz;
-	Wektor<DWORD>							_indeksy;
-	ID3D11Buffer*							_buf_indeksy;
-	Wektor<Segment>							_mapa_indeksy;
-	Wektor<ID3D11ShaderResourceView*>		_wid_tekstury;
+	Wektor<uint32_t>								_nr_obiekty;
+	WektorZachSeg<XMFLOAT3>							_wierz;
+	ID3D11Buffer*									_wierz_buf;
+	WektorZachSeg<XMFLOAT2>							_tekstury_wsp;
+	ID3D11Buffer*									_tekstury_wsp_buf;
+	WektorZachSeg<ID3D11ShaderResourceView*>		_tekstury_wid;
+	WektorZachSeg<DWORD>							_ind;
+	ID3D11Buffer*									_ind_buf;
 public:
-							Obiekty3w();
-	void					tworz_ob(
-								XMFLOAT3*, XMFLOAT2*, uint32_t,
-								DWORD*, uint32_t const&,
-								string
-							);
-	void					niszcz_ob(uint32_t const&);
+													Obiekty3w();
+	void											tworz_ob(
+														XMFLOAT3*, XMFLOAT2*,
+														uint32_t const&,
+														DWORD*, uint32_t const&,
+														string const&
+													);
+	void											niszcz_ob(uint32_t const&);
 };
 
 

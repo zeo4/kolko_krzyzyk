@@ -14,35 +14,36 @@ Obiekty3w::Obiekty3w() {
 void Obiekty3w::niszcz_ob(uint32_t const& nr) {
 
 }
-void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t il_wierz, DWORD* indeksy, uint32_t const& il_indeksy, string sciezka) {
+void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t const& il_wierz, DWORD* indeksy, uint32_t const& il_indeksy, string const& sciezka) {
 	uint32_t il;
 
 	// wgraj wierzchołki, współrzędne tekstur
-	_mapa_wierz.wstaw_kon({_wierz.wez_il(), il_wierz});
 	il = _wierz.wez_il_rezerw();
-	_wierz.wstaw_zakres_kon(wierz, il_wierz);
-	_tekstury.wstaw_zakres_kon(tekstury, il_wierz);
+	_nr_obiekty.wstaw_kon(_wierz.wstaw_kon(wierz, il_wierz));
+	_tekstury_wsp.wstaw_kon(tekstury, il_wierz);
 	if(il < _wierz.wez_il_rezerw()) {
-		_buf_wierz->Release();
-		_buf_tekstury->Release();
-		tworz_bufor<XMFLOAT3>(D3D11_BIND_VERTEX_BUFFER, _wierz.wez_il_rezerw(), _buf_wierz);
-		tworz_bufor<XMFLOAT2>(D3D11_BIND_VERTEX_BUFFER, _wsp_tekstury.wez_il_rezerw(), _buf_wsp_tekstury);
+		_wierz_buf->Release();
+		_tekstury_wsp_buf->Release();
+		tworz_bufor<XMFLOAT3>(D3D11_BIND_VERTEX_BUFFER, _wierz.wez_il_rezerw(), _wierz_buf);
+		tworz_bufor<XMFLOAT2>(D3D11_BIND_VERTEX_BUFFER, _tekstury_wsp.wez_il_rezerw(), _tekstury_wsp_buf);
 	}
-	zasoby.render->UpdateSubresource(_buf_wierz, 0, 0, &(_wierz[0]), 0, 0);
-	zasoby.render->UpdateSubresource(_buf_wsp_tekstury, 0, 0, &(_wsp_tekstury[0]), 0, 0);
+	zasoby.render->UpdateSubresource(_wierz_buf, 0, 0, _wierz[0], 0, 0);
+	zasoby.render->UpdateSubresource(_tekstury_wsp_buf, 0, 0, _tekstury_wsp[0], 0, 0);
 
 	// wgraj indeksy
-	_mapa_indeksy.wstaw_kon({_indeksy.wez_il(), il_indeksy});
-	il = _indeksy.wez_il_rezerw();
-	_indeksy.wstaw_zakres_kon(indeksy, il_indeksy);
-	if(il < _indeksy.wez_il_rezerw()) {
-		_buf_indeksy->Release();
-		tworz_bufor<DWORD>(D3D11_BIND_INDEX_BUFFER, _indeksy.wez_il_rezerw(), _buf_indeksy);
+	il = _ind.wez_il_rezerw();
+	_ind.wstaw_kon(indeksy, il_indeksy);
+	if(il < _ind.wez_il_rezerw()) {
+		_ind_buf->Release();
+		tworz_bufor<DWORD>(D3D11_BIND_INDEX_BUFFER, _ind.wez_il_rezerw(), _ind_buf);
 	}
-	zasoby.render->UpdateSubresource(_buf_indeksy, 0, 0, &(_indeksy[0]), 0, 0);
+	zasoby.render->UpdateSubresource(_ind_buf, 0, 0, _ind[0], 0, 0);
 
 	// wgraj tekstury
-	_wid_tekstury.wstaw_kon();
+	_tekstury_wid.wstaw_kon(0);
+	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, sciezka.c_str(), 0, 0, );
+
+	// wgraj tekstury
 	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, sciezka.c_str(), 0, 0, &(_wid_tekstury[_wid_tekstury.wez_il()-1]), 0);
 }
 
