@@ -13,7 +13,7 @@ class WektorPodstawa {
 public:
 						WektorPodstawa();
 						~WektorPodstawa();
-	void				rezerwuj(uint32_t const&) const;
+	void				rezerwuj(uint32_t const&);
 	inline uint32_t		wez_il() const;
 	inline uint32_t		wez_il_rezerw() const;
 	inline void			czysc();
@@ -55,11 +55,11 @@ void WektorPodstawa<T,H>::licz_zakres(uint32_t& hasz_min, uint32_t& hasz_maks) c
 	}
 }
 template<class T, class H>
-void WektorPodstawa<T,H>::rezerwuj(uint32_t const& il) const {
+void WektorPodstawa<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
 
 	T* pam = (T*)malloc(il*_rozm_el);
-	memmove(pam, _tab, _il_rezerw*_rozm_el);
+	memmove(pam, _tab, _il*_rozm_el);
 	free(_tab);
 	_tab = pam;
 	_il_rezerw = il;
@@ -171,31 +171,9 @@ void WektorWpis<T,H>::wstaw_kon(T const& el) {
 template<class T, class H = FunHasz<T>>
 class Wektor : public WektorWpis<T,H> {
 public:
-				Wektor();
-				~Wektor();
 	void		zamien(uint32_t const&, uint32_t const&);
-	void		rezerwuj(uint32_t const&);
 	void		usun(uint32_t const&);
-protected:
-	T*			_tab_rob;
 };
-template<class T, class H>
-Wektor<T,H>::Wektor()
-	: _tab_rob((T*)malloc(_il_rezerw*_rozm_el)) {
-}
-template<class T, class H>
-Wektor<T,H>::~Wektor() {
-	free(_tab_rob);
-}
-template<class T, class H>
-void Wektor<T,H>::rezerwuj(uint32_t const& il) {
-	if(il <= _il_rezerw) return;
-
-	WektorWpis::rezerwuj(il);
-
-	free(_tab_rob);
-	_tab_rob = (T*)malloc(_il_rezerw*_rozm_el);
-}
 template<class T, class H>
 void Wektor<T,H>::usun(uint32_t const& nr) {
 	zamien(nr, --_il);
@@ -211,8 +189,17 @@ template<class T, class H = FunHasz<T>>
 class WektorStos : public WektorPodstawa<T,H> {
 public:
 	inline void		wstaw(T const&);
-	inline T		wez();
+	inline T&		wez();
+	inline T		usun();
 };
+template<class T, class H>
+T WektorStos<T,H>::usun() {
+	return _tab[--_il];
+}
+template<class T, class H>
+T& WektorStos<T,H>::wez() {
+	return _tab[_il-1];
+}
 template<class T, class H>
 void WektorStos<T,H>::wstaw(T const& el) {
 	if(_il == _il_rezerw) {
@@ -220,103 +207,129 @@ void WektorStos<T,H>::wstaw(T const& el) {
 	}
 	_tab[_il++] = el;
 }
-template<class T, class H>
-T WektorStos<T,H>::wez() {
-	return _tab[--_il];
-}
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
-class Wektor : public WektorWpis<T,H> {
+class WektorSeg : WektorPodstawa<T,H> {
+	struct Segment {
+		uint32_t				pocz;
+		uint32_t				il;
+	};
 public:
-	void					upakuj();
+								WektorSeg();
+								~WektorSeg();
+	T*							operator[](uint32_t const&) const;
+	void						rezerwuj(uint32_t const&);
+	uint32_t					wstaw_kon(T const*const&, uint32_t const&);
+	void						usun(uint32_t const&);
+	void						upakuj();
 protected:
-	WektorWpis<Segment>		_usuniete;
+	T*							_tab_rob;
+	Segment*					_seg;
+	uint32_t*					_seg_wolne;
+	uint32_t					_il_seg_wolne;
+	WektorWpis<uint32_t>		_seg_usuniete;
 };
 template<class T, class H>
-void Wektor<T,H>::upakuj() {
-	_usuniete.uloz_unikat();
-	T* wsk1 = _tab_rob;
-	T* wsk2 = _tab;
-	uint32_t il;
-	for(uint32_t i = 0; i < _usuniete.wez_il(); ++i) {
-		il = (&_tab[_usuniete[i].pocz]) - wsk2;
-		memove(wsk1, wsk2, il*_rozm_el);
-		wsk1 += il;
-		wsk2 += il + _usuniete[i].il;
+WektorSeg<T,H>::WektorSeg()
+	: _tab_rob((T*)malloc(_il_rezerw*_rozm_el)),
+	_seg_wolne((uint32_t*)malloc(_il_rezerw*4)),
+	_il_seg_wolne(0) {
+	for(uint32_t i = 0; i < _il_rezerw; ++i) {
+		_seg_wolne[i] = _il_rezerw-1-i;
 	}
-	_usuniete.czysc();
-	_il = wsk1 - _tab_rob;
-
-	wsk1 = _tab_rob;
-	_tab_rob = _tab;
-	_tab = wsk1;
 }
-// -------------------------------------------------------
-template<class T, class H = FunHasz<T>>
-class WektorSeg : public Wektor<T,H> {
-#define pusty 4294967295
-public:
-	T&						operator[](uint32_t const&) const;
-	uint32_t				wstaw_kon(T const*const&, uint32_t const&);
-	//void					upakuj();
-protected:
-	Segment*				_seg;
-	Wektor<uint32_t>		_mapa_seg_wolne;
-	//uint32_t*				_mapa; // zamienia numer elementu na indeks w tablicy
-};
 template<class T, class H>
-T& WektorSeg<T,H>::operator[](uint32_t const& nr) const {
-	return _tab[_seg[nr].pocz];
+WektorSeg<T,H>::~WektorSeg() {
+	free(_tab_rob);
+	free(_seg);
+	free(_seg_wolne);
+}
+template<class T, class H>
+T* WektorSeg<T,H>::operator[](uint32_t const& nr) const {
+	return &_tab[_seg[nr].pocz];
+}
+template<class T, class H>
+void WektorSeg<T,H>::rezerwuj(uint32_t const& il) {
+	if(il <= _il_rezerw) return;
+
+	uint32_t* pam1 = (uint32_t*)malloc(il*4);
+	uint32_t il_nowych = il-_il_rezerw;
+	memmove(pam1+il_nowych, _seg_wolne, _il_seg_wolne*4);
+	free(_seg_wolne);
+	_seg_wolne = pam1;
+	_il_seg_wolne += il_nowych;
+	for(uint32_t i = 0; i < il_nowych; ++i) {
+		_seg_wolne[i] = il-1-i;
+	}
+
+	WektorPodstawa::rezerwuj(il);
+	_seg_usuniete.rezerwuj(il);
+
+	free(_tab_rob);
+	_tab_rob = (T*)malloc(il*_rozm_el);
+
+	Segment* pam2 = (Segment*)malloc(il*sizeof(Segment));
+	memmove(pam2, _seg, (il-_il_seg_wolne)*sizeof(Segment));
+	free(_seg);
+	_seg = pam2;
 }
 template<class T, class H>
 void WektorSeg<T,H>::upakuj() {
-	_usuniete.uloz_unikat();
+	_seg_usuniete.uloz_unikat();
 	uint32_t ind1 = 0, ind2 = 0, il, j, przes_akt = 0;
 	uint32_t* przes = (uint32_t*)malloc(_il*4);
-	bool* usuniete = (bool*)malloc(_il);
-	ZeroMemory(usuniete, _il);
-	for(uint32_t i = 0; i < _usuniete.wez_il(); ++i) {
-		il = _usuniete[i].pocz - ind2;
+	for(uint32_t i = 0; i < _seg_usuniete.wez_il(); ++i) {
+		il = _seg[_seg_usuniete[i]].pocz - ind1;
 
 		// kopiuj upakowane
-		memove(&_tab_rob[ind1], &_tab[ind2], il*_rozm_el);
-		
+		memmove(&_tab_rob[ind2], &_tab[ind1], il*_rozm_el);
+
 		// licz przesunięcia
-		for(j = ind2; j < ind2+il+_usuniete[i].il; ++j) {
+		for(j = ind1; j < ind1+il+_seg[_seg_usuniete[i]].il; ++j) {
 			przes[j] = przes_akt;
 		}
-		przes_akt += _usuniete[i].il;
+		przes_akt += _seg[_seg_usuniete[i]].il;
 
-		// oznacz usunięte
-		memset(&usuniete[_usuniete[i].pocz], 1, _usuniete[i].il);
-		
-		ind1 += il;
-		ind2 += il + _usuniete[i].il;
+		// ustaw na kolejny obszar pamięci do upakowania
+		ind1 += il + _seg[_seg_usuniete[i]].il;
+		ind2 += il;
+
+		// usuń segment
+		_seg[_seg_usuniete[i]].il = 0;
+		_seg_wolne[_il_seg_wolne++] = _seg_usuniete[i];
 	}
-	_usuniete.czysc();
-	_il = ind1;
+	_seg_usuniete.czysc();
+	_il = ind2;
 
-	// aktualizuj mapę
+	// uwzględnij w segmentach przesunięcie elementów tablicy
 	for(j = 0; j < _il_rezerw; ++j) {
-		_mapa[j] -= przes[_mapa[j]];
+		_seg[j].pocz -= przes[_seg[j].pocz];
 	}
 
-	wsk1 = _tab_rob;
-	_tab_rob = _tab;
-	_tab = wsk1;
+	// przeskocz na upakowaną tablicę
+	T* wsk = _tab;
+	_tab = _tab_rob;
+	_tab_rob = wsk;
+}
+template<class T, class H>
+void WektorSeg<T,H>::usun(uint32_t const& nr) {
+	zapobiegać przed usunięciem nieistniejącego segmentu
+	_seg_usuniete.wstaw_kon(nr);
 }
 template<class T, class H>
 uint32_t WektorSeg<T,H>::wstaw_kon(T const*const& t, uint32_t const& il = 1) {
 	while(_il+il > _il_rezerw) {
 		rezerwuj(_il_rezerw*2);
 	}
-	_seg[_mapa_seg_wolne[0]] = {_il, il};
-	_mapa_seg_wolne.zamien(0, _mapa_seg_wolne.wez_il()-1);
+	_seg[_seg_wolne[_il_seg_wolne-1]] = {_il, il};
 	for(uint32_t i = 0; i < il; ++i) {
 		_tab[_il++] = t[i];
 	}
-	return 
+	return _seg_wolne[--_il_seg_wolne];
 }
+// -------------------------------------------------------
+
+
 
 
 
