@@ -9,194 +9,70 @@
 
 using std::string;
 
-Obiekty3w::Obiekty3w() {
+Obiekty3w::Obiekty3w() 
+	: _wierz_buf(0),
+	_tekstury_wsp_buf(0),
+	_tekstury_dane((TeksturaDane*)malloc(8*sizeof(TeksturaDane))),
+	_ind_buf(0) {
 }
-void Obiekty3w::niszcz_ob(uint32_t const& nr) {
+void Obiekty3w::aktual_buf() const {
+	D3D11_BUFFER_DESC wierz_opis, ind_opis;
 
-}
-void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t const& il_wierz, DWORD* indeksy, uint32_t const& il_indeksy, string const& sciezka) {
-	uint32_t il;
-
-	// wgraj wierzchołki, współrzędne tekstur
-	il = _wierz.wez_il_rezerw();
-	_nr_obiekty.wstaw_kon(_wierz.wstaw_kon(wierz, il_wierz));
-	_tekstury_wsp.wstaw_kon(tekstury, il_wierz);
-	if(il < _wierz.wez_il_rezerw()) {
-		_wierz_buf->Release();
-		_tekstury_wsp_buf->Release();
-		tworz_bufor<XMFLOAT3>(D3D11_BIND_VERTEX_BUFFER, _wierz.wez_il_rezerw(), _wierz_buf);
-		tworz_bufor<XMFLOAT2>(D3D11_BIND_VERTEX_BUFFER, _tekstury_wsp.wez_il_rezerw(), _tekstury_wsp_buf);
+	_wierz_buf->GetDesc(&wierz_opis);
+	if(_wierz.wez_il()*sizeof(XMFLOAT3) > wierz_opis.ByteWidth) {
+		tworz_bufor<XMFLOAT3>(_wierz_buf, _wierz.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+		tworz_bufor<XMFLOAT2>(
+			_tekstury_wsp_buf, _tekstury_wsp.wez_il(), D3D11_BIND_VERTEX_BUFFER
+		);
 	}
 	zasoby.render->UpdateSubresource(_wierz_buf, 0, 0, _wierz[0], 0, 0);
 	zasoby.render->UpdateSubresource(_tekstury_wsp_buf, 0, 0, _tekstury_wsp[0], 0, 0);
 
-	// wgraj indeksy
-	il = _ind.wez_il_rezerw();
-	_ind.wstaw_kon(indeksy, il_indeksy);
-	if(il < _ind.wez_il_rezerw()) {
-		_ind_buf->Release();
-		tworz_bufor<DWORD>(D3D11_BIND_INDEX_BUFFER, _ind.wez_il_rezerw(), _ind_buf);
+	_ind_buf->GetDesc(&ind_opis);
+	if(_ind.wez_il()*sizeof(XMFLOAT2) > ind_opis.ByteWidth) {
+		tworz_bufor<DWORD>(_ind_buf, _ind.wez_il(), D3D11_BIND_INDEX_BUFFER);
 	}
 	zasoby.render->UpdateSubresource(_ind_buf, 0, 0, _ind[0], 0, 0);
+}
+void Obiekty3w::usun_wykonaj() {
+	WektorWpis<uint32_t> el_do_usun = _wierz.wez_do_usun();
+	for(uint32_t i = 0; i < el_do_usun.wez_il(); ++i) {
+		_nr.usun(el_do_usun[i]); tutaj źle
+		--_tekstury_dane[_tekstury_mapa[el_do_usun[i]]].il;
+		if(_tekstury_dane[_tekstury_mapa[el_do_usun[i]]].il == 0) {
+			_tekstury_dane[_tekstury_mapa[el_do_usun[i]]].widok->Release();
+			_tekstury_dane[_tekstury_mapa[el_do_usun[i]]].widok = 0;
+		}
+	}
+	_wierz.usun_wykonaj();
+	_tekstury_wsp.usun_wykonaj();
+	_tekstury_wid.usun_wykonaj();
+	_ind.usun_wykonaj();
+}
+void Obiekty3w::usun_zbierz(uint32_t const& nr) {
+	_wierz.usun_zbierz(nr);
+	_tekstury_wsp.usun_zbierz(nr);
+	_tekstury_wid.usun_zbierz(nr);
+	_ind.usun_zbierz(nr);
+}
+void Obiekty3w::tworz_ob(XMFLOAT3* wierz, XMFLOAT2* tekstury, uint32_t const& il_wierz, DWORD* indeksy, uint32_t const& il_indeksy, uint32_t tekstura_nr) {
+	_nr.wstaw_kon(_wierz.wstaw_kon(wierz, il_wierz));
+	_tekstury_wsp.wstaw_kon(tekstury, il_wierz);
 
-	// wgraj tekstury
-	_tekstury_wid.wstaw_kon(0);
-	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, sciezka.c_str(), 0, 0, );
+	_ind.wstaw_kon(indeksy, il_indeksy);
 
-	// wgraj tekstury
-	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, sciezka.c_str(), 0, 0, &(_wid_tekstury[_wid_tekstury.wez_il()-1]), 0);
+	tekstury_mapa.wstaw_kon(tekstura_nr);
+	++_tekstury_dane[tekstura_nr].il;
+	if(_tekstury_dane[tekstura_nr].widok != 0) return;
+	D3DX11CreateShaderResourceViewFromFile(zasoby.karta, wez_sciezka_tekstura(tekstura_nr), 0, 0, &_tekstury_dane[tekstura_nr].widok, 0);
 }
-
-IObiekt::IObiekt(XMFLOAT3 const przesPocz) : fiz(NULL), graf(NULL), przes(przesPocz), rodzic(NULL), tKolizja(1.0f)
-	{
-	XMStoreFloat4x4(&macSwiat, XMMatrixIdentity());
-	XMStoreFloat4x4(&macSwiatBezkol, XMMatrixIdentity());
-}
-IObiekt::~IObiekt() {}
-void IObiekt::rysuj() const {
-	graf->rysuj();
-}
-IFizyka* IObiekt::wezFiz() const {
-	return fiz;
-}
-IGrafika* IObiekt::wezGraf() const {
-	return graf;
+char const* Obiekty3w::wez_sciezka_tekstura(uint32_t const& nr) {
+	switch(nr) {
+	case 1: return "tekstura\\1.jpg";
+	case 2: return "tekstura\\2.jpg";
+	}
 }
 
-IObiekt* Obiekt3w::test = NULL;
-void Obiekt3w::nadpiszIndeksy(DWORD const *const indeksy, UINT const ilIndeksy) {
-	ind.assign(indeksy, indeksy+ilIndeksy);
-	logi.pisz("OK", "Wgraj indeksy.");
-}
-void Obiekt3w::nadpiszWierzcholki(Wierzcholek const *const wierzcholki, UINT const ilWierz) {
-	wierz.assign(wierzcholki, wierzcholki+ilWierz);
-	logi.pisz("OK", "Wgraj wierzcholki.");
-}
-void Obiekt3w::tworzBufIndeksy() {
-	usunBufIndeksy();
-	tworzBufor<DWORD>(
-		D3D11_BIND_INDEX_BUFFER,
-		ind.size(),
-		bufIndeksy
-	);
-}
-void Obiekt3w::tworzBufWierz() {
-	usunBufWierz();
-	tworzBufor<Wierzcholek>(
-		D3D11_BIND_VERTEX_BUFFER,
-		wierz.size(),
-		bufWierz
-	);
-}
-void Obiekt3w::tworzWidokTekstura(string sciezka) {
-	usunWidokTekstura();
-	wynik = D3DX11CreateShaderResourceViewFromFile(
-		zasoby.karta,
-		sciezka.c_str(),
-		NULL,
-		NULL,
-		&widokTekstura,
-		NULL
-	);
-	SprawdzWynik(wynik, "Wgranie tekstury.");
-}
-void Obiekt3w::usunBufIndeksy() {
-	if(bufIndeksy != NULL) {
-		bufIndeksy->Release();
-		bufIndeksy = NULL;
-		logi.pisz("OK", "Zwolnij bufor indeksow.");
-	}
-}
-void Obiekt3w::usunBufWierz() {
-	if(bufWierz != NULL) {
-		bufWierz->Release();
-		bufWierz = NULL;
-		logi.pisz("OK", "Zwolnij bufor wierzcholkow.");
-	}
-}
-void Obiekt3w::usunWidokTekstura() {
-	if(widokTekstura != NULL) {
-		widokTekstura->Release();
-		widokTekstura = NULL;
-		logi.pisz("OK", "Zwolnij widok tekstury.");
-	}
-}
-void Obiekt3w::wiazIndeksy() const {
-	if(bufIndeksy == NULL) {
-		logi.pisz("UWAGA", "Nie powiazano indeksow. Bufor indeksow jest pusty.");
-	} else {
-		zasoby.render->IASetIndexBuffer(bufIndeksy, DXGI_FORMAT_R32_UINT, 0);
-	}
-}
-void Obiekt3w::wiazTeksture() const {
-	if(widokTekstura == NULL) {
-		logi.pisz("?", "Nie powiazano tekstury. Widok tekstury jest pusty.");
-	} else {
-		zasoby.render->PSSetShaderResources(0, 1, &widokTekstura);
-	}
-}
-void Obiekt3w::wiazWierz() const {
-	if(bufWierz == NULL) {
-		logi.pisz("UWAGA", "Nie powiazano wierzcholkow. Bufor wierzcholkow jest pusty.");
-	} else {
-		UINT rozmWierz = sizeof(Wierzcholek);
-		UINT przesunBufWierz = 0;
-		zasoby.render->IASetVertexBuffers(
-			0,
-			1,
-			&bufWierz,
-			&rozmWierz,
-			&przesunBufWierz);
-	}
-}
-void Obiekt3w::wypelnijBufIndeksy() {
-	zasoby.render->UpdateSubresource(bufIndeksy, 0, NULL, &ind[0], 0, 0);
-	logi.pisz("OK", "Wypelnij bufor indeksow.");
-}
-void Obiekt3w::wypelnijBufWierz() {
-	zasoby.render->UpdateSubresource(bufWierz, 0, NULL, &wierz[0], 0, 0);
-	logi.pisz("OK", "Wypelnij bufor wierzcholkow.");
-}
-XMFLOAT4X4 Obiekt3w::macProjekcja;
-XMFLOAT4X4 Obiekt3w::macWidok;
-Obiekt3w::Obiekt3w(Wierzcholek const *const wierzcholki, UINT const ilWierzcholki, DWORD const *const indeksy, UINT const ilIndeksy, XMFLOAT3 const pozPocz, string sciezkaTekstura) : bufIndeksy(NULL), IObiekt(pozPocz), bufWierz(NULL), sasiedzi(NULL), widokTekstura(NULL)
-	{
-	nadpiszWierzcholki(wierzcholki, ilWierzcholki);
-	nadpiszIndeksy(indeksy, ilIndeksy);
-	tworzWidokTekstura(sciezkaTekstura);
-	tworzBufWierz();
-	tworzBufIndeksy();
-	wypelnijBufWierz();
-	wypelnijBufIndeksy();
-	ustawFizykaPostac();
-	ustawGrafika();
-}
-Obiekt3w::~Obiekt3w() {
-	logi.pisz_start("--->", "Niszcz obiekt 3W.");
-	usunBufIndeksy();
-	usunBufWierz();
-	usunWidokTekstura();
-	logi.pisz_stop("<---", "Niszcz obiekt 3W.");
-}
-void Obiekt3w::ustawFizykaLitera() {
-	FizykaLitera* ob = new FizykaLitera(this);
-	IObiekt::fiz = ob;
-	fiz = ob;
-}
-void Obiekt3w::ustawFizykaPostac() {
-	FizykaPostac* ob = new FizykaPostac(this);
-	IObiekt::fiz = ob;
-	fiz = ob;
-}
-void Obiekt3w::ustawGrafika() {
-	graf = new Grafika3w(this);
-}
-void Obiekt3w::ustawSasiedzi(MapaSasiedzi_ const* const s) {
-	sasiedzi = s;
-}
-Fizyka3w* Obiekt3w::wezFiz() const {
-	return fiz;
-}
 void Obiekt3w::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR const pocz, XMVECTOR const kier) const {
 	XMVECTOR p = pocz;
 	XMVECTOR k = kier;
@@ -205,34 +81,7 @@ void Obiekt3w::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR co
 	fiz->wezKolizjePromien(odlKolizje, p, k);
 }
 
-ObiektZbior::ObiektZbior(XMFLOAT3 const pozPocz) : IObiekt(pozPocz)
-	{
-	logi.pisz_start("--->", "Tworz ObiektZbior.");
-	ustawFizykaTekst();
-	ustawGrafika();
-	logi.pisz_stop("<---", "Tworz ObiektZbior.");
-}
-ObiektZbior::~ObiektZbior() {}
-void ObiektZbior::dodaj(IObiekt* const ob) {
-	podobiekty.insert(ob);
-}
-void ObiektZbior::ustawFizykaTekst() {
-	FizykaTekst* ob = new FizykaTekst(this);
-	IObiekt::fiz = ob;
-	fiz = ob;
-}
-void ObiektZbior::ustawGrafika() {
-	graf = new GrafikaZbior(this);
-}
-void ObiektZbior::ustawSasiedzi(MapaSasiedzi_ const* const s) {
-	ListaObiekty::const_iterator it;
-	for(it = podobiekty.begin(); it != podobiekty.end(); ++it) {
-		(*it)->ustawSasiedzi(s);
-	}
-}
-void ObiektZbior::wezKolizjePromien(MapaFloatObiekt_* const odlKolizje, XMVECTOR const pocz, XMVECTOR const kier) const {
-	fiz->wezKolizjePromien(odlKolizje, pocz, kier);
-}
+
 
 
 

@@ -4,7 +4,9 @@
 #include "debug.h"
 
 template<class T>
-void tworz_bufor(UINT const flgLaczenie, UINT const ilEl, ID3D11Buffer*& bufor) {
+void tworz_bufor(ID3D11Buffer*& bufor, UINT const ilEl, UINT const flgLaczenie) {
+	bufor->Release();
+	
 	D3D11_BUFFER_DESC opisBuf;
 	ZeroMemory(&opisBuf, sizeof(opisBuf));
 	opisBuf.ByteWidth = sizeof(T) * ilEl;
@@ -49,12 +51,10 @@ struct ZasobyGraf {
 	char const* const			wezBladSzad();
 	void						wgrajSzadPiks(
 									char const* const,
-									char const* const
-								);
+									char const* const);
 	void						wgrajSzadWierz(
 									char const* const,
-									char const* const
-								);
+									char const* const);
 	void						wiazCoObiekt() const;
 	void						wiazRzutnie() const;
 	void						wiazStanProbkowania() const;

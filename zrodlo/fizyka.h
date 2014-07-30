@@ -4,6 +4,13 @@
 #include "typedefy.h"
 #include "drzewo8.h"
 
+// ---------------------------------------------
+class Fizyka {
+public:
+private:
+};
+// ---------------------------------------------
+
 class Obiekt3w;
 
 class IFizyka {

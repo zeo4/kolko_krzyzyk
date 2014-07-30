@@ -3,6 +3,8 @@
 #include "fizyka.h"
 #include "obiekty.h"
 
+
+
 IFizyka::IFizyka(IObiekt* const ob) : obiekt (ob)
 	{}
 IFizyka::~IFizyka() {}

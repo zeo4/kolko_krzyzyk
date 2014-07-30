@@ -136,4 +136,4 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
-// WektorSeg: Zapisywać wolne segmenty idąc od początku tablicy _seg.
+// WektorSeg: Wpisywać do wolnych segmentów idąc od początku tablicy _seg.

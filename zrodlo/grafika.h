@@ -2,31 +2,24 @@
 
 #include "obiekty.h"
 #include "zasobyGraf.h"
+#include <stdint.h>
 
-class IGrafika {
+class Grafika {
 public:
-	virtual				~IGrafika();
-	virtual void		rysuj() = 0;
+	void							przypisz(Obiekty3w const*);
+	void							tworz_co_ob();
+	void							aktual_co_ob(uint32_t const&);
+	inline void						wiaz_co_ob() const;
+	inline void						wiaz_ind() const;
+	void							rysuj();
+private:
+	Obiekty3w const*				_ob;
+	struct CoObDane {
+								CoObDane();
+		XMMATRIX				mac_swp;
+	}		_co_ob_dane;
+	ID3D11Buffer*					_co_ob_buf;
 };
 
-class Grafika3w : public IGrafika {
-	void				aktualizujCoObiekt() const;
-	void				wiaz() const;
-	void				wiazIndeksy() const;
-	void				wiazTekstura() const;
-	void				wiazWierzcholki() const;
-public:
-	Obiekt3w* const		obiekt;
-						Grafika3w(Obiekt3w* const);
-	virtual				~Grafika3w();
-	virtual void		rysuj();
-};
 
-class GrafikaZbior : public IGrafika {
-public:
-	ObiektZbior* const		obiekt;
-							GrafikaZbior(ObiektZbior* const);
-	virtual					~GrafikaZbior();
-	virtual void			rysuj();
-};
 

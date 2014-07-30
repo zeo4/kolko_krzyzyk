@@ -64,18 +64,6 @@ ZasobyGraf::~ZasobyGraf() {
 		widGlebiaSzablon = NULL;
 	}
 }
-void ZasobyGraf::tworzCoObiekt() {
-	// bufor już istnieje
-	if(bufCoObiekt != NULL) {
-		logi.pisz("BLAD", "Tworzenie juz istniejacego bufora aktualizowanego co obiekt.");
-	} else {
-		tworzBufor<DaneCoObiekt>(
-			D3D11_BIND_CONSTANT_BUFFER,
-			1,
-			bufCoObiekt);
-		logi.pisz("OK", "Tworzenie bufora aktualizowanego co obiekt.");
-	}
-}
 void ZasobyGraf::tworzGlebiaSzablon() {
 	D3D11_TEXTURE2D_DESC opisGlebiaSzablon;
 	opisGlebiaSzablon.Width = szerRend;
@@ -159,9 +147,7 @@ char const* const ZasobyGraf::wezBladSzad() {
 	}
 	return "";
 }
-void ZasobyGraf::wgrajSzadPiks(
-	char const* const sciezka,
-	char const* const nazwaFunkcji
+void ZasobyGraf::wgrajSzadPiks(char const* const sciezka, char const* const nazwaFunkcji
 	) {
 	wynik = D3DX11CompileFromFile(
 		sciezka,
@@ -179,9 +165,7 @@ void ZasobyGraf::wgrajSzadPiks(
 		wynik,
 		string("Wgraj szader pikseli: ") + string(wezBladSzad()));
 }
-void ZasobyGraf::wgrajSzadWierz(
-	char const* const sciezka,
-	char const* const nazwaFunkcji
+void ZasobyGraf::wgrajSzadWierz(char const* const sciezka, char const* const nazwaFunkcji
 	) {
 	wynik = D3DX11CompileFromFile(
 		sciezka,
@@ -231,13 +215,6 @@ void ZasobyGraf::wiazSzadWierz() const {
 	} else {
 		zasoby.render->VSSetShader(szadWierz, 0, 0);
 	}
-}
-void ZasobyGraf::wypelnijCoObiekt() {
-	if(bufCoObiekt == NULL) {
-		logi.pisz("BLAD", "Wypelnianie niestworzonego bufora aktualizowanego co obiekt.");
-		return;
-	}
-	zasoby.render->UpdateSubresource(bufCoObiekt, 0, NULL, &daneCoObiekt, 0, 0);
 }
 ZasobyGraf zasoby;
 
