@@ -4,7 +4,7 @@
 #include "obiekty.h"
 #include "typedefy.h"
 
-class IObiektGra {
+/*class IObiektGra {
 public:
 	virtual IObiekt* const		wezObiektGraf() const = 0;
 };
@@ -19,6 +19,6 @@ public:
 							Tekst();
 	void					pisz(string const);
 	IObiekt* const			wezObiektGraf() const;
-};
+};*/
 
 

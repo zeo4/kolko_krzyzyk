@@ -3,7 +3,7 @@
 #include "obiektyGra.h"
 #include "fizyka.h"
 
-float Tekst::rozmPiks = 0.01;
+/*float Tekst::rozmPiks = 0.01;
 UINT Tekst::szerTekstura = 440;
 Obiekt3w* Tekst::tworzLitera(
 	char const		litera
@@ -196,6 +196,6 @@ void Tekst::pisz(
 IObiekt* const Tekst::wezObiektGraf(
 	) const {
 	return literyGraf;
-}
+}*/
 
 

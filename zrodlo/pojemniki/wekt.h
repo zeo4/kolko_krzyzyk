@@ -1,11 +1,46 @@
-﻿# pragma once
+﻿#pragma once
 
 #include <stdint.h>
 #include <operatory.h>
+#include <windows.h>
 
 // -------------------------------------------------------
+class MenPam {
+public:
+	char**				_p;
+	uint32_t			_typ_rozm;
+	uint32_t			_il;
+	uint32_t			_il_rezerw;
+	inline char*		operator[](uint32_t const&) const;
+	void				rezerw_kon(uint32_t const&);
+	void				rezerw_pocz(uint32_t const&);
+	inline void			wstaw_kon(void*const&);
+	inline char*		usun_kon();
+	inline void			czysc();
+	void				zamien(uint32_t const&, uint32_t const&);
+	void				uloz();
+	void				uloz_unikat();
+private:
+	inline uint32_t		wez_hasz(char const*const&) const;
+	void				licz_zakres(uint32_t&, uint32_t&) const;
+};
+char* MenPam::operator[](uint32_t const& nr) const {
+	if(_il == 0) return 0;
+	return (*_p) + nr * _typ_rozm;
+}
+void MenPam::czysc() {
+	_il = 0;
+}
+char* MenPam::usun_kon() {
+	return (*_p)+(--_il)*_typ_rozm;
+}
+void MenPam::wstaw_kon(void*const& pam) {
+	if(_il == _il_rezerw) rezerw_kon(_il_rezerw*2);
+	memmove((*_p)+(_il++)*_typ_rozm, pam, _typ_rozm);
+}
+// -------------------------------------------------------
 template<class A, class B>
-class Para {
+struct Para {
 	A		pierw;
 	B		drug;
 };
@@ -206,76 +241,96 @@ void WektStos<T,H>::wstaw(T const& el) {
 	}
 	_tab[_il++] = el;
 }
+// =======================================================
+class WektWolne
+	: public WektStos<uint32_t> {
+public:
+				WektWolne();
+	void		rezerwuj(uint32_t const&);
+};
+class MenUch
+	: public WektPodst<uint32_t,FunHasz<uint32_t>> {
+public:
+	uint32_t		tworz(uint32_t const&);
+	void			niszcz(uint32_t const&);
+protected:
+
+	WektWolne		_wolne;
+};
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
-class WektZachSeg : WektPodst<T,H> {
+class WektZachSegPodst : public WektPodst<T,H> {
+protected:
 	typedef Para<uint32_t, uint32_t>		Segment_;
 public:
-											WektZachSeg();
-											~WektZachSeg();
+											WektZachSegPodst();
+											~WektZachSegPodst();
 	inline T*								operator[](uint32_t const&) const;
-	void									rezerwuj(uint32_t const&);
-	uint32_t								wstaw_kon(
-												T const*const&, uint32_t const&);
 	inline Segment_ const&					wez_seg(uint32_t const&) const;
 	inline void								usun_zbierz(uint32_t const&);
 	inline WektWpis<uint32_t> const&		wez_do_usun() const;
-	void									usun_wykonaj();
 protected:
 	T*										_tab_rob;
 	Segment_*								_seg;
-	uint32_t*								_seg_wolne;
-	uint32_t								_il_seg_wolne;
+	WektWolne								_seg_wolne;
 	WektWpis<uint32_t>						_seg_do_usun;
 };
 template<class T, class H>
-WektZachSeg<T,H>::WektZachSeg()
+WektZachSegPodst<T,H>::WektZachSegPodst()
 	: _tab_rob((T*)malloc(_il_rezerw*_rozm_el)),
-	_seg_wolne((uint32_t*)malloc(_il_rezerw*4)),
-	_il_seg_wolne(0) {
-	for(uint32_t i = 0; i < _il_rezerw; ++i) {
-		_seg_wolne[i] = _il_rezerw-1-i;
-	}
+	_seg((Segment_*)malloc(_il_rezerw*sizeof(Segment_))) {
 }
 template<class T, class H>
-WektZachSeg<T,H>::~WektZachSeg() {
+WektZachSegPodst<T,H>::~WektZachSegPodst() {
 	free(_tab_rob);
 	free(_seg);
-	free(_seg_wolne);
 }
 template<class T, class H>
-T* WektZachSeg<T,H>::operator[](uint32_t const& nr) const {
+T* WektZachSegPodst<T,H>::operator[](uint32_t const& nr) const {
 	if(_seg[nr].drug == 0) return 0;
-
 	return &_tab[_seg[nr].pierw];
 }
+template<class T, class H>
+void WektZachSegPodst<T,H>::usun_zbierz(uint32_t const& nr) {
+	if(_seg[nr].drug == 0) return;
+	_seg_do_usun.wstaw_kon(nr);
+}
+template<class T, class H>
+WektWpis<uint32_t> const& WektZachSegPodst<T,H>::wez_do_usun() const {
+	return _seg_do_usun;
+}
+template<class T, class H>
+Para<uint32_t, uint32_t> const& WektZachSegPodst<T,H>::wez_seg(uint32_t const& nr) const {
+	return _seg[nr];
+}
+// -------------------------------------------------------
+template<class T, class H = FunHasz<T>>
+class WektZachSeg : public WektZachSegPodst<T,H> {
+public:
+	void									rezerwuj(uint32_t const&);
+	uint32_t								wstaw_kon(
+												T const*const&, uint32_t const&);
+	void									usun_wyk();
+};
 template<class T, class H>
 void WektZachSeg<T,H>::rezerwuj(uint32_t const& il) {
 	if(il <= _il_rezerw) return;
 
-	uint32_t* pam1 = (uint32_t*)malloc(il*4);
-	uint32_t il_nowych = il-_il_rezerw;
-	memmove(pam1+il_nowych, _seg_wolne, _il_seg_wolne*4);
-	free(_seg_wolne);
-	_seg_wolne = pam1;
-	_il_seg_wolne += il_nowych;
-	for(uint32_t i = 0; i < il_nowych; ++i) {
-		_seg_wolne[i] = il-1-i;
-	}
-
-	WektorPodstawa::rezerwuj(il);
-	_seg_do_usun.rezerwuj(il);
+	_seg_wolne.rezerwuj(il);
 
 	free(_tab_rob);
 	_tab_rob = (T*)malloc(il*_rozm_el);
 
-	Segment* pam2 = (Segment*)malloc(il*sizeof(Segment));
-	memmove(pam2, _seg, (il-_il_seg_wolne)*sizeof(Segment));
+	Segment_* pam2 = (Segment_*)malloc(il*sizeof(Segment_));
+	memmove(pam2, _seg, _il_rezerw*sizeof(Segment_));
 	free(_seg);
 	_seg = pam2;
+
+	WektPodst::rezerwuj(il);
+	_seg_do_usun.rezerwuj(il);
 }
 template<class T, class H>
-void WektZachSeg<T,H>::usun_wykonaj() {
+void WektZachSeg<T,H>::usun_wyk() {
 	if(_seg_do_usun.wez_il() == 0) return;
 
 	_seg_do_usun.uloz_unikat();
@@ -299,7 +354,7 @@ void WektZachSeg<T,H>::usun_wykonaj() {
 
 		// usuń segment
 		_seg[_seg_do_usun[i]].drug = 0;
-		_seg_wolne[_il_seg_wolne++] = _seg_do_usun[i];
+		_seg_wolne.wstaw(_seg_do_usun[i]);
 	}
 	_seg_do_usun.czysc();
 	_il = ind2;
@@ -315,31 +370,19 @@ void WektZachSeg<T,H>::usun_wykonaj() {
 	_tab_rob = wsk;
 }
 template<class T, class H>
-void WektZachSeg<T,H>::usun_zbierz(uint32_t const& nr) {
-	if(_seg[nr].drug == 0) return;
-
-	_seg_do_usun.wstaw_kon(nr);
-}
-template<class T, class H>
-WektWpis<uint32_t> const& WektZachSeg<T,H>::wez_do_usun() const {
-	return _seg_do_usun;
-}
-template<class T, class H>
-Para<uint32_t,uint32_t> const& WektZachSeg<T,H>::wez_seg(uint32_t const& nr) const {
-	return _seg[nr];
-}
-template<class T, class H>
 uint32_t WektZachSeg<T,H>::wstaw_kon(T const*const& t, uint32_t const& il = 1) {
 	while(_il+il > _il_rezerw) {
 		rezerwuj(_il_rezerw*2);
 	}
-	_seg[_seg_wolne[_il_seg_wolne-1]] = {_il, il};
+	_seg[_seg_wolne.wez()] = {_il, il};
 	for(uint32_t i = 0; i < il; ++i) {
 		_tab[_il++] = t[i];
 	}
-	return _seg_wolne[--_il_seg_wolne];
+	return _seg_wolne.usun();
 }
 // -------------------------------------------------------
+
+
 
 
 

@@ -1,9 +1,15 @@
 ﻿#pragma once
 
 #include <stdint.h>
-#include <wektor.h>
+#include <wekt.h>
+#include <d3d11.h>
+#include <DirectXMath.h>
+#include <zasobyGraf.h>
+
+using namespace DirectX;
 
 class Obiekty3w {
+	friend class Grafika;
 	typedef Para<ID3D11ShaderResourceView*, uint32_t>		TeksturaDane_;
 public:
 										Obiekty3w();
@@ -11,25 +17,19 @@ public:
 											XMFLOAT3*, XMFLOAT2*,
 											uint32_t const&,
 											DWORD*, uint32_t const&,
-											string const&);
+											uint32_t const&);
 	void								usun_zbierz(uint32_t const&);
-	void								usun_wykonaj();
-	void								aktual_buf() const;
+	void								usun_wyk();
 private:
-	char const*							wez_sciezka_tekstura(
+	char const*							wez_sciez_teks(
 											uint32_t const&) const;
 	Wekt<uint32_t>						_nr;
 	WektZachSeg<XMFLOAT3>				_wierz;
-	ID3D11Buffer*						_wierz_buf;
-	WektZachSeg<XMFLOAT2>				_tekstury_wsp;
-	ID3D11Buffer*						_tekstury_wsp_buf;
-	WektZachSeg<uint32_t>				_tekstury_mapa;
-	TeksturaDane_*const					_tekstury_dane;
+	WektZachSeg<XMFLOAT2>				_wierz_teks;
+	WektZachSeg<uint32_t>				_teks_mapa;
+	TeksturaDane_*const					_teks_dane;
 	WektZachSeg<DWORD>					_ind;
-	ID3D11Buffer*						_ind_buf;
-	WektZachSeg<XMFLOAT4X4>				_mac_swiat;
-	WektZachSeg<XMFLOAT4X4>				_mac_widok;
-	WektZachSeg<XMFLOAT4X4>				_mac_proj;
+	WektZachSeg<XMFLOAT3>				_przes;
 };
 
 

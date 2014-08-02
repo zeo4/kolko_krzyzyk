@@ -7,15 +7,15 @@
 #include "obiektyGra.h"
 
 class Logika {
-	Obiekt3w*		obiektKursor;
-	IObiekt*		obiektWybrany;
+	//Obiekt3w*		obiektKursor;
+	//IObiekt*		obiektWybrany;
 	Swiat			swiat;
-	Wejscie			wejscie;
-	void			uwzglWejscie();
+	//Wejscie			wejscie;
+	//void			uwzglWejscie();
 public:
 					Logika(HINSTANCE const);
-	void			inic3W();
-	void			inicScena();
+	void			inic();
+	//void			inicScena();
 	void			tworzKolejnaKlatka();
 };
 

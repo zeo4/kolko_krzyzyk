@@ -5,6 +5,7 @@
 #include "obiekty.h"
 #include "listaObiekty.h"
 #include "drzewo8.h"
+#include <grafika.h>
 
 class Swiat {
 private:
@@ -37,15 +38,17 @@ private:
 	void				wezBlizszaPlaszczyzna(float* const) const;
 	void				wezPozKamera(XMVECTOR* const) const;
 public:
-						Swiat();
-						~Swiat();
-	void				dodaj(IObiekt* const);
-	Obiekt3w*			tworzObiektKursor();
-	IObiekt*			tworzObiektRycerz();
-	IObiekt*			tworzObiektSmok();
-	void				wezObPromien(IObiekt** const, Obiekt3w const* const) const;
+						//Swiat();
+						//~Swiat();
+	void				inic();
+	void				wgraj_ob();
+	//void				dodaj(IObiekt* const);
+	//void				wezObPromien(IObiekt** const, Obiekt3w const* const) const;
 	void				wykonajFizyka();
-	void				wykonajGrafika();
+	void				rysuj();
+private:
+	Obiekty3w			_ob;
+	Grafika				_graf;
 };
 
 

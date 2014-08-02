@@ -46,9 +46,7 @@ void Wejscie::ustawMysz() const {
 	wynik = mysz->Acquire();
 	SprawdzWynik(wynik, "Rezerwacja myszy.");
 }
-Wejscie::Wejscie(
-	HINSTANCE const		uchwyt
-	) : klawiatura(NULL), mysz(NULL), uchAplikacji(uchwyt), wejscie(NULL)
+Wejscie::Wejscie(HINSTANCE const uchwyt) : klawiatura(NULL), mysz(NULL), uchAplikacji(uchwyt), wejscie(NULL)
 	{
 	inicjalizuj();
 }
@@ -70,10 +68,7 @@ Wejscie::~Wejscie() {
 	}
 	logi.pisz_stop("STOP", "Niszczenie kontrolerow.");
 }
-void Wejscie::wez(
-	BYTE* const				stanKlawiatura,
-	DIMOUSESTATE* const		stanMysz
-	) {
+void Wejscie::wez(BYTE* const stanKlawiatura, DIMOUSESTATE* const stanMysz) {
 	klawiatura->GetDeviceState(sizeof(BYTE)*256, (LPVOID)stanKlawiatura);
 	mysz->GetDeviceState(sizeof(DIMOUSESTATE), stanMysz);
 }

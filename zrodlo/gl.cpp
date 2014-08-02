@@ -6,7 +6,7 @@
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
-//#include <wektor.h>
+#include <wekt.h>
 
 // test
 HINSTANCE		uchAp;
@@ -37,8 +37,7 @@ void PetlaWiad() {
 	MSG wiad;
 
 	Logika logika(uchAp);
-	logika.inic3W();
-	logika.inicScena();
+	logika.inic();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -137,3 +136,5 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // WektorSeg: Wpisywać do wolnych segmentów idąc od początku tablicy _seg.
+// Obiekty3w::usun_wykonaj: źle usuwa.
+// Obiekty3w::tworz_ob: czemu nie widzi domyślnego parametru.

@@ -5,38 +5,9 @@
 #include "grafika.h"
 #include "drzewo8.h"
 
-Swiat::Swiat() {
-	logi.pisz_start("--->", "Tworzenie swiata.");
-
-	pozKamera = XMFLOAT3(+0.0f, +0.0f, -0.5f);
-	celKamera = XMFLOAT3(+0.0f, +0.0f, +0.0f);
-	goraKamera = XMFLOAT3(+0.0f, +1.0f, +0.0f);
-	aktualizujMacWidok();
-
-	katProjekcja = 90;
-	odlBlizszaPlaszcz = 0.5f;
-	odlDalszaPlaszcz = 100.0f;
-	aktualizujMacProjekcja();
-
-	logi.pisz_stop("<---", "Tworzenie swiata.");
-}
+/*
 Swiat::~Swiat() {
 	niszczObiektySwiat();
-}
-void Swiat::aktualizujMacProjekcja() {
-	XMStoreFloat4x4(&macProjekcja, XMMatrixPerspectiveFovLH(
-		katProjekcja*3.14f/180,
-		float(szerRend)/wysRend,
-		odlBlizszaPlaszcz,
-		odlDalszaPlaszcz
-	));
-}
-void Swiat::aktualizujMacWidok() {
-	XMVECTOR w1 = XMLoadFloat3(&pozKamera);
-	XMVECTOR w2 = XMLoadFloat3(&celKamera);
-	XMVECTOR w3 = XMLoadFloat3(&goraKamera);
-
-	XMStoreFloat4x4(&macWidok, XMMatrixLookAtLH(w1, w2, w3));
 }
 void Swiat::aktualizujSasiedzi() {
 	//logi.pisz("  #", "");
@@ -70,36 +41,49 @@ void Swiat::niszczObiektySwiat() {
 	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ) {
 		niszczObiektSwiat(*it++);
 	}
+}*/
+void Swiat::inic() {
+	_graf.przypisz(&_ob);
+	wgraj_ob();
+	_graf.wyk_raz();
 }
-Obiekt3w* Swiat::tworzObiektKursor() {
-	Wierzcholek wierzcholki[] = {
-		Wierzcholek(+0.0f, -0.2f, +0.0f, +0.0f, +1.0f),
-		Wierzcholek(+0.0f, +0.0f, +0.0f, +0.5f, +0.0f),
-		Wierzcholek(+0.2f, -0.0f, +0.0f, +1.0f, +1.0f),
+void Swiat::rysuj() {
+	_graf.czysc();
+	_graf.wyk_co_klatka();
+}
+void Swiat::wgraj_ob() {
+	// kursor
+	XMFLOAT3 kurs_wierz[] = {
+		XMFLOAT3(+0.0f, -0.2f, +0.0f),
+		XMFLOAT3(+0.0f, +0.0f, +0.0f),
+		XMFLOAT3(+0.2f, -0.0f, +0.0f),
 	};
-	DWORD indeksy[] = {
-		0, 1, 2
+	XMFLOAT2 kurs_wierz_teks[] = {
+		XMFLOAT2(+0.0f, +1.0f),
+		XMFLOAT2(+0.5f, +0.0f),
+		XMFLOAT2(+1.0f, +1.0f),
 	};
+	DWORD kurs_ind[] = {0, 1, 2};
+	_ob.tworz_ob(kurs_wierz, kurs_wierz_teks, 3, kurs_ind, 3, 1);
 
-	Obiekt3w* const ob = new Obiekt3w(
-		wierzcholki, 3,
-		indeksy, 3,
-		XMFLOAT3(0,0,0),
-		"tekstura\\t1.jpg"
-	);
-	dodaj(ob);
-	return ob;
-}
-IObiekt* Swiat::tworzObiektRycerz() {
-	Wierzcholek wierzcholki[] = {
-		Wierzcholek(-0.25f, +0.0f, -0.25f, +0.0f, +0.5f),
-		Wierzcholek(+0.25f, +0.0f, -0.25f, +0.5f, +0.5f),
-		Wierzcholek(+0.25f, +0.0f, +0.25f, +1.0f, +0.5f),
-		Wierzcholek(-0.25f, +0.0f, +0.25f, +1.0f, +1.0f),
-		Wierzcholek(+0.0f, +0.5f, +0.0f, +0.5f, +0.0f),
-		Wierzcholek(+0.0f, -0.5f, +0.0f, +0.5f, +1.0f),
+	// rycerz
+	XMFLOAT3 ryc_wierz[] = {
+		XMFLOAT3(-0.25f, +0.0f, -0.25f),
+		XMFLOAT3(+0.25f, +0.0f, -0.25f),
+		XMFLOAT3(+0.25f, +0.0f, +0.25f),
+		XMFLOAT3(-0.25f, +0.0f, +0.25f),
+		XMFLOAT3(+0.0f, +0.5f, +0.0f),
+		XMFLOAT3(+0.0f, -0.5f, +0.0f),
 	};
-	DWORD indeksy[] = {
+	XMFLOAT2 ryc_wierz_teks[] = {
+		XMFLOAT2(+0.0f, +0.5f),
+		XMFLOAT2(+0.5f, +0.5f),
+		XMFLOAT2(+1.0f, +0.5f),
+		XMFLOAT2(+1.0f, +1.0f),
+		XMFLOAT2(+0.5f, +0.0f),
+		XMFLOAT2(+0.5f, +1.0f),
+	};
+	DWORD ryc_ind[] = {
 		0, 4, 1,
 		1, 5, 0,
 		1, 4, 2,
@@ -109,60 +93,28 @@ IObiekt* Swiat::tworzObiektRycerz() {
 		3, 4, 0,
 		0, 5, 3,
 	};
+	_ob.tworz_ob(ryc_wierz, ryc_wierz_teks, 6, ryc_ind, 24, 2);
 
-	IObiekt* const ob = new Obiekt3w(
-		wierzcholki, 6,
-		indeksy, 24,
-		//XMFLOAT3(-2.0f, +0.0f, +4.0f),
-		XMFLOAT3(+0.0f, +0.0f, +0.0f),
-		"tekstura\\t2.jpg"
-	);
-	dodaj(ob);
-	return ob;
-}
-IObiekt* Swiat::tworzObiektSmok() {
-	Wierzcholek wierzcholki[] = {
-		Wierzcholek(+0.5f, -0.5f, +0.0f, +1.0f, +0.0f),
-		Wierzcholek(-0.5f, -0.5f, +0.0f, +1.0f, +1.0f),
-		Wierzcholek(-0.5f, +0.5f, +0.0f, +0.0f, +1.0f),
-		Wierzcholek(+0.5f, +0.5f, +0.0f, +0.0f, +0.0f)
+	// smok
+	XMFLOAT3 smok_wierz[] = {
+		XMFLOAT3(+0.5f, -0.5f, +0.0f),
+		XMFLOAT3(-0.5f, -0.5f, +0.0f),
+		XMFLOAT3(-0.5f, +0.5f, +0.0f),
+		XMFLOAT3(+0.5f, +0.5f, +0.0f),
 	};
-	DWORD indeksy[] = {
+	XMFLOAT2 smok_wierz_teks[] = {
+		XMFLOAT2(+1.0f, +0.0f),
+		XMFLOAT2(+1.0f, +1.0f),
+		XMFLOAT2(+0.0f, +1.0f),
+		XMFLOAT2(+0.0f, +0.0f),
+	};
+	DWORD smok_ind [] = {
 		0, 1, 2,
 		0, 2, 3
 	};
-
-	IObiekt* const ob = new Obiekt3w(
-		wierzcholki, 4,
-		indeksy, 6,
-		//XMFLOAT3(+2.0f, +0.0f, +4.0f),
-		XMFLOAT3(+0.0f, +0.0f, +0.0f),
-		"tekstura\\t1.jpg"
-	);
-	dodaj(ob);
-	return ob;
+	_ob.tworz_ob(smok_wierz, smok_wierz_teks, 4, smok_ind, 6, 1);
 }
-void Swiat::ustawBlizszaPlaszcz(float const odl) {
-	odlBlizszaPlaszcz = odl;
-}
-void Swiat::ustawCelKamera(float const x, float const y, float const z) {
-	// czwarty parametr XMVectorSet() nie używany
-	XMStoreFloat3(&celKamera, XMVectorSet(x, y, z, 0.0f));
-}
-void Swiat::ustawDalszaPlaszcz(float const odl) {
-	odlDalszaPlaszcz = odl;
-}
-void Swiat::ustawGoraKamera(float const x, float const y, float const z) {
-	// czwarty parametr XMVectorSet() nie używany
-	XMStoreFloat3(&goraKamera, XMVectorSet(x, y, z, 0.0f));
-}
-void Swiat::ustawKatProjekcja(float const kat) {
-	katProjekcja = kat;
-}
-void Swiat::ustawPozycjaKamera(float const x, float const y, float const z) {
-	// czwarty parametr XMVectorSet() nie używany
-	XMStoreFloat3(&pozKamera, XMVectorSet(x, y, z, 0.0f));
-}
+/*
 void Swiat::usunProjekcjaZ1(XMVECTOR* const pkt3W, float const x, float const y) const {
 	// współrzędne 3W przy założeniu, że z = 1 (w ten sposób usuwamy projekcję)
 	*pkt3W = XMVectorSetX(*pkt3W, x / macProjekcja._11);
@@ -186,12 +138,6 @@ void Swiat::usunWidokWektor(XMVECTOR* const wekt3W) const {
 	XMMATRIX macOdwrot = XMMatrixInverse(&w, mac);
 	// czwarty parametr wektora nie istotny, XMVector3TransformNormal() załatwia obliczenia z nim związane
 	*wekt3W = XMVector3TransformNormal(*wekt3W, macOdwrot);
-}
-void Swiat::wezBlizszaPlaszczyzna(float* const odl) const {
-	*odl = odlBlizszaPlaszcz;
-}
-void Swiat::wezPozKamera(XMVECTOR* const poz) const {
-	*poz = XMLoadFloat3(&pozKamera);
 }
 void Swiat::wezObPromien(IObiekt** const ob, Obiekt3w const* const obWybierajacy) const {
 	*ob = NULL;
@@ -235,15 +181,8 @@ void Swiat::wykonajFizyka() {
 		(*it)->wezFiz()->liczCzasKolizja();
 		(*it)->wezFiz()->liczSwiatyParam();
 	}
-}
-void Swiat::wykonajGrafika() {
-	Obiekt3w::macProjekcja = macProjekcja;
-	Obiekt3w::macWidok = macWidok;
-	ListaObiekty::const_iterator it;
-	for(it = obiektySwiat.begin(); it != obiektySwiat.end(); ++it) {
-		(*it)->wezGraf()->rysuj();
-	}
-}
+}*/
+
 
 
 
