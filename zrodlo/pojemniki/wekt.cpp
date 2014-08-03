@@ -2,6 +2,77 @@
 
 #include <wekt.h>
 
+void MenPam::licz_uloz_unikat(uint32_t*& el_ind) {
+	if(_il < 2) return;
+
+	uint32_t hasz_min, hasz_maks, il_zakres, i, il;
+	licz_zakres(hasz_min, hasz_maks);
+	il_zakres = hasz_maks - hasz_min + 1;
+	free(el_ind);
+	el_ind = (uint32_t*const)malloc(_il*4);
+	uint32_t*const hasz_ind = (uint32_t*const)malloc(il_zakres*4);
+	memset(hasz_ind, 0, il_zakres*4);
+
+	// licz hasze, oznacz policzone hasze 1-nką
+	for(i = 0; i < _il; ++i) {
+		el_ind[i] = wez_hasz(operator[](i)) - hasz_min;
+		if(hasz_ind[el_ind[i]]) {
+			el_ind[i] = -1;
+		} else {
+			hasz_ind[el_ind[i]] = 1;
+		}
+	}
+
+	// licz indeksy haszy
+	il = 0;
+	for(i = 0; i < il_zakres; ++i) {
+		if(hasz_ind[i]) {
+			hasz_ind[i] = il++;
+		}
+	}
+
+	// wpisz nowe indeksy elementów do mapy "element na indeks"
+	for(i = 0; i < _il; ++i) {
+		if(el_ind[i] != -1) {
+			el_ind[i] = hasz_ind[el_ind[i]];
+		}
+	}
+}
+void MenPam::licz_uloz(uint32_t*& el_ind) {
+	if(_il < 2) return;
+
+	uint32_t hasz_min, hasz_maks, il_zakres, i, il;
+	licz_zakres(hasz_min, hasz_maks);
+	il_zakres = hasz_maks - hasz_min + 1;
+	free(el_ind);
+	el_ind = (uint32_t*const)malloc(_il*4);
+	uint32_t*const hasz_ind = (uint32_t*const)malloc(il_zakres*4);
+	uint32_t*const hasz_powt = (uint32_t*const)malloc(il_zakres*4);
+	memset(hasz_powt, 0, il_zakres*4);
+
+	// licz hasze i ilość powtórzonych haszy
+	for(i = 0; i < _il; ++i) {
+		el_ind[i] = wez_hasz(operator[](i)) - hasz_min;
+		++hasz_powt[el_ind[i]];
+	}
+
+	// licz indeksy haszy
+	il = 0;
+	for(i = 0; i < il_zakres; ++i) {
+		if(hasz_powt[i]) {
+			hasz_ind[i] = il;
+			il += hasz_powt[i];
+		}
+	}
+
+	// licz indeksy elementów
+	memset(hasz_powt, 0, il_zakres*4);
+	uint32_t hasz;
+	for(i = 0; i < _il; ++i) {
+		hasz = el_ind[i];
+		el_ind[i] = hasz_ind[hasz] + hasz_powt[hasz]++;
+	}
+}
 void MenPam::licz_zakres(uint32_t& hasz_min, uint32_t& hasz_maks) const {
 	hasz_min = wez_hasz(operator[](0));
 	hasz_maks = wez_hasz(operator[](0));
@@ -34,69 +105,18 @@ void MenPam::rezerw_pocz(uint32_t const& il) {
 	_il_rezerw = il;
 	_il += il-_il_rezerw;
 }
-void MenPam::uloz() {
-	if(_il < 2) return;
-
-	uint32_t hasz_min, hasz_maks, il_zakres, i;
-	licz_zakres(hasz_min, hasz_maks);
-	il_zakres = hasz_maks - hasz_min +1;
-	char*const tab_nowa = (char*)malloc(_il_rezerw*_typ_rozm);
-	uint32_t*const powt = (uint32_t*)malloc(il_zakres*4);
-	uint32_t*const il_przed = (uint32_t*)malloc(il_zakres*4);
-
-	// licz powtórzone wpisy
-	ZeroMemory(powt, il_zakres*4);
-	for(i = 0; i < _il; ++i) {
-		++powt[wez_hasz(operator[](i))-hasz_min];
-	}
-
-	// licz ilość elementów przed pierwszym elementem z danego hasza
-	il_przed[0] = 0;
-	for(i = 1; i < il_zakres; ++i) {
-		il_przed[i] = il_przed[i-1] + powt[i-1];
-	}
-
-	// ustaw / ułóż poszczególne elementy
-	ZeroMemory(powt, il_zakres*4);
-	uint32_t hasz;
-	for(i = 0; i < _il; ++i) {
-		hasz = wez_hasz(operator[](i)) - hasz_min;
-		memmove(tab_nowa+(il_przed[hasz]+powt[hasz]++)*_typ_rozm, operator[](i), _typ_rozm);
-	}
-
-	free(*_p); free(powt); free(il_przed);
-	*_p = tab_nowa;
-}
-void MenPam::uloz_unikat() {
-	if(_il < 2) return;
-
-	uint32_t hasz_min, hasz_maks, il_zakres, il, i, ind;
-	licz_zakres(hasz_min, hasz_maks);
-	il_zakres = hasz_maks - hasz_min + 1;
-	char*const unikaty = (char*)malloc(il_zakres*_typ_rozm);
-	bool*const wpisane = (bool*)malloc(il_zakres);
-	ZeroMemory(wpisane, il_zakres);
-
-	// przepisz sortując / usuwając podwójne elementy
-	il = 0;
-	for(i = 0; i < _il; ++i) {
-		ind = wez_hasz(operator[](i)) - hasz_min;
-		if(wpisane[ind] == false) {
-			memmove(unikaty+ind*_typ_rozm, operator[](i), _typ_rozm);
-			wpisane[ind] = true;
+void MenPam::uloz(uint32_t const*const& el_ind) {
+	char*const pam = (char*const)malloc(_il_rezerw*_typ_rozm);
+	uint32_t il = 0;
+	for(uint32_t i = 0; i < _il; ++i) {
+		if(el_ind[i] != -1) {
+			memmove(pam+el_ind[i]*_typ_rozm, operator[](i), _typ_rozm);
 			++il;
 		}
 	}
-
-	// przepisz usuwając puste komórki
-	_il = 0;
-	for(i = 0; i < il_zakres; ++i) {
-		if(wpisane[i]) {
-			memmove(operator[](_il++), unikaty+i*_typ_rozm, _typ_rozm);
-		}
-	}
-
-	free(unikaty); free(wpisane);
+	free(*_p);
+	*_p = pam;
+	_il = il;
 }
 uint32_t MenPam::wez_hasz(char const*const& pam) const {
 	return *(uint32_t*)pam;

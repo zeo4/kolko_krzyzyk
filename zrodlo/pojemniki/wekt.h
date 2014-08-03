@@ -18,8 +18,9 @@ public:
 	inline char*		usun_kon();
 	inline void			czysc();
 	void				zamien(uint32_t const&, uint32_t const&);
-	void				uloz();
-	void				uloz_unikat();
+	void				licz_uloz_unikat(uint32_t*&);
+	void				licz_uloz(uint32_t*&);
+	void				uloz(uint32_t const*const&);
 private:
 	inline uint32_t		wez_hasz(char const*const&) const;
 	void				licz_zakres(uint32_t&, uint32_t&) const;
