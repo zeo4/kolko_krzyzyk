@@ -138,3 +138,6 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // WektorSeg: Wpisywać do wolnych segmentów idąc od początku tablicy _seg.
 // Obiekty3w::usun_wykonaj: źle usuwa.
 // Obiekty3w::tworz_ob: czemu nie widzi domyślnego parametru.
+// char* PamMen::usun_kon() <-- Jak tutaj obsługiwać uchwyty?
+
+

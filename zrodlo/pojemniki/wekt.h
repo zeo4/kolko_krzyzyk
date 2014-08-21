@@ -3,48 +3,380 @@
 #include <stdint.h>
 #include <operatory.h>
 #include <windows.h>
+#include <bitset>
+
+using std::bitset;
 
 // -------------------------------------------------------
-class MenPam {
+template<class T>
+class Wek {
 public:
-	char**				_p;
-	uint32_t			_typ_rozm;
-	uint32_t			_il;
-	uint32_t			_il_rezerw;
-	inline char*		operator[](uint32_t const&) const;
-	void				rezerw_kon(uint32_t const&);
-	void				rezerw_pocz(uint32_t const&);
-	inline void			wstaw_kon(void*const&);
-	inline char*		usun_kon();
-	inline void			czysc();
-	void				zamien(uint32_t const&, uint32_t const&);
-	void				licz_uloz_unikat(uint32_t*&);
-	void				licz_uloz(uint32_t*&);
-	void				uloz(uint32_t const*const&);
-private:
-	inline uint32_t		wez_hasz(char const*const&) const;
-	void				licz_zakres(uint32_t&, uint32_t&) const;
+									Wek();
+									~Wek();
+	inline T&						operator[](uint32_t const&) const;
+	void							rezerw_tyl(uint32_t const&);
+	void							rezerw_przod(uint32_t const&);
+	inline void						wstaw_kon(T const&, uint32_t const& = 1);
+	void							usun(uint32_t const&, uint32_t const& = 1);
+	inline T&						usun_kon();
+	inline void						czysc();
+	inline uint32_t const&			wez_il() const;
+	inline uint32_t const&			wez_poj() const;
+	inline void						zamien(uint32_t const&, uint32_t const&);
+	void							pakuj();
+	void							licz_uloz(uint32_t*&) const;
+	void							licz_uloz_unikat(uint32_t*&) const;
+	void							uloz(uint32_t const*const&);
+protected:
+	inline uint32_t					wez_hasz(T const&) const;
+	void							licz_zakres(uint32_t&, uint32_t&) const;
+	bool							czy_pusty(T const&) const;
+	T*								el;
+	uint32_t						el_il;
+	uint32_t						el_poj;
 };
-char* MenPam::operator[](uint32_t const& nr) const {
-	if(_il == 0) return 0;
-	return (*_p) + nr * _typ_rozm;
+template<class T>
+Wek<T>::Wek()
+	: el((T*)malloc(256*sizeof(T))),
+	el_il(0),
+	el_poj(256) {}
+template<class T>
+Wek<T>::~Wek() {
+	free(el);
 }
-void MenPam::czysc() {
-	_il = 0;
+template<class T>
+T& Wek<T>::operator[](uint32_t const& _nr) const {
+	return el[_nr];
 }
-char* MenPam::usun_kon() {
-	return (*_p)+(--_il)*_typ_rozm;
+template<class T>
+bool Wek<T>::czy_pusty(T const& _el) const {
+	return !memcmp(&_el, &pusty, sizeof(T));
 }
-void MenPam::wstaw_kon(void*const& pam) {
-	if(_il == _il_rezerw) rezerw_kon(_il_rezerw*2);
-	memmove((*_p)+(_il++)*_typ_rozm, pam, _typ_rozm);
+template<class T>
+void Wek<T>::czysc() {
+	el_il = 0;
+}
+template<class T>
+void Wek<T>::licz_uloz(uint32_t*& _el_ind) const {
+	if(el_il < 2) return;
+	uint32_t _i;
+
+	// licz zakres haszy
+	uint32_t _hasz_min, _hasz_maks, _il_zakres;
+	licz_zakres(_hasz_min, _hasz_maks);
+	_il_zakres = _hasz_maks - _hasz_min + 1;
+
+	// licz hasze elementów i ich powtórzenia
+	free(_el_ind);
+	_el_ind = (uint32_t*)malloc(el_il*4);
+	uint32_t* _hasz_powt = (uint32_t*)malloc(_il_zakres*4);
+	memset(_hasz_powt, 0, _il_zakres*4);
+	for(_i = 0; _i < el_il; ++_i) {
+		_el_ind[_i] = wez_hasz(el[_i]) - _hasz_min;
+		++_hasz_powt[_el_ind[_i]];
+	}
+
+	// licz indeksy haszy
+	uint32_t* _hasz_ind = (uint32_t*)malloc(_il_zakres*4);
+	uint32_t _ind = 0;
+	for(_i = 0; _i < _il_zakres; ++_i) {
+		_hasz_ind[_i] = _ind;
+		_ind += _hasz_powt[_i];
+	}
+
+	// licz indeksy elementów
+	memset(_hasz_powt, 0, _il_zakres*4);
+	uint32_t _hasz;
+	for(_i = 0; _i < el_il; ++_i) {
+		_hasz = _el_ind[_i];
+		_el_ind[_i] = _hasz_ind[_hasz] + _hasz_powt[_hasz];
+		++_hasz_powt[_hasz];
+	}
+}
+template<class T>
+void Wek<T>::licz_uloz_unikat(uint32_t*& _el_ind) const {
+	if(el_il < 2) return;
+	uint32_t _i;
+
+	// licz zakres haszy
+	uint32_t _hasz_min, _hasz_maks, _il_zakres;
+	licz_zakres(_hasz_min, _hasz_maks);
+	_il_zakres = _hasz_maks - _hasz_min + 1;
+
+	// licz / oznacz hasze elementów, nie-hasze to -1
+	free(_el_ind);
+	_el_ind = (uint32_t*)malloc(el_il*4);
+	uint32_t* _hasz_ind = (uint32_t*)malloc(_il_zakres*4);
+	memset(_hasz_ind, -1, _il_zakres*4);
+	for(_i = 0; _i < el_il; ++_i) {
+		_el_ind[_i] = wez_hasz(el[_i]) - _hasz_min;
+		_hasz_ind[_el_ind[_i]] = 1;
+	}
+
+	// licz indeksy haszy
+	uint32_t _ind = 0;
+	for(_i = 0; _i < _il_zakres; ++_i) {
+		if(_hasz_ind[_i] != -1) {
+			_hasz_ind[_i] = _ind++;
+		}
+	}
+
+	// licz indeksy elementów
+	for(_i = 0; _i < el_il; ++_i) {
+		_el_ind[_i] = _hasz_ind[_el_ind[_i]];
+	}
+}
+template<class T>
+void Wek<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
+	_hasz_min = wez_hasz(el[0]);
+	_hasz_maks = _hasz_min;
+	uint32_t _hasz;
+	for(uint32_t _i = 1; _i < el_il; ++_i) {
+		_hasz = wez_hasz(el[_i]);
+		if(_hasz < _hasz_min) {
+			_hasz_min = _hasz;
+		} else if(_hasz > _hasz_maks) {
+			_hasz_maks = _hasz;
+		}
+	}
+}
+template<class T>
+void Wek<T>::pakuj() {
+	uint32_t _ind = 0;
+	T const _pusty = gen_min<T>();
+
+	for(int32_t _i = 0; _i < el_il; ++_i) {
+		if(el[_i] == _pusty) continue;
+		el[_ind++] = el[_i];
+	}
+	el_il = _ind;
+}
+template<class T>
+void Wek<T>::rezerw_przod(uint32_t const& _poj) {
+	if(_poj <= el_poj) return;
+
+	T*const _el = (T*const)malloc(_poj*sizeof(T));
+	memmove(_el+_poj-el_poj, el, el_poj*sizeof(T));
+	free(el);
+	el = _el;
+	el_il += _poj - el_poj;
+	el_poj = _poj;
+}
+template<class T>
+void Wek<T>::rezerw_tyl(uint32_t const& _poj) {
+	if(_poj <= el_poj) return;
+
+	T*const _el = (T*const)malloc(_poj*sizeof(T));
+	memmove(_el, el, el_poj*sizeof(T));
+	free(el);
+	el = _el;
+	el_poj = _poj;
+}
+template<class T>
+void Wek<T>::uloz(uint32_t const*const& _el_ind) {
+	T*const _el = (T*const)malloc(el_poj*sizeof(T));
+	T const _pusty = gen_min<T>();
+	wyp_pam<T>(_el, _pusty, el_poj);
+	uint32_t _el_il = 0;
+	for(int32_t _i = el_il-1; _i > -1; --_i) {
+		if(_el[_el_ind[_i]] == _pusty){
+			++_el_il;
+		}
+		_el[_el_ind[_i]] = el[_i];
+	}
+	free(el);
+	el = _el;
+	el_il = _el_il;
+}
+template<class T>
+void Wek<T>::usun(uint32_t const& _nr, uint32_t const& _il) {
+	wyp_pam<T>(&el[_nr], gen_min<T>(), _il);
+}
+template<class T>
+T& Wek<T>::usun_kon() {
+	return el[--el_il];
+}
+template<class T>
+uint32_t Wek<T>::wez_hasz(T const& _el) const {
+	return *(uint32_t*)&_el;
+}
+template<class T>
+uint32_t const& Wek<T>::wez_il() const {
+	return el_il;
+}
+template<class T>
+uint32_t const& Wek<T>::wez_poj() const {
+	return el_poj;
+}
+template<class T>
+void Wek<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
+	while(el_il+_il > el_poj) rezerw_tyl(el_poj*2);
+	memmove(&el[el_il], &_el, _il*sizeof(T));
+	el_il += _il;
+}
+template<class T>
+void Wek<T>::zamien(uint32_t const& _nr1, uint32_t const& _nr2) {
+	T el_rob = el[_nr1];
+	el[_nr1] = el[_nr2];
+	el[_nr2] = el_rob;
 }
 // -------------------------------------------------------
-template<class A, class B>
+template<class T>
+class WekStos : protected Wek<T> {
+public:
+	inline void		rezerw(uint32_t const&);
+	inline void		wstaw(T const&, uint32_t const& = 0);
+	inline T&		usun();
+	inline T&		wez() const;
+};
+template<class T>
+void WekStos<T>::rezerw(uint32_t const& _poj) {
+	Wek::rezerw_przod(_poj);
+}
+template<class T>
+T& WekStos<T>::usun() {
+	return Wek::usun_kon();
+}
+template<class T>
+T& WekStos<T>::wez() const {
+	return Wek::operator[](el_il-1);
+}
+template<class T>
+void WekStos<T>::wstaw(T const& _el, uint32_t const& _il) {
+	Wek::wstaw_kon(_el, _il);
+}
+// -------------------------------------------------------
+class ListaWolne : public WekStos<uint32_t> {
+public:
+								ListaWolne();
+	void						rezerw(uint32_t const&);
+	inline uint32_t const&		wez_il() const;
+	inline uint32_t const&		wez_poj() const;
+};
+uint32_t const& ListaWolne::wez_il() const {
+	return Wek::wez_il();
+}
+uint32_t const& ListaWolne::wez_poj() const {
+	return Wek::wez_poj();
+}
+// -------------------------------------------------------
+template<class T>
+class WekPula {
+public:
+								WekPula();
+								~WekPula();
+	inline T&					operator[](uint32_t const&) const;
+	void						rezerw(uint32_t const&);
+	inline uint32_t				wstaw(T const&);
+	inline void					usun(uint32_t const&);
+	inline uint32_t const&		wez_poj() const;
+protected:
+	T*							el;
+	ListaWolne					el_wolne;
+};
+template<class T>
+WekPula<T>::WekPula() 
+	: el((T*)malloc(256*sizeof(T))) {}
+template<class T>
+WekPula<T>::~WekPula() {
+	free(el);
+}
+template<class T>
+T& WekPula<T>::operator[](uint32_t const& _nr) const {
+	return el[_nr];
+}
+template<class T>
+void WekPula<T>::rezerw(uint32_t const& _poj) {
+	if(_poj <= el_wolne.wez_poj()) return;
+
+	T*const _el = (T*const)malloc(_poj*sizeof(T));
+	memmove(_el, el, el_wolne.wez_poj()*sizeof(T));
+	free(el);
+	el = _el;
+
+	el_wolne.rezerw(_poj);
+}
+template<class T>
+void WekPula<T>::usun(uint32_t const& _nr) {
+	if(_nr >= el_poj) return;
+	if(el[_nr] == gen_min<T>()) return;
+	el[_nr] = gen_min<T>();
+	el_wolne.wstaw(_nr);
+}
+template<class T>
+uint32_t const& WekPula<T>::wez_poj() const {
+	return el_wolne.wez_poj();
+}
+template<class T>
+uint32_t WekPula<T>::wstaw(T const& _el) {
+	if(el_wolne.wez_il() == 0) rezerw(el_wolne.wez_poj()*2);
+	el[el_wolne.wez()] = _el;
+	return el_wolne.usun();
+}
+// -------------------------------------------------------
+template<class A, class B = A>
 struct Para {
 	A		pierw;
 	B		drug;
 };
+// -------------------------------------------------------
+template<class T>
+class WekUch {
+public:
+	inline T&					operator[](uint32_t const&) const;
+	inline void					rezerw(uint32_t const&);
+	inline uint32_t				wstaw_kon(T const&, uint32_t const& = 1);
+	inline void					usun(uint32_t const&);
+	void						pakuj();
+protected:
+	WekPula<Para<uint32_t>>		seg;
+	Wek<T>						el;
+};
+template<class T>
+T& WekUch<T>::operator[](uint32_t const& _nr) const {
+	return el[seg[_nr].pierw];
+}
+template<class T>
+void WekUch<T>::pakuj() {
+	int32_t _i;
+
+	// licz przesunięcia elementów
+	int32_t*const _przes = (int32_t*const)malloc(el_il*4);
+	int32_t _przes_akt = 0;
+	T const _el_pusty = gen_min<T>();
+	for(_i = 0; _i < el_il; ++_i) {
+		if(el[_i] == _el_pusty) {
+			++_przes_akt;
+		} else {
+			_przes[_i] = _przes_akt;
+		}
+	}
+
+	// pakuj elementy
+	el.pakuj();
+
+	// aktualizuj segmenty
+	Para<uint32_t>const _seg_pusty = gen_min<Para<uint32_t>>();
+	for(_i = 0; _i < seg.wez_poj(); ++_i) {
+		if(seg[_i] == _seg_pusty) continue;
+		seg[_i].pierw -= _przes[seg[_i].pierw];
+	}
+}
+template<class T>
+void WekUch<T>::rezerw(uint32_t const& _poj) {
+	seg.rezerw(_il);
+	el.rezerw_tyl(_il);
+}
+template<class T>
+void WekUch<T>::usun(uint32_t const& _nr) {
+	el.usun(seg[_nr].pierw, seg[_nr].drug);
+	seg[_nr] = gen_min<Para<uint32_t>>();
+}
+template<class T>
+uint32_t WekUch<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
+	el.wstaw_kon(_el, _il);
+	return seg.wstaw({el.wez_il()-1, _il});
+}
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
 class WektPodst {
@@ -242,7 +574,7 @@ void WektStos<T,H>::wstaw(T const& el) {
 	}
 	_tab[_il++] = el;
 }
-// =======================================================
+// -------------------------------------------------------
 class WektWolne
 	: public WektStos<uint32_t> {
 public:
@@ -262,7 +594,7 @@ protected:
 template<class T, class H = FunHasz<T>>
 class WektZachSegPodst : public WektPodst<T,H> {
 protected:
-	typedef Para<uint32_t, uint32_t>		Segment_;
+	typedef Para<uint32_t>		Segment_;
 public:
 											WektZachSegPodst();
 											~WektZachSegPodst();
@@ -301,12 +633,13 @@ WektWpis<uint32_t> const& WektZachSegPodst<T,H>::wez_do_usun() const {
 	return _seg_do_usun;
 }
 template<class T, class H>
-Para<uint32_t, uint32_t> const& WektZachSegPodst<T,H>::wez_seg(uint32_t const& nr) const {
+Para<uint32_t> const& WektZachSegPodst<T,H>::wez_seg(uint32_t const& nr) const {
 	return _seg[nr];
 }
 // -------------------------------------------------------
 template<class T, class H = FunHasz<T>>
-class WektZachSeg : public WektZachSegPodst<T,H> {
+class WektZachSeg
+	: public WektZachSegPodst<T,H> {
 public:
 	void									rezerwuj(uint32_t const&);
 	uint32_t								wstaw_kon(
@@ -330,6 +663,7 @@ void WektZachSeg<T,H>::rezerwuj(uint32_t const& il) {
 	WektPodst::rezerwuj(il);
 	_seg_do_usun.rezerwuj(il);
 }
+// =======================================================
 template<class T, class H>
 void WektZachSeg<T,H>::usun_wyk() {
 	if(_seg_do_usun.wez_il() == 0) return;
