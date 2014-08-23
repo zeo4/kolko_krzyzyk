@@ -26,9 +26,13 @@ T gen_min() {
 	_bity.set(sizeof(T)*8-1);
 	return rzut_bity<T>(_bity);
 }
+template<class T>
+uint32_t wez_hasz(T const& _el) {
+	return *(uint32_t*)&_el;
+}
 // -------------------------------------------------------
 template<class T>
-void wyp_pam(T*const& pam, T const& _wart, uint32_t const& _il) {
+void wyp_pam(T*const& _pam, T const& _wart, uint32_t const& _il) {
 	for(int32_t _i = 0; _i < _il; ++_i) {
 		memmove(_pam+_i, &_wart, sizeof(T));
 	}

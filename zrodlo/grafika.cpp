@@ -44,26 +44,26 @@ Grafika::~Grafika() {
 void Grafika::aktual_ind_buf() {
 	D3D11_BUFFER_DESC buf_opis;
 	_ind_buf->GetDesc(&buf_opis);
-	if(_ob->_ind.wez_il()*sizeof(XMFLOAT2) > buf_opis.ByteWidth) {
-		tworz_buf<DWORD>(_karta, _ind_buf, _ob->_ind.wez_il(), D3D11_BIND_INDEX_BUFFER);
+	if(_ob->ind.wez_il()*sizeof(XMFLOAT2) > buf_opis.ByteWidth) {
+		tworz_buf<DWORD>(_karta, _ind_buf, _ob->ind.wez_il(), D3D11_BIND_INDEX_BUFFER);
 	}
-	_rend->UpdateSubresource(_ind_buf, 0, 0, _ob->_ind[0], 0, 0);
+	_rend->UpdateSubresource(_ind_buf, 0, 0, &_ob->ind[0], 0, 0);
 }
 void Grafika::aktual_wierz_buf() {
 	D3D11_BUFFER_DESC buf_opis;
 	_wierz_buf->GetDesc(&buf_opis);
-	if(_ob->_wierz.wez_il()*sizeof(XMFLOAT3) > buf_opis.ByteWidth) {
-		tworz_buf<XMFLOAT3>(_karta, _wierz_buf, _ob->_wierz.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	if(_ob->wierz.wez_il()*sizeof(XMFLOAT3) > buf_opis.ByteWidth) {
+		tworz_buf<XMFLOAT3>(_karta, _wierz_buf, _ob->wierz.wez_il(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	_rend->UpdateSubresource(_wierz_buf, 0, 0, _ob->_wierz[0], 0, 0);
+	_rend->UpdateSubresource(_wierz_buf, 0, 0, &_ob->wierz[0], 0, 0);
 }
 void Grafika::aktual_wierz_teks_buf() {
 	D3D11_BUFFER_DESC buf_opis;
 	_wierz_teks_buf->GetDesc(&buf_opis);
-	if(_ob->_wierz_teks.wez_il()*sizeof(XMFLOAT2) > buf_opis.ByteWidth) {
-		tworz_buf<XMFLOAT2>(_karta, _wierz_teks_buf, _ob->_wierz_teks.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	if(_ob->wierz_teks.wez_il()*sizeof(XMFLOAT2) > buf_opis.ByteWidth) {
+		tworz_buf<XMFLOAT2>(_karta, _wierz_teks_buf, _ob->wierz_teks.wez_il(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	_rend->UpdateSubresource(_wierz_teks_buf, 0, 0, _ob->_wierz_teks[0], 0, 0);
+	_rend->UpdateSubresource(_wierz_teks_buf, 0, 0, &_ob->wierz_teks[0], 0, 0);
 }
 void Grafika::czysc() const {
 	FLOAT const kolor[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -193,8 +193,8 @@ void Grafika::ustaw_proj_kat(float const& kat) {
 }
 void Grafika::wiaz_wierz_buf() {
 	ID3D11Buffer* wierz_buf[] = {_wierz_buf, _wierz_teks_buf};
-	uint32_t kroki[] = {_ob->_wierz.wez_rozm_el(), _ob->_wierz.wez_rozm_el()};
-	uint32_t przes[] = {0, _ob->_wierz.wez_il()*_ob->_wierz.wez_rozm_el()};
+	uint32_t kroki[] = {_ob->wierz.wez_rozm(), _ob->wierz_teks.wez_rozm()};
+	uint32_t przes[] = {0, _ob->wierz.wez_il()*_ob->wierz.wez_rozm()};
 	_rend->IASetVertexBuffers(0, 2, wierz_buf, kroki, przes);
 }
 void Grafika::wyk_co_klatka() {
@@ -204,34 +204,34 @@ void Grafika::wyk_co_klatka() {
 	wiaz_wierz_buf();
 	_rend->IASetIndexBuffer(_ind_buf, DXGI_FORMAT_R32_UINT, 0);
 
-	for(uint32_t i = 0; i < _ob->_nr.wez_il(); ++i) {
-		wyk_co_ob(_ob->_nr[i]);
+	for(uint32_t i = 0; i < _ob->nr.wez_il(); ++i) {
+		wyk_co_ob(_ob->nr[i]);
 	}
 
 	_lanc_wym->Present(0, 0);
 }
 void Grafika::wyk_co_ob(uint32_t const& nr) {
 	_co_ob_dane.mac_swp = XMMatrixTranspose(
-		XMMatrixTranslation(_ob->_przes[nr]->x, _ob->_przes[nr]->y, _ob->_przes[nr]->z) *
+		XMMatrixTranslation(_ob->przes[nr].x, _ob->przes[nr].y, _ob->przes[nr].z) *
 		XMMatrixLookAtLH(XMLoadFloat3(&_kam_poz), XMLoadFloat3(&_kam_cel), XMLoadFloat3(&_kam_gora)) *
 		XMMatrixPerspectiveFovLH(_proj_kat*3.14f/180, float(szerRend)/wysRend, _proj_blizsza, _proj_dalsza)
 	);
 	_rend->UpdateSubresource(_co_ob_buf, 0, 0, &_co_ob_dane, 0, 0);
 
 	_rend->VSSetConstantBuffers(0, 1, &_co_ob_buf);
-	_rend->PSSetShaderResources(0, 1, &_ob->_teks_dane[*_ob->_teks_mapa[nr]].pierw);
-	_rend->DrawIndexed(_ob->_ind.wez_seg(nr).drug, _ob->_ind.wez_seg(nr).pierw, 0);
+	//_rend->PSSetShaderResources(0, 1, &_ob->teks[*_ob->_teks_mapa[nr]].pierw);
+	//_rend->DrawIndexed(_ob->ind.wez_seg(nr).drug, _ob->ind.wez_seg(nr).pierw, 0);
 }
 void Grafika::wyk_raz() {
 	tworz_karta_rend_lanc();
 	tworz_ob_rend_wid();
 	tworz_gleb_szab_buf_wid();
 	_rend->OMSetRenderTargets(1, &_ob_rend_wid, _gleb_szab_wid);
-	tworz_buf<XMFLOAT3>(_karta, _wierz_buf, _ob->_wierz.wez_il(), D3D11_BIND_VERTEX_BUFFER);
-	tworz_buf<XMFLOAT2>(_karta, _wierz_teks_buf, _ob->_wierz_teks.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	tworz_buf<XMFLOAT3>(_karta, _wierz_buf, _ob->wierz.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	tworz_buf<XMFLOAT2>(_karta, _wierz_teks_buf, _ob->wierz_teks.wez_il(), D3D11_BIND_VERTEX_BUFFER);
 	tworz_wierz_szad();
 	_rend->VSSetShader(_wierz_szad, 0, 0);
-	tworz_buf<DWORD>(_karta, _ind_buf, _ob->_ind.wez_il(), D3D11_BIND_INDEX_BUFFER);
+	tworz_buf<DWORD>(_karta, _ind_buf, _ob->ind.wez_il(), D3D11_BIND_INDEX_BUFFER);
 	tworz_piks_szad();
 	_rend->PSSetShader(_piks_szad, 0, 0);
 	tworz_strukt_we();

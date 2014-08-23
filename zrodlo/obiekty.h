@@ -10,26 +10,24 @@ using namespace DirectX;
 
 class Obiekty3w {
 	friend class Grafika;
-	typedef Para<ID3D11ShaderResourceView*, uint32_t>		TeksturaDane_;
+	typedef ID3D11ShaderResourceView* Teks;
 public:
-										Obiekty3w();
-	void								tworz_ob(
-											XMFLOAT3*, XMFLOAT2*,
-											uint32_t const&,
-											DWORD*, uint32_t const&,
-											uint32_t const&);
-	void								usun_zbierz(uint32_t const&);
-	void								usun_wyk();
+	//							Obiekty3w();
+	void						tworz_ob(
+									XMFLOAT3*, XMFLOAT2*,
+									uint32_t const&,
+									DWORD*, uint32_t const&,
+									uint32_t const&);
+	//void						usun(uint32_t const&);
+	//void						pakuj();
 private:
-	char const*							wez_sciez_teks(
-											uint32_t const&) const;
-	Wekt<uint32_t>						_nr;
-	WektZachSeg<XMFLOAT3>				_wierz;
-	WektZachSeg<XMFLOAT2>				_wierz_teks;
-	WektZachSeg<uint32_t>				_teks_mapa;
-	TeksturaDane_*const					_teks_dane;
-	WektZachSeg<DWORD>					_ind;
-	WektZachSeg<XMFLOAT3>				_przes;
+	//char const*					wez_sciez_teks(uint32_t const&) const;
+	Wek<uint32_t>				nr;
+	WekSegPula<XMFLOAT3>		wierz;
+	WekSegPula<XMFLOAT2>		wierz_teks;
+	WekSegLuz<Teks>				teks;
+	WekSegPula<DWORD>			ind;
+	WekSegPula<XMFLOAT3>		przes;
 };
 
 
