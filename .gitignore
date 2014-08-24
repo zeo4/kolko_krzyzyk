@@ -1,3 +1,6 @@
+Debug
+schemes
+projekt
 kolko_krzyzyk.opensdf
 kolko_krzyzyk.sdf
 kolko_krzyzyk.sln
@@ -5,8 +8,6 @@ kolko_krzyzyk.v12.suo
 kolko_krzyzyk.vcxproj
 kolko_krzyzyk.vcxproj.filters
 kolko_krzyzyk.vcxproj.user
-schemes
-Debug
 zrodlo/b.bat
 zrodlo/c.bat
 zrodlo/kolko_krzyzyk.exe
