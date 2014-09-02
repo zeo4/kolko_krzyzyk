@@ -6,10 +6,10 @@
 
 #include <wielozbior_hasz_lin.h>
 #include <zbior_hasz_lin.h>
-#include <wekt.h>
+#include <wektor.h>
+#include <wek.h>
 
-// test
-HINSTANCE		uchAp;
+HINSTANCE uchAp;
 
 LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM paramL) {
 	// indywidualna obsługa wiadomości
@@ -133,6 +133,7 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
 // Dopisać kolizje dla szybko poruszających się obiektów.
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
+// Tworzyć tekstury w jednej tablicy tekstury a nie każdą osobno.
 
 // Dokończyć przebudowę Drzewo8 pod optymalizację.
 // WektorSeg: Wpisywać do wolnych segmentów idąc od początku tablicy _seg.

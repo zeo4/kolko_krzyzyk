@@ -1,8 +1,7 @@
 ﻿#pragma once
 
-#include "drzewo8.h"
-#include "obiekty.h"
-#include "fizyka.h"
+#include <drzewo8.h>
+#include <fizyka.h>
 #include <functional>
 #include <pamiec_pula.h>
 

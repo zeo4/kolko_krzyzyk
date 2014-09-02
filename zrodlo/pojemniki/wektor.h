@@ -2,10 +2,6 @@
 
 #include <stdint.h>
 #include <operatory.h>
-#include <windows.h>
-#include <bitset>
-
-using std::bitset;
 
 // -------------------------------------------------------
 template<class T>
@@ -15,19 +11,22 @@ public:
 								~WekBaza();
 	inline T&					operator[](uint32_t const&) const;
 	void						rezerw_tyl(uint32_t const&);
-	void						czysc(uint32_t const&, uint32_t const& = 1);
+	void						maz(uint32_t const&, uint32_t const& = 1);
 	inline uint32_t const&		wez_rozm() const;
 	inline uint32_t const&		wez_poj() const;
 	inline void					zamien(uint32_t const&, uint32_t const&);
-	static T const				pusty;
+	inline bool					sprawdz_pusty(uint32_t const&) const;
 protected:
 	T*							el;
 	uint32_t					el_poj;
+	static T const				pusty;
 };
 template<class T>
 WekBaza<T>::WekBaza()
 	: el((T*)malloc(256*sizeof(T))),
-	el_poj(256) {}
+	el_poj(256) {
+	wyp_pam(el, pusty, 256);
+}
 template<class T>
 WekBaza<T>::~WekBaza() {
 	free(el);
@@ -37,7 +36,7 @@ T& WekBaza<T>::operator[](uint32_t const& _nr) const {
 	return el[_nr];
 }
 template<class T>
-void WekBaza<T>::czysc(uint32_t const& _nr, uint32_t const& _il) {
+void WekBaza<T>::maz(uint32_t const& _nr, uint32_t const& _il) {
 	wyp_pam<T>(&el[_nr], gen_min<T>(), _il);
 }
 template<class T>
@@ -46,9 +45,14 @@ void WekBaza<T>::rezerw_tyl(uint32_t const& _poj) {
 
 	T*const _el = (T*const)malloc(_poj*sizeof(T));
 	memmove(_el, el, el_poj*sizeof(T));
+	wyp_pam(_el+el_poj, pusty, _poj-el_poj);
 	free(el);
 	el = _el;
 	el_poj = _poj;
+}
+template<class T>
+bool WekBaza<T>::sprawdz_pusty(uint32_t const& _nr) const {
+	return !memcmp(&el[_nr], &pusty, sizeof(T));
 }
 template<class T>
 uint32_t const& WekBaza<T>::wez_poj() const {
@@ -73,7 +77,7 @@ public:
 								Wek();
 	void						rezerw_przod(uint32_t const&);
 	inline void					wstaw_kon(T const&, uint32_t const& = 1);
-	inline void					usun_kon();
+	inline T const&				usun_kon();
 	inline uint32_t const&		wez_il() const;
 	void						pakuj();
 	void						licz_uloz(uint32_t*&) const;
@@ -177,7 +181,7 @@ void Wek<T>::pakuj() {
 	T const _pusty = gen_min<T>();
 
 	for(int32_t _i = 0; _i < el_il; ++_i) {
-		if(el[_i] == _pusty) continue;
+		if(memcmp(&el[_i], &pusty, sizeof(T)) == 0) continue;
 		el[_ind++] = el[_i];
 	}
 	el_il = _ind;
@@ -188,6 +192,7 @@ void Wek<T>::rezerw_przod(uint32_t const& _poj) {
 
 	T*const _el = (T*const)malloc(_poj*sizeof(T));
 	memmove(_el+_poj-el_poj, el, el_poj*sizeof(T));
+	wyp_pam(_el, pusty, _poj-el_poj);
 	free(el);
 	el = _el;
 	el_il += _poj - el_poj;
@@ -226,7 +231,7 @@ void Wek<T>::uloz(uint32_t const*const& _el_ind) {
 	el_il = _el_il;
 }
 template<class T>
-void Wek<T>::usun_kon() {
+T const& Wek<T>::usun_kon() {
 	return el[--el_il];
 }
 template<class T>
@@ -245,7 +250,7 @@ class WekStos : protected Wek<T> {
 public:
 	inline void					rezerw(uint32_t const&);
 	inline void					wstaw(T const&, uint32_t const& = 0);
-	inline T&					usun();
+	inline T const&				usun();
 	inline T&					wez() const;
 	inline uint32_t const&		wez_il() const;
 	inline uint32_t const&		wez_poj() const;
@@ -255,7 +260,7 @@ void WekStos<T>::rezerw(uint32_t const& _poj) {
 	Wek::rezerw_przod(_poj);
 }
 template<class T>
-T& WekStos<T>::usun() {
+T const& WekStos<T>::usun() {
 	return Wek::usun_kon();
 }
 template<class T>
@@ -286,9 +291,10 @@ class WekPula : protected WekBaza<T> {
 public:
 	inline T&					operator[](uint32_t const&) const;
 	inline void					rezerw(uint32_t const&);
-	inline uint32_t				wpisz(T const&);
-	inline void					czysc(uint32_t const&);
+	inline uint32_t const&		wpisz(T const&);
+	inline void					maz(uint32_t const&);
 	inline uint32_t const&		wez_poj() const;
+	WekBaza::sprawdz_pusty;
 protected:
 	ListaWolne					el_wolne;
 };
@@ -297,10 +303,10 @@ T& WekPula<T>::operator[](uint32_t const& _nr) const {
 	return el[_nr];
 }
 template<class T>
-void WekPula<T>::czysc(uint32_t const& _nr) {
+void WekPula<T>::maz(uint32_t const& _nr) {
 	if(_nr >= el_poj) return;
-	if(el[_nr] == pusty) return;
-	WekBaza::czysc(_nr);
+	if(memcmp(&el[_nr], &pusty, sizeof(T)) == 0) return;
+	WekBaza::maz(_nr);
 	el_wolne.wstaw(_nr);
 }
 template<class T>
@@ -313,7 +319,7 @@ uint32_t const& WekPula<T>::wez_poj() const {
 	return el_poj;
 }
 template<class T>
-uint32_t WekPula<T>::wpisz(T const& _el) {
+uint32_t const& WekPula<T>::wpisz(T const& _el) {
 	if(el_wolne.wez_il() == 0) rezerw(el_wolne.wez_poj()*2);
 	el[el_wolne.wez()] = _el;
 	return el_wolne.usun();
@@ -325,15 +331,16 @@ public:
 	inline T&					operator[](uint32_t const&) const;
 	inline void					rezerw(uint32_t const&);
 	inline void					wpisz(T const&, uint32_t const&);
-	inline void					czysc(uint32_t const&);
+	inline void					maz(uint32_t const&);
 	inline uint32_t const&		wez_poj() const;
+	WekBaza::sprawdz_pusty;
 };
 template<class T>
 T& WekLuz<T>::operator[](uint32_t const& _nr) const {
 	return el[_nr];
 }
 template<class T>
-void WekLuz<T>::czysc(uint32_t const& _nr) {
+void WekLuz<T>::maz(uint32_t const& _nr) {
 	el[_nr] = pusty;
 }
 template<class T>
@@ -346,6 +353,7 @@ uint32_t const& WekLuz<T>::wez_poj() const {
 }
 template<class T>
 void WekLuz<T>::wpisz(T const& _el, uint32_t const& _nr) {
+	while(_nr >= el_poj) rezerw(el_poj*2);
 	el[_nr] = _el;
 }
 // -------------------------------------------------------
@@ -358,23 +366,23 @@ struct Para {
 template<class T, template<class>class S>
 class WekSegBaza {
 public:
-	inline T&					operator[](uint32_t const&) const;
-	inline void					czysc(uint32_t const&);
-	inline uint32_t const&		wez_il() const;
-	inline uint32_t const&		wez_rozm() const;
-	void						pakuj();
+	inline T&							operator[](uint32_t const&) const;
+	inline void							maz(uint32_t const&);
+	inline S<Para<uint32_t>> const&		wez_seg() const;
+	inline Wek<T> const&				wez_el() const;
+	void								pakuj();
 protected:
-	S<Para<uint32_t>>			seg;
-	Wek<T>						el;
+	S<Para<uint32_t>>					seg;
+	Wek<T>								el;
 };
 template<class T, template<class>class S>
 T& WekSegBaza<T,S>::operator[](uint32_t const& _nr) const {
 	return el[seg[_nr].pierw];
 }
 template<class T, template<class>class S>
-void WekSegBaza<T,S>::czysc(uint32_t const& _nr) {
-	el.czysc(seg[_nr].pierw, seg[_nr].drug);
-	seg.czysc(_nr);
+void WekSegBaza<T,S>::maz(uint32_t const& _nr) {
+	el.maz(seg[_nr].pierw, seg[_nr].drug);
+	seg.maz(_nr);
 }
 template<class T, template<class>class S>
 void WekSegBaza<T,S>::pakuj() {
@@ -384,7 +392,7 @@ void WekSegBaza<T,S>::pakuj() {
 	uint32_t*const _przes = (uint32_t*const)malloc(el.wez_il()*4);
 	uint32_t _przes_akt = 0;
 	for(_i = 0; _i < el.wez_il(); ++_i) {
-		if(el[_i] == el.pusty) {
+		if(el.sprawdz_pusty(_i)) {
 			++_przes_akt;
 		} else {
 			_przes[_i] = _przes_akt;
@@ -396,26 +404,26 @@ void WekSegBaza<T,S>::pakuj() {
 
 	// aktualizuj segmenty
 	for(_i = 0; _i < seg.wez_poj(); ++_i) {
-		if(seg[_i] == seg.pusty) continue;
+		if(seg.sprawdz_pusty(_i)) continue;
 		seg[_i].pierw -= _przes[seg[_i].pierw];
 	}
 }
 template<class T, template<class>class S>
-uint32_t const& WekSegBaza<T,S>::wez_il() const {
-	return el.wez_il();
+S<Para<uint32_t>> const& WekSegBaza<T,S>::wez_seg() const {
+	return seg;
 }
 template<class T, template<class>class S>
-uint32_t const& WekSegBaza<T,S>::wez_rozm() const {
-	return el.wez_rozm();
+Wek<T> const& WekSegBaza<T,S>::wez_el() const {
+	return el;
 }
 // -------------------------------------------------------
 template<class T>
 class WekSegPula : public WekSegBaza<T,WekPula> {
 public:
-	inline uint32_t&		wstaw_kon(T const&, uint32_t const& = 1);
+	inline uint32_t const&		wstaw_kon(T const&, uint32_t const& = 1);
 };
 template<class T>
-uint32_t& WekSegPula<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
+uint32_t const& WekSegPula<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
 	el.wstaw_kon(_el, _il);
 	return seg.wpisz({el.wez_il()-_il, _il});
 }
@@ -427,7 +435,7 @@ public:
 };
 template<class T>
 void WekSegLuz<T>::wstaw_kon(T const& _el, uint32_t const& _nr, uint32_t const& _il) {
-	if(seg[_nr] != seg.pusty) WekSegBaza::czysc(_nr);
+	if(seg[_nr] != seg.pusty) return;
 	seg.wpisz({el.wez_il(), _il}, _nr);
 	el.wstaw_kon(_el, _il);
 }

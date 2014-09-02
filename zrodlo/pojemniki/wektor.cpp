@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <wekt.h>
+#include <wektor.h>
 
 // -------------------------------------------------------
 ListaWolne::ListaWolne() {

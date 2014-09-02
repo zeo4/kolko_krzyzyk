@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "fizyka.h"
-#include "obiekty.h"
+#include <fizyka.h>
 
-
+uint32_t Fizyka::wpisz_ob() {
+	return przes.wstaw_kon(XMFLOAT3(+0.0f,+0.0f,+0.0f));
+}
 
 //IFizyka::IFizyka(IObiekt* const ob) : obiekt (ob)
 //	{}

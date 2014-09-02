@@ -43,76 +43,20 @@ void Swiat::niszczObiektySwiat() {
 	}
 }*/
 void Swiat::inic() {
-	_graf.przypisz(&_ob);
-	wgraj_ob();
-	_graf.wyk_raz();
+	graf.lacz_fiz(&fiz);
+	tworz_ob(MOD_KURSOR, TEKS_KURSOR);
+	graf.inic();
 }
 void Swiat::rysuj() {
-	_graf.czysc();
-	_graf.wyk_co_klatka();
+	graf.wyk_co_klatka();
 }
-void Swiat::wgraj_ob() {
-	// kursor
-	XMFLOAT3 kurs_wierz[] = {
-		XMFLOAT3(+0.0f, -0.2f, +0.0f),
-		XMFLOAT3(+0.0f, +0.0f, +0.0f),
-		XMFLOAT3(+0.2f, -0.0f, +0.0f),
-	};
-	XMFLOAT2 kurs_wierz_teks[] = {
-		XMFLOAT2(+0.0f, +1.0f),
-		XMFLOAT2(+0.5f, +0.0f),
-		XMFLOAT2(+1.0f, +1.0f),
-	};
-	DWORD kurs_ind[] = {0, 1, 2};
-	_ob.tworz_ob(kurs_wierz, kurs_wierz_teks, 3, kurs_ind, 3, 1);
-
-	// rycerz
-	XMFLOAT3 ryc_wierz[] = {
-		XMFLOAT3(-0.25f, +0.0f, -0.25f),
-		XMFLOAT3(+0.25f, +0.0f, -0.25f),
-		XMFLOAT3(+0.25f, +0.0f, +0.25f),
-		XMFLOAT3(-0.25f, +0.0f, +0.25f),
-		XMFLOAT3(+0.0f, +0.5f, +0.0f),
-		XMFLOAT3(+0.0f, -0.5f, +0.0f),
-	};
-	XMFLOAT2 ryc_wierz_teks[] = {
-		XMFLOAT2(+0.0f, +0.5f),
-		XMFLOAT2(+0.5f, +0.5f),
-		XMFLOAT2(+1.0f, +0.5f),
-		XMFLOAT2(+1.0f, +1.0f),
-		XMFLOAT2(+0.5f, +0.0f),
-		XMFLOAT2(+0.5f, +1.0f),
-	};
-	DWORD ryc_ind[] = {
-		0, 4, 1,
-		1, 5, 0,
-		1, 4, 2,
-		2, 5, 1,
-		2, 4, 3,
-		3, 5, 2,
-		3, 4, 0,
-		0, 5, 3,
-	};
-	_ob.tworz_ob(ryc_wierz, ryc_wierz_teks, 6, ryc_ind, 24, 2);
-
-	// smok
-	XMFLOAT3 smok_wierz[] = {
-		XMFLOAT3(+0.5f, -0.5f, +0.0f),
-		XMFLOAT3(-0.5f, -0.5f, +0.0f),
-		XMFLOAT3(-0.5f, +0.5f, +0.0f),
-		XMFLOAT3(+0.5f, +0.5f, +0.0f),
-	};
-	XMFLOAT2 smok_wierz_teks[] = {
-		XMFLOAT2(+1.0f, +0.0f),
-		XMFLOAT2(+1.0f, +1.0f),
-		XMFLOAT2(+0.0f, +1.0f),
-		XMFLOAT2(+0.0f, +0.0f),
-	};
-	DWORD smok_ind [] = {
-		0, 1, 2,
-		0, 2, 3
-	};
-	_ob.tworz_ob(smok_wierz, smok_wierz_teks, 4, smok_ind, 6, 1);
+uint32_t Swiat::tworz_ob(uint32_t const& _MOD, uint32_t const& _TEKS) {
+	fiz.wpisz_ob();
+	graf.wpisz_ob(_MOD, _TEKS);
+	//ob.tworz(MOD_KURSOR, TEKS_KURSOR);
+	//ob.tworz(MOD_KWADRAT, TEKS_KWADRAT);
+	//ob.tworz(MOD_DIAMENT, TEKS_DIAMENT);
+	return 0;
 }
 /*
 void Swiat::usunProjekcjaZ1(XMVECTOR* const pkt3W, float const x, float const y) const {

@@ -1,8 +1,7 @@
 ﻿#pragma once
 
-#include "globalne.h"
-#include "obiekty.h"
-#include "typedefy.h"
+#include <globalne.h>
+#include <typedefy.h>
 
 /*class IObiektGra {
 public:

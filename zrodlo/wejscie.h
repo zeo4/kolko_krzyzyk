@@ -2,7 +2,6 @@
 
 #include "globalne.h"
 #include "debug.h"
-#include "zasobyGraf.h"
 
 class Wejscie {
 	IDirectInputDevice8*		klawiatura;

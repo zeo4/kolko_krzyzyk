@@ -1,8 +1,19 @@
 ﻿#pragma once
 
-#include "globalne.h"
-#include "typedefy.h"
-#include "drzewo8.h"
+#include <globalne.h>
+#include <typedefy.h>
+#include <drzewo8.h>
+#include <wektor.h>
+
+class Grafika;
+
+class Fizyka {
+	friend class Grafika;
+public:
+	uint32_t					wpisz_ob();
+protected:
+	WekSegPula<XMFLOAT3>		przes;
+};
 
 // ---------------------------------------------
 //class Fizyka {
