@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <operatory.h>
-
 // -------------------------------------------------------
 template<class T>
 class Wektor {

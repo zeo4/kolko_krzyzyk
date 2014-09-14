@@ -126,19 +126,31 @@ TestLab<A,B,TestPlikKont> TestZglos::tworz_lab(A const& _a, B const& _b) const {
 	return TestLab<A,B,TestPlikKont>(_a, _b);
 }
 // -------------------------------------------------------
-#define UPEWNIJ_R(a, b) TestUpewnij().tworz_lab(a, b) == TestUpewnij().plik
-#define UPEWNIJ_NR(a, b) TestUpewnij().tworz_lab(a, b) != TestUpewnij().plik
-#define UPEWNIJ_M(a, b) TestUpewnij().tworz_lab(a, b) < TestUpewnij().plik
-#define UPEWNIJ_MR(a, b) TestUpewnij().tworz_lab(a, b) <= TestUpewnij().plik
-#define UPEWNIJ_W(a, b) TestUpewnij().tworz_lab(a, b) > TestUpewnij().plik
-#define UPEWNIJ_WR(a, b) TestUpewnij().tworz_lab(a, b) >= TestUpewnij().plik
-// -------------------------------------------------------
-#define ZGLOS_R(a, b) TestZglos().tworz_lab(a, b) == TestZglos().plik
-#define ZGLOS_NR(a, b) TestZglos().tworz_lab(a, b) != TestZglos().plik
-#define ZGLOS_M(a, b) TestZglos().tworz_lab(a, b) < TestZglos().plik
-#define ZGLOS_MR(a, b) TestZglos().tworz_lab(a, b) <= TestZglos().plik
-#define ZGLOS_W(a, b) TestZglos().tworz_lab(a, b) > TestZglos().plik
-#define ZGLOS_WR(a, b) TestZglos().tworz_lab(a, b) >= TestZglos().plik
+#define NAW __FILE__ << "(" << __LINE__ << "): "
+#define UPEWNIJ_R(a, b) TestUpewnij().tworz_lab(a, b) == TestUpewnij().plik\
+	<< NAW << "(" << a << "==" << b << ") "
+#define UPEWNIJ_NR(a, b) TestUpewnij().tworz_lab(a, b) != TestUpewnij().plik\
+	<< NAW << "(" << a << "!=" << b << ") "
+#define UPEWNIJ_M(a, b) TestUpewnij().tworz_lab(a, b) < TestUpewnij().plik\
+	<< NAW << "(" << a << "<" << b << ") "
+#define UPEWNIJ_MR(a, b) TestUpewnij().tworz_lab(a, b) <= TestUpewnij().plik\
+	<< NAW << "(" << a << "<=" << b << ") "
+#define UPEWNIJ_W(a, b) TestUpewnij().tworz_lab(a, b) > TestUpewnij().plik\
+	<< NAW << "(" << a << ">" << b << ") "
+#define UPEWNIJ_WR(a, b) TestUpewnij().tworz_lab(a, b) >= TestUpewnij().plik\
+	<< NAW << "(" << a << ">=" << b << ") "
+#define ZGLOS_R(a, b) TestZglos().tworz_lab(a, b) == TestZglos().plik\
+	<< NAW << "(" << a << "==" << b << ") "
+#define ZGLOS_NR(a, b) TestZglos().tworz_lab(a, b) != TestZglos().plik\
+	<< NAW << "(" << a << "!=" << b << ") "
+#define ZGLOS_M(a, b) TestZglos().tworz_lab(a, b) < TestZglos().plik\
+	<< NAW << "(" << a << "<" << b << ") "
+#define ZGLOS_MR(a, b) TestZglos().tworz_lab(a, b) <= TestZglos().plik\
+	<< NAW << "(" << a << "<=" << b << ") "
+#define ZGLOS_W(a, b) TestZglos().tworz_lab(a, b) > TestZglos().plik\
+	<< NAW << "(" << a << ">" << b << ") "
+#define ZGLOS_WR(a, b) TestZglos().tworz_lab(a, b) >= TestZglos().plik\
+	<< NAW << "(" << a << ">=" << b << ") "
 // -------------------------------------------------------
 
 
