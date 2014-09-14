@@ -4,10 +4,8 @@
 #include "debug.h"
 #include "logika.h"
 
-#include <wielozbior_hasz_lin.h>
-#include <zbior_hasz_lin.h>
-#include <wektor.h>
 #include <wek.h>
+#include <uchwyty.h>
 
 HINSTANCE uchAp;
 
@@ -59,6 +57,33 @@ void PetlaWiad() {
 }
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
+	Wektor<int> w;
+	for(uint32_t _i = 0; _i < 800; ++_i) {
+		w.wstaw_kon((800-1-_i)/10);
+	}
+	//przetestować z usuwaniem
+	uint32_t* _mapa = 0;
+	w.uloz_licz(_mapa);
+	w.uloz_wyk(_mapa);
+	for(uint32_t _i = 0; _i < w.wez_il(); ++_i) {
+		//logi.pisz("", to_string(w[_i]));
+	}
+
+	//sprawdzić sortowanie z usuniętymi wartościami, przenieść Wektor2::el z public do protected
+	//Uch w;
+	//w.wstaw(1);
+	//w.wstaw(2);
+	//w.wstaw(3);
+	//w.wstaw(4);
+	//uint32_t t[] = {4, 3, 2, 1, 0};
+	//w.aktual(t);
+	//Wektor2<int> w;
+	//for(uint32_t _i = 0; _i < w.wez_il(); ++_i) {
+	//	if(w.wez_wier(_i) == w.pusty) continue;
+	//	for(uint32_t _j = 0; _j < w.wez_wier(_i).drug; ++_j) {
+	//		w[_i][_j];
+	//	}
+	//}
 
 	uchAp = uchAplikacji;
 

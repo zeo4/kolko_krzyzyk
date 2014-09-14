@@ -7,12 +7,6 @@ using std::bitset;
 
 // -------------------------------------------------------
 template<class T>
-T rzut_bity(bitset<sizeof(T)*8>& _bity) {
-	T _wart;
-	memmove(&_wart, &_bity, sizeof(T));
-	return _wart;
-}
-template<class T>
 T gen_maks() {
 	bitset<sizeof(T)*8> _bity;
 	_bity.set();
@@ -21,10 +15,10 @@ T gen_maks() {
 }
 template<class T>
 T gen_min() {
-	bitset<sizeof(T)*8> _bity;
-	_bity.reset();
-	_bity.set(sizeof(T)*8-1);
-	return rzut_bity<T>(_bity);
+	T wart;
+	memset(&wart, 0, sizeof(T));
+	*((char*)&wart + sizeof(T) - 1) = 1<<7;
+	return wart;
 }
 template<class T>
 uint32_t wez_hasz(T const& _el) {
