@@ -17,9 +17,9 @@ void TestWektor::testUlozLiczNieusunieteZadne() {
 	uloz_licz(_mapa);
 	for(uint32_t _i = 1; _i < test_il; ++_i) {
 		if(el[_i] != el[_i-1])
-			UPEWNIJ_W(_mapa[_i-1], _mapa[_i]) << "\n";
+			UPEWNIJ_W(_mapa[_i-1], _mapa[_i]) << "_i=" << _i << "\n";
 		else
-			UPEWNIJ_M(_mapa[_i-1], _mapa[_i]) << "\n";
+			UPEWNIJ_M(_mapa[_i-1], _mapa[_i]) << "_i=" << _i << "\n";
 	}
 	niszcz();
 }
@@ -36,8 +36,8 @@ void TestWektor::testUlozUnikatLiczNieusunieteZadne() {
 	UPEWNIJ_NR(_ind, 0x80000000) << "\n";
 	for(uint32_t _i = _ind+1; _i < test_il; ++_i) {
 		if(_mapa[_i] == 0x80000000) continue;
-		UPEWNIJ_NR(el[_ind], el[_i]) << "\n";
-		UPEWNIJ_W(_mapa[_ind], _mapa[_i]) << "\n";
+		UPEWNIJ_NR(el[_ind], el[_i]) << "_ind=" << _ind << " _i=" << _i << "\n";
+		UPEWNIJ_W(_mapa[_ind], _mapa[_i]) << "_ind=" << _ind << " _i=" << _i << "\n";
 		_ind = _i;
 	}
 	niszcz();

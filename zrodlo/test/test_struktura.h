@@ -35,6 +35,8 @@ void TestPlik::otworz() {
 }
 void TestPlik::pomin() {
 	plik.seekp(poz);
+	plik << "\n\n";
+	plik.seekp(poz);
 }
 std::ofstream TestPlik::plik;
 uint32_t TestPlik::poz = 0;
