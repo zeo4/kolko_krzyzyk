@@ -254,8 +254,8 @@ public:
 	typedef Paraa<T const*,uint32_t> WierszEl_;
 	inline T*const&				operator[](uint32_t const&) const;
 	inline void					wstaw_kon(T const*const&, uint32_t const&);
-	inline void					usun(uint32_t const&);
-	inline void					usun_kon();
+	inline void					usun(uint32_t const&, uint32_t = 1);
+	inline void					usun_kon(uint32_t = 1);
 	inline Wiersz_ const&		wez_wier(uint32_t const&) const;
 	inline uint32_t const&		wez_il() const;
 	void						defrag_licz(uint32_t*&, uint32_t*&, uint32_t const&);
@@ -411,15 +411,19 @@ void Wektor2<T>::uloz_wyk(uint32_t const*const& _mapa_wier) {
 	el.uloz_wyk(_mapa_el);
 }
 template<class T>
-void Wektor2<T>::usun(uint32_t const& _nr) {
-	el.usun(wier[_nr].pierw, wier[_nr].drug);
-	wier.usun(_nr);
+void Wektor2<T>::usun(uint32_t const& _nr, uint32_t _il) {
+	for(uint32_t _i = 0; _i < _il; ++_i) {
+		el.usun(wier[_nr+_i].pierw, wier[_nr+_i].drug);
+		wier.usun(_nr+_i);
+	}
 }
 template<class T>
-void Wektor2<T>::usun_kon() {
-	if(wier.wez_il() == 0) return;
-	el.usun_kon(wier[wier.wez_il()-1].drug);
-	wier.usun_kon();
+void Wektor2<T>::usun_kon(uint32_t _il) {
+	if(_il > wier.wez_il()) _il = wier.wez_il();
+	for(uint32_t _i = 0; _i < _il; ++_i) {
+		el.usun_kon(wier[wier.wez_il()-1].drug);
+		wier.usun_kon();
+	}
 }
 template<class T>
 uint32_t const& Wektor2<T>::wez_il() const {
