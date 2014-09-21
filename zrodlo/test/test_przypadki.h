@@ -9,6 +9,7 @@
 class TestWektor : public Wektor<uint32_t> {
 public:
 	void		inic();
+	void		inicMalo();
 	void		niszcz();
 	void		wykonaj();
 	void		testUlozLiczNieusunieteZadne();
@@ -27,11 +28,17 @@ public:
 	void		testUlozUnikatUsunietePoczKon();
 	void		testUlozUnikatUsunieteSrodek();
 	void		testUlozUnikatUsunieteWszystkie();
+	void		testDefragPocz();
+	void		testDefragSrodek();
+	void		testDefragSrodekLaczony();
+	void		testDefragKon();
+	void		testDefragCalosc();
 };
 // -------------------------------------------------------
 class TestWektor2 : public Wektor2<uint32_t> {
 public:
 	void		inic();
+	void		inicMalo();
 	void		niszcz();
 	void		wykonaj();
 	void		testUlozLiczNieusunieteZadne();
@@ -50,6 +57,11 @@ public:
 	void		testUlozUnikatUsunietePoczKon();
 	void		testUlozUnikatUsunieteSrodek();
 	void		testUlozUnikatUsunieteWszystkie();
+	void		testDefragPocz();
+	void		testDefragSrodek();
+	void		testDefragSrodekLaczony();
+	void		testDefragKon();
+	void		testDefragCalosc();
 };
 // -------------------------------------------------------
 

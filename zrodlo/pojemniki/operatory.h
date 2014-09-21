@@ -4,7 +4,6 @@
 #include <bitset>
 
 using std::bitset;
-
 // -------------------------------------------------------
 template<class T>
 T gen_maks() {

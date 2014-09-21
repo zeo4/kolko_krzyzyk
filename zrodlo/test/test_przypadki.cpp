@@ -9,6 +9,12 @@ void TestWektor::inic() {
 		wstaw_kon((_il-1-_i)/5);
 	}
 }
+void TestWektor::inicMalo() {
+	uint32_t _il = 10;
+	for(uint32_t _i = 0; _i < _il; ++_i) {
+		wstaw_kon(_i);
+	}
+}
 void TestWektor::niszcz() {
 	usun_kon(il);
 }
@@ -278,6 +284,96 @@ void TestWektor::testUlozUnikatUsunieteWszystkie() {
 	free(_mapa);
 	niszcz();
 }
+void TestWektor::testDefragPocz() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = 0, _ind2 = il/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa = 0;
+	for(_ind1; _ind1 < il-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < il; ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(el[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa, 1);
+		defrag_wyk(_mapa);
+	}
+	UPEWNIJ_R(il, 8) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWektor::testDefragSrodek() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = il/4, _ind2 = il/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa = 0;
+	for(_ind1; _ind1 < il-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < il; ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(el[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa, 1);
+		defrag_wyk(_mapa);
+	}
+	UPEWNIJ_R(il, 8) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWektor::testDefragSrodekLaczony() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = il/2-1, _ind2 = il/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa = 0;
+	for(_ind1; _ind1 < il-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < il; ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else if(_i == _ind1+1) UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(el[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa, 1);
+		defrag_wyk(_mapa);
+	}
+	UPEWNIJ_R(il, 8) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWektor::testDefragKon() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _il = il;
+	usun(il-1);
+	uint32_t* _mapa = 0;
+	defrag_licz(_mapa, 1);
+	defrag_wyk(_mapa);
+	UPEWNIJ_R(il, _il-1) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWektor::testDefragCalosc() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = il/4, _ind2 = il/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa = 0;
+	defrag_licz(_mapa, 2*il);
+	defrag_wyk(_mapa);
+	UPEWNIJ_R(il, 8) << "\n";
+	for(uint32_t _i = 0; _i < il; ++_i) {
+		UPEWNIJ_NR(el[_i], pusty) << "_i=" << _i << "\n";
+	}
+	free(_mapa);
+	niszcz();
+}
 void TestWektor::wykonaj() {
 	testUlozLiczNieusunieteZadne();
 	testUlozLiczUsunietePoczKon();
@@ -295,6 +391,11 @@ void TestWektor::wykonaj() {
 	testUlozUnikatUsunietePoczKon();
 	testUlozUnikatUsunieteSrodek();
 	testUlozUnikatUsunieteWszystkie();
+	testDefragPocz();
+	testDefragSrodek();
+	testDefragSrodekLaczony();
+	testDefragKon();
+	testDefragCalosc();
 }
 // -------------------------------------------------------
 void TestWektor2::inic() {
@@ -304,7 +405,18 @@ void TestWektor2::inic() {
 	for(uint32_t _i = 0; _i < _il_unikat; ++_i) {
 		t[0] = _il_unikat-1-_i;
 		for(uint32_t _j = 0; _j < _il_powt; ++_j) {
-			wstaw_kon(t, 6-_j);
+			wstaw_kon(t, _il_powt-_j+1);
+		}
+	}
+}
+void TestWektor2::inicMalo() {
+	uint32_t _il_unikat = 10;
+	uint32_t _il_powt = 5;
+	uint32_t t[] = {0, 5, 4, 3, 2, 1};
+	for(uint32_t _i = 0; _i < _il_unikat; ++_i) {
+		t[0] = _il_unikat-1-_i;
+		for(uint32_t _j = 0; _j < _il_powt; ++_j) {
+			wstaw_kon(t, _il_powt-_j+1);
 		}
 	}
 }
@@ -595,6 +707,101 @@ void TestWektor2::testUlozUnikatUsunieteWszystkie() {
 	free(_mapa);
 	niszcz();
 }
+void TestWektor2::testDefragPocz() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = 0, _ind2 = wez_il()/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
+	for(_ind1; _ind1 < wez_il()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il(); ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa_wier, _mapa_el, 1);
+		defrag_wyk(_mapa_wier, _mapa_el);
+	}
+	UPEWNIJ_R(wez_il(), 48) << "\n";
+	free(_mapa_wier);
+	free(_mapa_el);
+	niszcz();
+}
+void TestWektor2::testDefragSrodek() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = wez_il()/4, _ind2 = wez_il()/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
+	for(_ind1; _ind1 < wez_il()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il(); ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa_wier, _mapa_el, 1);
+		defrag_wyk(_mapa_wier, _mapa_el);
+	}
+	UPEWNIJ_R(wez_il(), 48) << "\n";
+	free(_mapa_wier);
+	free(_mapa_el);
+	niszcz();
+}
+void TestWektor2::testDefragSrodekLaczony() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = wez_il()/2-1, _ind2 = wez_il()/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
+	for(_ind1; _ind1 < wez_il()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il(); ++_i) {
+			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else if(_i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
+			else UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
+		}
+		defrag_licz(_mapa_wier, _mapa_el, 1);
+		defrag_wyk(_mapa_wier, _mapa_el);
+	}
+	UPEWNIJ_R(wez_il(), 48) << "\n";
+	free(_mapa_wier);
+	free(_mapa_el);
+	niszcz();
+}
+void TestWektor2::testDefragKon() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _il = wez_il();
+	usun(wez_il()-1);
+	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
+	defrag_licz(_mapa_wier, _mapa_el, 1);
+	defrag_wyk(_mapa_wier, _mapa_el);
+	UPEWNIJ_R(wez_il(), _il-1) << "\n";
+	free(_mapa_wier);
+	free(_mapa_el);
+	niszcz();
+}
+void TestWektor2::testDefragCalosc() {
+	std::cout << __FUNCTION__ << "\n";
+	inicMalo();
+	uint32_t _ind1 = wez_il()/4, _ind2 = wez_il()/2;
+	usun(_ind1);
+	usun(_ind2);
+	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
+	defrag_licz(_mapa_wier, _mapa_el, 2*wez_il());
+	defrag_wyk(_mapa_wier, _mapa_el);
+	UPEWNIJ_R(wez_il(), 48) << "\n";
+	for(uint32_t _i = 0; _i < wez_il(); ++_i) {
+		UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
+	}
+	free(_mapa_wier);
+	free(_mapa_el);
+	niszcz();
+}
 void TestWektor2::wykonaj() {
 	testUlozLiczNieusunieteZadne();
 	testUlozLiczUsunietePoczKon();
@@ -612,12 +819,17 @@ void TestWektor2::wykonaj() {
 	testUlozUnikatUsunietePoczKon();
 	testUlozUnikatUsunieteSrodek();
 	testUlozUnikatUsunieteWszystkie();
+	testDefragPocz();
+	testDefragSrodek();
+	testDefragSrodekLaczony();
+	testDefragKon();
+	testDefragCalosc();
 }
 // -------------------------------------------------------
 void main() {
 	TestWektor().wykonaj();
 	TestWektor2().wykonaj();
-	std::cout << "nacisnij ENTER";
+	std::cout << "Sukces! Nacisnij ENTER";
 	std::cin.get();
 }
 // -------------------------------------------------------

@@ -46,7 +46,7 @@ T& Wektor<T>::operator[](uint32_t const& _nr) const {
 }
 template<class T>
 void Wektor<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
-	if(il < 2 || pierw_pusty > il) return;
+	if(il < 2 || pierw_pusty == 0x80000000) return;
 	free(_mapa);
 	_mapa = (uint32_t*)malloc(il*4);
 	memset(_mapa, 0xffffffff, il*4);
@@ -65,10 +65,11 @@ void Wektor<T>::defrag_wyk(uint32_t const*const& _mapa) {
 		if(_mapa[_i] == 0xffffffff) continue;
 		zamien(_i, _mapa[_i]);
 	}
-	if(_mapa[il-1] != 0xffffffff) {
-		il = _mapa[il-1] + 1;
-		pierw_pusty = 0xffffffff;
+	for(int32_t _i = il-1; _i >= 0; --_i) {
+		if(el[_i] != pusty) break;
+		--il;
 	}
+	if(pierw_pusty >= il) pierw_pusty = 0x80000000;
 }
 template<class T>
 void Wektor<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
@@ -238,13 +239,24 @@ T const Wektor<T>::pusty = gen_min<T>();
 // -------------------------------------------------------
 template<class A, class B = A>
 struct Paraa {
-	bool		operator==(Paraa const&) const;
-	A			pierw;
-	B			drug;
+	inline bool		operator==(Paraa const&) const;
+	inline bool		operator!=(Paraa const&) const;
+	A				pierw;
+	B				drug;
 };
 template<class A, class B>
 bool Paraa<A,B>::operator==(Paraa const& _para) const {
 	return (pierw == _para.pierw && drug == _para.drug);
+}
+template<class A, class B>
+bool Paraa<A,B>::operator!=(Paraa const& _para) const {
+	return !operator==(_para);
+}
+// -------------------------------------------------------
+template<class A, class B>
+std::ostream& operator<<(std::ostream& _strumien, Paraa<A,B> const& _para) {
+	_strumien << "{" << _para.pierw << ", " << _para.drug << "}";
+	return _strumien;
 }
 // -------------------------------------------------------
 template<class T>
