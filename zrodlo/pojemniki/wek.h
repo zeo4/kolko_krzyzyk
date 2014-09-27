@@ -35,7 +35,7 @@ Wektor<T>::Wektor()
 	: el((T*)malloc(256*sizeof(T))),
 	il(0),
 	poj(256),
-	pierw_pusty(gen_min<uint32_t>()) {}
+	pierw_pusty(0) {}
 template<class T>
 Wektor<T>::~Wektor() {
 	free(el);
@@ -46,12 +46,13 @@ T& Wektor<T>::operator[](uint32_t const& _nr) const {
 }
 template<class T>
 void Wektor<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
-	if(il < 2 || pierw_pusty == 0x80000000) return;
 	free(_mapa);
 	_mapa = (uint32_t*)malloc(il*4);
-	memset(_mapa, 0xffffffff, il*4);
-	uint32_t _n = 0, _ind_pelny = pierw_pusty;
+	wyp_pam(_mapa, 0x80000000, il);
 
+	if(il < 2 || pierw_pusty >= il) return;
+
+	uint32_t _n = 0, _ind_pelny = pierw_pusty;
 	while(_n < _il && _ind_pelny < il-1) {
 		if(el[++_ind_pelny] == pusty) continue;
 		_mapa[_ind_pelny] = pierw_pusty++;
@@ -60,16 +61,15 @@ void Wektor<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
 }
 template<class T>
 void Wektor<T>::defrag_wyk(uint32_t const*const& _mapa) {
-	if(pierw_pusty > il) return;
+	if(pierw_pusty >= il) return;
 	for(uint32_t _i = 0; _i < il; ++_i) {
-		if(_mapa[_i] == 0xffffffff) continue;
+		if(_mapa[_i] == 0x80000000) continue;
 		zamien(_i, _mapa[_i]);
 	}
 	for(int32_t _i = il-1; _i >= 0; --_i) {
 		if(el[_i] != pusty) break;
 		--il;
 	}
-	if(pierw_pusty >= il) pierw_pusty = 0x80000000;
 }
 template<class T>
 void Wektor<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
@@ -226,6 +226,7 @@ template<class T>
 void Wektor<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
 	while(il+_il > poj) rezerw_tyl(poj*2);
 	memmove(&el[il], &_el, _il*sizeof(T));
+	if(pierw_pusty >= il) pierw_pusty = il+_il;
 	il += _il;
 }
 template<class T>

@@ -5,6 +5,7 @@
 #include <iostream>
 #include<test_struktura.h>
 #include<wek.h>
+#include<uch.h>
 // -------------------------------------------------------
 class TestWektor : public Wektor<uint32_t> {
 public:
@@ -28,6 +29,7 @@ public:
 	void		testUlozUnikatUsunietePoczKon();
 	void		testUlozUnikatUsunieteSrodek();
 	void		testUlozUnikatUsunieteWszystkie();
+	void		testDefragLiczZdefrag();
 	void		testDefragPocz();
 	void		testDefragSrodek();
 	void		testDefragSrodekLaczony();
@@ -57,11 +59,23 @@ public:
 	void		testUlozUnikatUsunietePoczKon();
 	void		testUlozUnikatUsunieteSrodek();
 	void		testUlozUnikatUsunieteWszystkie();
+	void		testDefragLiczZdefrag();
 	void		testDefragPocz();
 	void		testDefragSrodek();
 	void		testDefragSrodekLaczony();
 	void		testDefragKon();
 	void		testDefragCalosc();
+};
+// -------------------------------------------------------
+class TestUch : public Uch {
+public:
+	void		inic();
+	void		niszcz();
+	void		wykonaj();
+	void		testAktualWszystkie();
+	void		testAktualPoczKon();
+	void		testAktualSrodek();
+	void		testAktualZadne();
 };
 // -------------------------------------------------------
 
