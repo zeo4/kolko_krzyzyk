@@ -1,10 +1,10 @@
 ﻿#pragma once
-
 #include <globalne.h>
 #include <stdint.h>
-#include <wektor.h>
+#include <wek.h>
 #include <fizyka.h>
-
+#include <uch.h>
+// -------------------------------------------------------
 template<class T>
 void tworz_buf(ID3D11Device*const& _karta, ID3D11Buffer*& _bufor, UINT const _il_el, UINT const _laczenie) {
 	if(_bufor != 0) {
@@ -21,12 +21,12 @@ void tworz_buf(ID3D11Device*const& _karta, ID3D11Buffer*& _bufor, UINT const _il
 
 	_karta->CreateBuffer(&_opis, NULL, &_bufor);
 }
-
+// -------------------------------------------------------
 struct CoOb {
 					CoOb();
 	XMMATRIX		mac_swp;
 };
-
+// -------------------------------------------------------
 class ZasobyGraf {
 public:
 									ZasobyGraf();
@@ -46,16 +46,14 @@ public:
 	void							wiaz_wierz_szad() const;
 	void							tworz_piks_szad();
 	void							wiaz_piks_szad() const;
-	void							tworz_ob_wierz();
-	void							aktual_ob_wierz(WekSegPula<XMFLOAT3>const&);
-	void							tworz_ob_wierz_teks();
-	void							aktual_ob_wierz_teks(
-										WekSegPula<XMFLOAT2>const&);
-	void							wiaz_ob_wierz(WekSegPula<XMFLOAT3>const&,
-										WekSegPula<XMFLOAT2>const&)const;
-	void							tworz_ob_ind();
-	void							aktual_ob_ind(WekSegPula<DWORD>const&);
-	void							wiaz_ob_ind(WekSegPula<DWORD>const&)const;
+	void							tworz_model_wierz();
+	void							aktual_model_wierz(Wek2<XMFLOAT3>const&);
+	void							tworz_model_teks();
+	void							aktual_model_teks(Wek2<XMFLOAT2>const&);
+	void							wiaz_model_wierz(uint32_t const&) const;
+	void							tworz_model_ind();
+	void							aktual_model_ind(Wek2<DWORD>const&);
+	void							wiaz_model_ind() const;
 	void							tworz_co_ob();
 	void							aktual_co_ob(CoOb const&);
 	void							wiaz_co_ob() const;
@@ -63,9 +61,9 @@ public:
 	ID3D11Device*					karta;
 	IDXGISwapChain*					lanc;
 	ID3D11DeviceContext*			rend;
-	ID3D11Buffer*					ob_wierz_buf;
-	ID3D11Buffer*					ob_wierz_teks_buf;
-	ID3D11Buffer*					ob_ind_buf;
+	ID3D11Buffer*					model_wierz_buf;
+	ID3D11Buffer*					model_teks_buf;
+	ID3D11Buffer*					model_ind_buf;
 	ID3D11VertexShader*				wierz_szad;
 	ID3D10Blob*						wierz_szad_buf;
 	ID3D11PixelShader*				piks_szad;
@@ -79,7 +77,7 @@ public:
 	ID3D11InputLayout*				strukt_we;
 	ID3D11Buffer*					co_ob_buf;
 };
-
+// -------------------------------------------------------
 enum {
 	MOD_KURSOR,
 	MOD_KWADRAT,
@@ -88,38 +86,43 @@ enum {
 	TEKS_KWADRAT,
 	TEKS_DIAMENT,
 };
-
+// -------------------------------------------------------
 class Grafika {
 public:
-	void						lacz_fiz(Fizyka*const&);
-	void						inic();
-	void						wyk_co_klatka();
-	void						wyk_co_ob(uint32_t const&);
-	uint32_t					wpisz_ob(uint32_t const&, uint32_t const&);
-	void						maz_ob(uint32_t const&);
-	void						pakuj();
+	void					lacz_fiz(Fizyka*const&);
+	void					inic();
+	void					aktual_klatka();
+	void					aktual_ob(uint32_t const&);
+	uint32_t				tworz_ob(uint32_t const&, uint32_t const&);
+	void					usun_ob(uint32_t const&);
+	void					defrag();
 private:
-	uint32_t					wpisz_model(uint32_t const&);
-	void						wpisz_teks(uint32_t const&);
-	char const*const			wez_teks_sciezka(uint32_t const&) const;
-	void						aktual_co_ob(uint32_t const& _nr);
-	XMFLOAT3					kam_poz;
-	XMFLOAT3					kam_cel;
-	XMFLOAT3					kam_gora;
-	float						proj_kat;
-	float						proj_blizsza;
-	float						proj_dalsza;
-	WekSegPula<XMFLOAT3>		ob_wierz;
-	WekSegPula<XMFLOAT2>		ob_wierz_teks;
-	WekSegPula<DWORD>			ob_ind;
-	WekLuz<uint32_t>			ob_teks;
-	ZasobyGraf					zas;
-	Fizyka*						fiz;
-	CoOb						co_ob;
+	void					tworz_model(uint32_t const&);
+	void					tworz_teks(uint32_t const&);
+	char const*const		wez_teks_sciezka(uint32_t const&) const;
+	void					aktual_co_ob(uint32_t const& _nr);
+	XMFLOAT3				kam_poz;
+	XMFLOAT3				kam_cel;
+	XMFLOAT3				kam_gora;
+	float					proj_kat;
+	float					proj_blizsza;
+	float					proj_dalsza;
+	UchPula					ob_nr;
+	Wek<uint32_t>			ob_model;
+	Wek<uint32_t>			ob_teks;
+	UchLuz					model_nr;
+	UchLuz					model_odn;
+	Wek2<XMFLOAT3>			model_wierz;
+	Wek2<XMFLOAT2>			model_teks;
+	Wek2<DWORD>				model_ind;
 	typedef ID3D11ShaderResourceView* TeksWid;
-	WekLuz<TeksWid>					teks_wid;
-	WekLuz<int32_t>					teks_ref_il;
+	UchLuz					teks_nr;
+	UchLuz					teks_odn;
+	Wek<TeksWid>			teks_wid;
+	ZasobyGraf				zas;
+	Fizyka*					fiz;
+	CoOb					co_ob;
 };
-
+// -------------------------------------------------------
 
 

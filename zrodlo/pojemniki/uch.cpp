@@ -1,9 +1,37 @@
 ﻿#pragma once
 
 #include <windows.h>
+#include <operatory.h>
 #include <uch.h>
+// -------------------------------------------------------
+UchLuz::UchLuz()
+	: el((uint32_t*)malloc(256*4)),
+	poj(256) {
+	wyp_pam(el, pusty, poj);
+}
+UchLuz::~UchLuz() {
+	free(el);
+}
+void UchLuz::aktual(uint32_t const*const& _mapa) {
+	for(uint32_t _i = 0; _i < poj; ++_i) {
+		if(el[_i] == 0x80000000) continue;
+		if(_mapa[el[_i]] == 0x80000000) continue;
+		el[_i] = _mapa[el[_i]];
+	}
+}
+void UchLuz::rezerw_tyl(uint32_t const& _poj) {
+	if(_poj <= poj) return;
 
-Uch::Uch()
+	uint32_t*const _el = (uint32_t*)malloc(_poj*4);
+	memcpy(_el, el, poj*4);
+	wyp_pam(_el+poj, pusty, _poj-poj);
+	free(el);
+	el = _el;
+	poj = _poj;
+}
+uint32_t UchLuz::pusty = 0x80000000;
+// -------------------------------------------------------
+UchPula::UchPula()
 	: el((uint32_t*)malloc(256*4)),
 	poj(256),
 	wolny(0) {
@@ -12,17 +40,17 @@ Uch::Uch()
 	}
 	el[poj-1] = 0xffffffff;
 }
-Uch::~Uch() {
+UchPula::~UchPula() {
 	free(el);
 }
-void Uch::aktual(uint32_t const*const& _mapa) {
+void UchPula::aktual(uint32_t const*const& _mapa) {
 	for(uint32_t _i = 0; _i < poj; ++_i) {
 		if(el[_i] & 0x80000000) continue;
 		if(_mapa[el[_i]] == 0x80000000) continue;
 		el[_i] = _mapa[el[_i]];
 	}
 }
-void Uch::rezerw_tyl(uint32_t const& _poj) {
+void UchPula::rezerw_tyl(uint32_t const& _poj) {
 	if(_poj <= poj) return;
 
 	uint32_t*const _el = (uint32_t*)malloc(_poj*4);
@@ -35,13 +63,14 @@ void Uch::rezerw_tyl(uint32_t const& _poj) {
 	}
 	el[poj++] = 0xffffffff;
 }
-uint32_t Uch::wstaw(uint32_t const& _nr) {
+uint32_t UchPula::wstaw(uint32_t const& _nr) {
 	if((el[wolny] & 0x7fffffff) >= poj) rezerw_tyl(poj*2);
 	uint32_t _nr_wstaw = wolny;
 	wolny = el[wolny] & 0x7fffffff;
 	el[_nr_wstaw] = _nr;
 	return _nr_wstaw;
 }
+// -------------------------------------------------------
 
 
 

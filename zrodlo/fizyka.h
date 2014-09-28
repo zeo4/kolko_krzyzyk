@@ -3,16 +3,18 @@
 #include <globalne.h>
 #include <typedefy.h>
 #include <drzewo8.h>
-#include <wektor.h>
+#include <wek.h>
+#include <uch.h>
 
 class Grafika;
 
 class Fizyka {
 	friend class Grafika;
 public:
-	uint32_t					wpisz_ob();
+	uint32_t			wpisz_ob();
 protected:
-	WekSegPula<XMFLOAT3>		przes;
+	UchPula				ob_nr;
+	Wek<XMFLOAT3>		przes;
 };
 
 // ---------------------------------------------

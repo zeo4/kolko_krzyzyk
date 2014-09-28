@@ -1,17 +1,18 @@
 ﻿#pragma once
 
-#include "grafika.h"
-
+#include <grafika.h>
+#include <uch.h>
+// -------------------------------------------------------
 CoOb::CoOb()
 	: mac_swp(XMMatrixIdentity()) {}
-
+// -------------------------------------------------------
 ZasobyGraf::ZasobyGraf()
 	: karta(0),
 	lanc(0),
 	rend(0),
-	ob_wierz_buf(0),
-	ob_wierz_teks_buf(0),
-	ob_ind_buf(0),
+	model_wierz_buf(0),
+	model_teks_buf(0),
+	model_ind_buf(0),
 	wierz_szad(0),
 	wierz_szad_buf(0),
 	piks_szad(0),
@@ -27,9 +28,9 @@ ZasobyGraf::~ZasobyGraf() {
 	karta->Release();
 	lanc->Release();
 	rend->Release();
-	ob_wierz_buf->Release();
-	ob_wierz_teks_buf->Release();
-	ob_ind_buf->Release();
+	model_wierz_buf->Release();
+	model_teks_buf->Release();
+	model_ind_buf->Release();
 	wierz_szad->Release();
 	wierz_szad_buf->Release();
 	piks_szad->Release();
@@ -47,29 +48,29 @@ ZasobyGraf::~ZasobyGraf() {
 void ZasobyGraf::aktual_co_ob(CoOb const& _co_ob) {
 	rend->UpdateSubresource(co_ob_buf, 0, 0, &_co_ob, 0, 0);
 }
-void ZasobyGraf::aktual_ob_ind(WekSegPula<DWORD>const& _ob_ind) {
+void ZasobyGraf::aktual_model_ind(Wek2<DWORD>const& _model_ind) {
 	D3D11_BUFFER_DESC _opis;
-	ob_ind_buf->GetDesc(&_opis);
-	if(_ob_ind.wez_el().wez_il()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
-		tworz_buf<DWORD>(karta, ob_ind_buf, _ob_ind.wez_el().wez_il(), D3D11_BIND_INDEX_BUFFER);
+	model_ind_buf->GetDesc(&_opis);
+	if(_model_ind.wez_il2()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
+		tworz_buf<DWORD>(karta, model_ind_buf, _model_ind.wez_il2(), D3D11_BIND_INDEX_BUFFER);
 	}
-	rend->UpdateSubresource(ob_ind_buf, 0, 0, &_ob_ind[0], 0, 0);
+	rend->UpdateSubresource(model_ind_buf, 0, 0, &_model_ind[0], 0, 0);
 }
-void ZasobyGraf::aktual_ob_wierz(WekSegPula<XMFLOAT3>const& _ob_wierz) {
+void ZasobyGraf::aktual_model_wierz(Wek2<XMFLOAT3>const& _model_wierz) {
 	D3D11_BUFFER_DESC _opis;
-	ob_wierz_buf->GetDesc(&_opis);
-	if(_ob_wierz.wez_el().wez_il()*sizeof(XMFLOAT3) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT3>(karta, ob_wierz_buf, _ob_wierz.wez_el().wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	model_wierz_buf->GetDesc(&_opis);
+	if(_model_wierz.wez_il2()*sizeof(XMFLOAT3) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT3>(karta, model_wierz_buf, _model_wierz.wez_il2(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(ob_wierz_buf, 0, 0, &_ob_wierz[0], 0, 0);
+	rend->UpdateSubresource(model_wierz_buf, 0, 0, &_model_wierz[0], 0, 0);
 }
-void ZasobyGraf::aktual_ob_wierz_teks(WekSegPula<XMFLOAT2>const& _ob_wierz_teks) {
+void ZasobyGraf::aktual_model_teks(Wek2<XMFLOAT2>const& _model_teks) {
 	D3D11_BUFFER_DESC _opis;
-	ob_wierz_teks_buf->GetDesc(&_opis);
-	if(_ob_wierz_teks.wez_el().wez_il()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT2>(karta, ob_wierz_teks_buf, _ob_wierz_teks.wez_el().wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	model_teks_buf->GetDesc(&_opis);
+	if(_model_teks.wez_il2()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT2>(karta, model_teks_buf, _model_teks.wez_il2(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(ob_wierz_teks_buf, 0, 0, &_ob_wierz_teks[0], 0, 0);
+	rend->UpdateSubresource(model_teks_buf, 0, 0, &_model_teks[0], 0, 0);
 }
 void ZasobyGraf::czysc_ekran() const {
 	FLOAT const kolor[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -126,14 +127,14 @@ void ZasobyGraf::tworz_karta_rend_lanc() {
 		D3D11_SDK_VERSION, &lanc_opis, &lanc, &karta, 0, &rend
 	);
 }
-void ZasobyGraf::tworz_ob_ind() {
-	tworz_buf<DWORD>(karta, ob_ind_buf, 1, D3D11_BIND_INDEX_BUFFER);
+void ZasobyGraf::tworz_model_ind() {
+	tworz_buf<DWORD>(karta, model_ind_buf, 1, D3D11_BIND_INDEX_BUFFER);
 }
-void ZasobyGraf::tworz_ob_wierz() {
-	tworz_buf<XMFLOAT3>(karta, ob_wierz_buf, 1, D3D11_BIND_VERTEX_BUFFER);
+void ZasobyGraf::tworz_model_wierz() {
+	tworz_buf<XMFLOAT3>(karta, model_wierz_buf, 1, D3D11_BIND_VERTEX_BUFFER);
 }
-void ZasobyGraf::tworz_ob_wierz_teks() {
-	tworz_buf<XMFLOAT2>(karta, ob_wierz_teks_buf, 1, D3D11_BIND_VERTEX_BUFFER);
+void ZasobyGraf::tworz_model_teks() {
+	tworz_buf<XMFLOAT2>(karta, model_teks_buf, 1, D3D11_BIND_VERTEX_BUFFER);
 }
 void ZasobyGraf::tworz_piks_szad() {
 	D3DX11CompileFromFile(
@@ -194,13 +195,13 @@ void ZasobyGraf::wiaz_co_ob() const {
 void ZasobyGraf::wiaz_cele_rend() const {
 	rend->OMSetRenderTargets(1, &cel_rend_wid, gleb_szab_wid);
 }
-void ZasobyGraf::wiaz_ob_ind(WekSegPula<DWORD>const&)const {
-	rend->IASetIndexBuffer(ob_ind_buf, DXGI_FORMAT_R32_UINT, 0);
+void ZasobyGraf::wiaz_model_ind()const {
+	rend->IASetIndexBuffer(model_ind_buf, DXGI_FORMAT_R32_UINT, 0);
 }
-void ZasobyGraf::wiaz_ob_wierz(WekSegPula<XMFLOAT3>const& _ob_wierz, WekSegPula<XMFLOAT2>const& _ob_wierz_teks) const {
-	ID3D11Buffer* _buf_we[] = {ob_wierz_buf, ob_wierz_teks_buf};
-	uint32_t _kroki[] = {_ob_wierz.wez_el().wez_rozm(), _ob_wierz_teks.wez_el().wez_rozm()};
-	uint32_t _przes[] = {0, _ob_wierz.wez_el().wez_il()*_ob_wierz.wez_el().wez_rozm()};
+void ZasobyGraf::wiaz_model_wierz(uint32_t const& _il_wierz) const {
+	ID3D11Buffer* _buf_we[] = {model_wierz_buf, model_teks_buf};
+	uint32_t _kroki[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT2)};
+	uint32_t _przes[] = {0, _il_wierz * sizeof(XMFLOAT3)};
 	rend->IASetVertexBuffers(0, 2, _buf_we, _kroki, _przes);
 }
 void ZasobyGraf::wiaz_piks_szad() const {
@@ -221,7 +222,7 @@ void ZasobyGraf::wiaz_topol_prym() const {
 void ZasobyGraf::wiaz_wierz_szad() const {
 	rend->VSSetShader(wierz_szad, 0, 0);
 }
-
+// -------------------------------------------------------
 void Grafika::aktual_co_ob(uint32_t const& _nr) {
 	co_ob.mac_swp = XMMatrixTranspose(
 		XMMatrixTranslation(fiz->przes[_nr].x, fiz->przes[_nr].y, fiz->przes[_nr].z)
@@ -229,14 +230,36 @@ void Grafika::aktual_co_ob(uint32_t const& _nr) {
 		* XMMatrixPerspectiveFovLH(proj_kat*3.14f/180, float(szerRend)/wysRend, proj_blizsza, proj_dalsza)
 	);
 }
+void Grafika::aktual_klatka() {
+	zas.czysc_ekran();
+	zas.aktual_model_wierz(model_wierz);
+	zas.aktual_model_teks(model_teks);
+	zas.aktual_model_ind(model_ind);
+	zas.wiaz_model_wierz(model_wierz.wez_il2());
+	zas.wiaz_model_ind();
+
+	for(uint32_t _uch = 0; _uch < ob_nr.wez_poj(); ++_uch) {
+		aktual_ob(_uch);
+	}
+
+	zas.lanc->Present(0, 0);
+}
+void Grafika::aktual_ob(uint32_t const& _uch) {
+	if(ob_nr[_uch] & 0x80000000) return;
+	aktual_co_ob(ob_nr[_uch]);
+	zas.aktual_co_ob(co_ob);
+
+	//_rend->PSSetShaderResources(0, 1, &_ob->teks[*_ob->_teks_mapa[_nr]].pierw);
+	//_rend->DrawIndexed(_ob->ind.wez_seg(_nr).drug, _ob->ind.wez_seg(_nr).pierw, 0);
+}
 void Grafika::inic() {
 	zas.tworz_karta_rend_lanc();
 	zas.tworz_gleb_szab_buf_wid();
 	zas.tworz_cel_rend_wid();
 	zas.wiaz_cele_rend();
-	zas.tworz_ob_wierz();
-	zas.tworz_ob_wierz_teks();
-	zas.tworz_ob_ind();
+	zas.tworz_model_wierz();
+	zas.tworz_model_teks();
+	zas.tworz_model_ind();
 	zas.tworz_wierz_szad();
 	zas.wiaz_wierz_szad();
 	zas.tworz_piks_szad();
@@ -260,25 +283,65 @@ void Grafika::inic() {
 void Grafika::lacz_fiz(Fizyka*const& _fiz) {
 	fiz = _fiz;
 }
-void Grafika::maz_ob(uint32_t const& _nr_ob) {
-	ob_wierz.maz(_nr_ob);
-	ob_wierz_teks.maz(_nr_ob);
-	ob_ind.maz(_nr_ob);
-	--teks_ref_il[ob_teks[_nr_ob]];
-	if(--teks_ref_il[ob_teks[_nr_ob]] < 1) {
-		// niszcz teksturę
-		teks_wid[ob_teks[_nr_ob]]->Release();
+void Grafika::usun_ob(uint32_t const& _uch) {
+	// usun model
+	uint32_t _uch_model = ob_model[ob_nr[_uch]];
+	uint32_t _nr_model = model_nr[_uch_model];
+	if(model_odn[_uch_model] > 1) --model_odn[_uch_model];
+	else {
+		model_nr[_uch_model] = model_nr.pusty;
+		model_odn[_uch_model] = 0;
+		model_wierz.usun(_nr_model);
+		model_teks.usun(_nr_model);
+		model_ind.usun(_nr_model);
 	}
-	ob_teks.maz(_nr_ob);
+
+	// usun teksturę
+	uint32_t _uch_teks = ob_teks[ob_nr[_uch]];
+	uint32_t _nr_teks = teks_nr[_uch_teks];
+	if(teks_odn[_uch_teks] > 1) --teks_odn[_uch_teks];
+	else {
+		teks_nr[_uch_teks] = teks_nr.pusty;
+		teks_odn[_uch_teks] = 0;
+		teks_wid[_nr_teks]->Release();
+	}
+
+	// usun obiekt
+	ob_model.usun(ob_nr[_uch]);
+	ob_teks.usun(ob_nr[_uch]);
+	ob_nr.usun(_uch);
 }
-void Grafika::pakuj() {
-	ob_wierz.pakuj();
-	ob_wierz_teks.pakuj();
-	ob_ind.pakuj();
+void Grafika::defrag() {
+	uint32_t* _mapa1 = 0,* _mapa2 = 0;
+
+	ob_model.defrag_licz(_mapa1, ob_model.wez_il());
+	ob_model.defrag_wyk(_mapa1);
+	ob_teks.defrag_wyk(_mapa1);
+	ob_nr.aktual(_mapa1);
+
+	model_wierz.defrag_licz(_mapa1, _mapa2, model_wierz.wez_il1());
+	model_wierz.defrag_wyk(_mapa1, _mapa2);
+	model_teks.defrag_wyk(_mapa1, _mapa2);
+	model_ind.defrag_wyk(_mapa1, _mapa2);
+	model_nr.aktual(_mapa1);
+	model_odn.aktual(_mapa1);
+
+	teks_wid.defrag_licz(_mapa1, teks_wid.wez_il());
+	teks_wid.defrag_wyk(_mapa1);
+	teks_nr.aktual(_mapa1);
+	teks_odn.aktual(_mapa1);
+
+	free(_mapa1); free(_mapa2);
 }
-uint32_t Grafika::wpisz_model(uint32_t const& _nr_model) {
-	uint32_t _uch_ob;
-	if(_nr_model == MOD_KURSOR) {
+void Grafika::tworz_model(uint32_t const& _uch) {
+	if(model_nr[_uch] != model_nr.pusty) {
+		++model_odn[_uch];
+		return;
+	} else {
+		model_nr[_uch] = model_wierz.wez_il1();
+		model_odn[_uch] = 1;
+	}
+	if(_uch == MOD_KURSOR) {
 		XMFLOAT3 _w[] = {
 			XMFLOAT3(+0.0f, -0.2f, +0.0f),
 			XMFLOAT3(+0.0f, +0.0f, +0.0f),
@@ -290,10 +353,10 @@ uint32_t Grafika::wpisz_model(uint32_t const& _nr_model) {
 			XMFLOAT2(+1.0f, +1.0f),
 		};
 		DWORD _i[] = {0, 1, 2};
-		_uch_ob = ob_wierz.wstaw_kon(_w[0], 3);
-		ob_wierz_teks.wstaw_kon(_t[0], 3);
-		ob_ind.wstaw_kon(_i[0], 3);
-	} else if(_nr_model == MOD_KWADRAT) {
+		model_wierz.wstaw_kon(&_w[0], 3);
+		model_teks.wstaw_kon(&_t[0], 3);
+		model_ind.wstaw_kon(&_i[0], 3);
+	} else if(_uch == MOD_KWADRAT) {
 		XMFLOAT3 _w[] = {
 			XMFLOAT3(+0.5f, -0.5f, +0.0f),
 			XMFLOAT3(-0.5f, -0.5f, +0.0f),
@@ -310,10 +373,10 @@ uint32_t Grafika::wpisz_model(uint32_t const& _nr_model) {
 			0, 1, 2,
 			0, 2, 3
 		};
-		_uch_ob = ob_wierz.wstaw_kon(_w[0], 4);
-		ob_wierz_teks.wstaw_kon(_t[0], 4);
-		ob_ind.wstaw_kon(_i[0], 6);
-	} else if(_nr_model == MOD_DIAMENT) {
+		model_wierz.wstaw_kon(&_w[0], 4);
+		model_teks.wstaw_kon(&_t[0], 4);
+		model_ind.wstaw_kon(&_i[0], 6);
+	} else if(_uch == MOD_DIAMENT) {
 		XMFLOAT3 _w[] = {
 			XMFLOAT3(-0.25f, +0.0f, -0.25f),
 			XMFLOAT3(+0.25f, +0.0f, -0.25f),
@@ -340,27 +403,31 @@ uint32_t Grafika::wpisz_model(uint32_t const& _nr_model) {
 			3, 4, 0,
 			0, 5, 3,
 		};
-		_uch_ob = ob_wierz.wstaw_kon(_w[0], 6);
-		ob_wierz_teks.wstaw_kon(_t[0], 6);
-		ob_ind.wstaw_kon(_i[0], 24);
+		model_wierz.wstaw_kon(&_w[0], 6);
+		model_teks.wstaw_kon(&_t[0], 6);
+		model_ind.wstaw_kon(&_i[0], 24);
 	}
-	return _uch_ob;
 }
-uint32_t Grafika::wpisz_ob(uint32_t const& _nr_model, uint32_t const& _nr_teks) {
-	uint32_t _nr_ob = wpisz_model(_nr_model);
-	ob_teks.wpisz(_nr_teks, _nr_ob);
-	wpisz_teks(_nr_teks);
-	return _nr_ob;
+uint32_t Grafika::tworz_ob(uint32_t const& _nr_model, uint32_t const& _nr_teks) {
+	ob_model.wstaw_kon(_nr_model);
+	ob_teks.wstaw_kon(_nr_teks);
+	tworz_model(_nr_model);
+	tworz_teks(_nr_teks);
+	return ob_nr.wstaw(ob_model.wez_il()-1);
 }
-void Grafika::wpisz_teks(uint32_t const& _nr_teks) {
-	teks_wid.wpisz(0, _nr_teks);
-	if(teks_ref_il[_nr_teks] < 1) {
-		D3DX11CreateShaderResourceViewFromFile(zas.karta, wez_teks_sciezka(_nr_teks), 0, 0, &teks_wid[_nr_teks], 0);
+void Grafika::tworz_teks(uint32_t const& _uch) {
+	if(teks_nr[_uch] != teks_nr.pusty) {
+		++teks_odn[_uch];
+		return;
+	} else {
+		teks_nr[_uch] = teks_wid.wez_il();
+		teks_odn[_uch] = 1;
 	}
-	++teks_ref_il[_nr_teks];
+	teks_wid.wstaw_kon(0);
+	D3DX11CreateShaderResourceViewFromFile(zas.karta, wez_teks_sciezka(_uch), 0, 0, &teks_wid[teks_wid.wez_il()-1], 0);
 }
-char const*const Grafika::wez_teks_sciezka(uint32_t const& _nr_teks) const {
-	switch(_nr_teks) {
+char const*const Grafika::wez_teks_sciezka(uint32_t const& _nr) const {
+	switch(_nr) {
 	case TEKS_KURSOR:
 		return "kursor.jpg";
 	case TEKS_KWADRAT:
@@ -369,29 +436,7 @@ char const*const Grafika::wez_teks_sciezka(uint32_t const& _nr_teks) const {
 		return "diament.jpg";
 	}
 }
-void Grafika::wyk_co_klatka() {
-	zas.czysc_ekran();
-	zas.aktual_ob_wierz(ob_wierz);
-	zas.aktual_ob_wierz_teks(ob_wierz_teks);
-	zas.aktual_ob_ind(ob_ind);
-	zas.wiaz_ob_wierz(ob_wierz, ob_wierz_teks);
-	zas.wiaz_ob_ind(ob_ind);
-
-	for(uint32_t _i = 0; _i < ob_wierz.wez_seg().wez_poj(); ++_i) {
-		if(ob_wierz.wez_seg().sprawdz_pusty(_i)) continue;
-		wyk_co_ob(_i);
-	}
-
-	zas.lanc->Present(0, 0);
-}
-void Grafika::wyk_co_ob(uint32_t const& _nr) {
-	aktual_co_ob(_nr);
-	zas.aktual_co_ob(co_ob);
-
-	//_rend->PSSetShaderResources(0, 1, &_ob->teks[*_ob->_teks_mapa[_nr]].pierw);
-	//_rend->DrawIndexed(_ob->ind.wez_seg(_nr).drug, _ob->ind.wez_seg(_nr).pierw, 0);
-}
-
+// -------------------------------------------------------
 
 
 

@@ -3,7 +3,8 @@
 #include <fizyka.h>
 
 uint32_t Fizyka::wpisz_ob() {
-	return przes.wstaw_kon(XMFLOAT3(+0.0f,+0.0f,+0.0f));
+	przes.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	return ob_nr.wstaw(przes.wez_il()-1);
 }
 
 //IFizyka::IFizyka(IObiekt* const ob) : obiekt (ob)

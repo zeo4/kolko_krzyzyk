@@ -7,7 +7,7 @@
 #include<wek.h>
 #include<uch.h>
 // -------------------------------------------------------
-class TestWektor : public Wektor<uint32_t> {
+class TestWek : public Wek<uint32_t> {
 public:
 	void		inic();
 	void		inicMalo();
@@ -37,7 +37,7 @@ public:
 	void		testDefragCalosc();
 };
 // -------------------------------------------------------
-class TestWektor2 : public Wektor2<uint32_t> {
+class TestWek2 : public Wek2<uint32_t> {
 public:
 	void		inic();
 	void		inicMalo();
@@ -67,7 +67,18 @@ public:
 	void		testDefragCalosc();
 };
 // -------------------------------------------------------
-class TestUch : public Uch {
+class TestUchLuz : public UchLuz {
+public:
+	void		inic();
+	void		niszcz();
+	void		wykonaj();
+	void		testAktualWszystkie();
+	void		testAktualPoczKon();
+	void		testAktualSrodek();
+	void		testAktualZadne();
+};
+// -------------------------------------------------------
+class TestUchPula : public UchPula {
 public:
 	void		inic();
 	void		niszcz();

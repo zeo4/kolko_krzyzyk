@@ -48,11 +48,11 @@ void Swiat::inic() {
 	graf.inic();
 }
 void Swiat::rysuj() {
-	graf.wyk_co_klatka();
+	graf.aktual_klatka();
 }
 uint32_t Swiat::tworz_ob(uint32_t const& _MOD, uint32_t const& _TEKS) {
 	fiz.wpisz_ob();
-	graf.wpisz_ob(_MOD, _TEKS);
+	graf.tworz_ob(_MOD, _TEKS);
 	//ob.tworz(MOD_KURSOR, TEKS_KURSOR);
 	//ob.tworz(MOD_KWADRAT, TEKS_KWADRAT);
 	//ob.tworz(MOD_DIAMENT, TEKS_DIAMENT);

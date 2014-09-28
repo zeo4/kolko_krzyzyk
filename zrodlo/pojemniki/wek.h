@@ -4,10 +4,10 @@
 #include <operatory.h>
 // -------------------------------------------------------
 template<class T>
-class Wektor {
+class Wek {
 public:
-								Wektor();
-								~Wektor();
+								Wek();
+								~Wek();
 	inline T&					operator[](uint32_t const&) const;
 	void						rezerw_tyl(uint32_t const&);
 	void						rezerw_przod(uint32_t const&);
@@ -31,21 +31,21 @@ protected:
 	uint32_t					pierw_pusty;
 };
 template<class T>
-Wektor<T>::Wektor()
+Wek<T>::Wek()
 	: el((T*)malloc(256*sizeof(T))),
 	il(0),
 	poj(256),
 	pierw_pusty(0) {}
 template<class T>
-Wektor<T>::~Wektor() {
+Wek<T>::~Wek() {
 	free(el);
 }
 template<class T>
-T& Wektor<T>::operator[](uint32_t const& _nr) const {
+T& Wek<T>::operator[](uint32_t const& _nr) const {
 	return el[_nr];
 }
 template<class T>
-void Wektor<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
+void Wek<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
 	free(_mapa);
 	_mapa = (uint32_t*)malloc(il*4);
 	wyp_pam(_mapa, 0x80000000, il);
@@ -54,25 +54,25 @@ void Wektor<T>::defrag_licz(uint32_t*& _mapa, uint32_t const& _il) {
 
 	uint32_t _n = 0, _ind_pelny = pierw_pusty;
 	while(_n < _il && _ind_pelny < il-1) {
-		if(el[++_ind_pelny] == pusty) continue;
+		if(memcmp(&el[++_ind_pelny], &pusty, sizeof(T)) == 0) continue;
 		_mapa[_ind_pelny] = pierw_pusty++;
 		++_n;
 	}
 }
 template<class T>
-void Wektor<T>::defrag_wyk(uint32_t const*const& _mapa) {
+void Wek<T>::defrag_wyk(uint32_t const*const& _mapa) {
 	if(pierw_pusty >= il) return;
 	for(uint32_t _i = 0; _i < il; ++_i) {
 		if(_mapa[_i] == 0x80000000) continue;
 		zamien(_i, _mapa[_i]);
 	}
 	for(int32_t _i = il-1; _i >= 0; --_i) {
-		if(el[_i] != pusty) break;
+		if(memcmp(&el[_i], &pusty, sizeof(T)) != 0) break;
 		--il;
 	}
 }
 template<class T>
-void Wektor<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
+void Wek<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
 	_hasz_min = 0x80000000;
 	_hasz_maks = 0;
 	uint32_t _hasz;
@@ -85,7 +85,7 @@ void Wektor<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
 	if(_hasz_min == 0x80000000) _hasz_min = 1;
 }
 template<class T>
-void Wektor<T>::rezerw_przod(uint32_t const& _poj) {
+void Wek<T>::rezerw_przod(uint32_t const& _poj) {
 	if(_poj <= poj) return;
 
 	T*const _el = (T*const)malloc(_poj*sizeof(T));
@@ -96,7 +96,7 @@ void Wektor<T>::rezerw_przod(uint32_t const& _poj) {
 	poj = _poj;
 }
 template<class T>
-void Wektor<T>::rezerw_tyl(uint32_t const& _poj) {
+void Wek<T>::rezerw_tyl(uint32_t const& _poj) {
 	if(_poj <= poj) return;
 
 	T*const _el = (T*const)malloc(_poj*sizeof(T));
@@ -106,7 +106,7 @@ void Wektor<T>::rezerw_tyl(uint32_t const& _poj) {
 	poj = _poj;
 }
 template<class T>
-void Wektor<T>::uloz_licz(uint32_t*& _mapa) const {
+void Wek<T>::uloz_licz(uint32_t*& _mapa) const {
 	if(il < 2) return;
 	uint32_t _i;
 
@@ -151,7 +151,7 @@ void Wektor<T>::uloz_licz(uint32_t*& _mapa) const {
 	_mapa = _t1;
 }
 template<class T>
-void Wektor<T>::uloz_unikat_licz(uint32_t*& _mapa) const {
+void Wek<T>::uloz_unikat_licz(uint32_t*& _mapa) const {
 	if(il < 2) return;
 	uint32_t _i;
 
@@ -192,7 +192,7 @@ void Wektor<T>::uloz_unikat_licz(uint32_t*& _mapa) const {
 	_mapa = _t1;
 }
 template<class T>
-void Wektor<T>::uloz_wyk(uint32_t const*const& _mapa) {
+void Wek<T>::uloz_wyk(uint32_t const*const& _mapa) {
 	T*const _el = (T*const)malloc(poj*sizeof(T));
 	uint32_t _il = 0;
 	for(uint32_t _i = 0; _i < il; ++_i) {
@@ -205,38 +205,38 @@ void Wektor<T>::uloz_wyk(uint32_t const*const& _mapa) {
 	il = _il;
 }
 template<class T>
-void Wektor<T>::usun(uint32_t const& _nr, uint32_t const& _il) {
+void Wek<T>::usun(uint32_t const& _nr, uint32_t const& _il) {
 	wyp_pam(&el[_nr], pusty, _il);
 	if(_nr < pierw_pusty) pierw_pusty = _nr;
 }
 template<class T>
-void Wektor<T>::usun_kon(uint32_t const& _il) {
+void Wek<T>::usun_kon(uint32_t const& _il) {
 	if(il <= _il) il = 0;
 	else il -= _il;
 }
 template<class T>
-uint32_t const& Wektor<T>::wez_il() const {
+uint32_t const& Wek<T>::wez_il() const {
 	return il;
 }
 template<class T>
-uint32_t const& Wektor<T>::wez_pierw_pusty() const {
+uint32_t const& Wek<T>::wez_pierw_pusty() const {
 	return pierw_pusty;
 }
 template<class T>
-void Wektor<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
+void Wek<T>::wstaw_kon(T const& _el, uint32_t const& _il) {
 	while(il+_il > poj) rezerw_tyl(poj*2);
 	memmove(&el[il], &_el, _il*sizeof(T));
 	if(pierw_pusty >= il) pierw_pusty = il+_il;
 	il += _il;
 }
 template<class T>
-void Wektor<T>::zamien(uint32_t const& _nr1, uint32_t const& _nr2) {
+void Wek<T>::zamien(uint32_t const& _nr1, uint32_t const& _nr2) {
 	T _el = el[_nr1];
 	el[_nr1] = el[_nr2];
 	el[_nr2] = _el;
 }
 template<class T>
-T const Wektor<T>::pusty = gen_min<T>();
+T const Wek<T>::pusty = gen_min<T>();
 // -------------------------------------------------------
 template<class A, class B = A>
 struct Paraa {
@@ -261,7 +261,7 @@ std::ostream& operator<<(std::ostream& _strumien, Paraa<A,B> const& _para) {
 }
 // -------------------------------------------------------
 template<class T>
-class Wektor2 {
+class Wek2 {
 public:
 	typedef Paraa<uint32_t> Wiersz_;
 	typedef Paraa<T const*,uint32_t> WierszEl_;
@@ -270,7 +270,8 @@ public:
 	inline void					usun(uint32_t const&, uint32_t = 1);
 	inline void					usun_kon(uint32_t = 1);
 	inline Wiersz_ const&		wez_wier(uint32_t const&) const;
-	inline uint32_t const&		wez_il() const;
+	inline uint32_t const&		wez_il1() const;
+	inline uint32_t const&		wez_il2() const;
 	void						defrag_licz(uint32_t*&, uint32_t*&, uint32_t const&);
 	void						defrag_wyk(uint32_t const*const&,
 									uint32_t const*const&);
@@ -280,15 +281,15 @@ public:
 	static Wiersz_ const		pusty;
 protected:
 	void						licz_zakres(uint32_t&, uint32_t&) const;
-	Wektor<Wiersz_>				wier;
-	Wektor<T>					el;
+	Wek<Wiersz_>				wier;
+	Wek<T>						el;
 };
 template<class T>
-T*const& Wektor2<T>::operator[](uint32_t const& _nr) const {
+T*const& Wek2<T>::operator[](uint32_t const& _nr) const {
 	return &el[wier[_nr].pierw];
 }
 template<class T>
-void Wektor2<T>::defrag_licz(uint32_t*& _mapa_wier, uint32_t*& _mapa_el, uint32_t const& _il_wier) {
+void Wek2<T>::defrag_licz(uint32_t*& _mapa_wier, uint32_t*& _mapa_el, uint32_t const& _il_wier) {
 	// licz ile elementów odpowiada podanej ilości wierszy
 	uint32_t _il_el = 0, _licz = _il_wier;
 	for(uint32_t _ind = wier.wez_pierw_pusty();
@@ -303,12 +304,12 @@ void Wektor2<T>::defrag_licz(uint32_t*& _mapa_wier, uint32_t*& _mapa_el, uint32_
 	el.defrag_licz(_mapa_el, _il_el);
 }
 template<class T>
-void Wektor2<T>::defrag_wyk(uint32_t const*const& _mapa_wier, uint32_t const*const& _mapa_el) {
+void Wek2<T>::defrag_wyk(uint32_t const*const& _mapa_wier, uint32_t const*const& _mapa_el) {
 	wier.defrag_wyk(_mapa_wier);
 	el.defrag_wyk(_mapa_el);
 }
 template<class T>
-void Wektor2<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
+void Wek2<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
 	_hasz_min = 0x80000000;
 	_hasz_maks = 0;
 	uint32_t _hasz;
@@ -321,7 +322,7 @@ void Wektor2<T>::licz_zakres(uint32_t& _hasz_min, uint32_t& _hasz_maks) const {
 	if(_hasz_min == 0x80000000) _hasz_min = 1;
 }
 template<class T>
-void Wektor2<T>::uloz_licz(uint32_t*& _mapa_wier) const {
+void Wek2<T>::uloz_licz(uint32_t*& _mapa_wier) const {
 	if(wier.wez_il() < 2) return;
 	uint32_t _i;
 
@@ -366,7 +367,7 @@ void Wektor2<T>::uloz_licz(uint32_t*& _mapa_wier) const {
 	_mapa_wier = _t1;
 }
 template<class T>
-void Wektor2<T>::uloz_unikat_licz(uint32_t*& _mapa_wier) const {
+void Wek2<T>::uloz_unikat_licz(uint32_t*& _mapa_wier) const {
 	if(wier.wez_il() < 2) return;
 	uint32_t _i;
 
@@ -407,7 +408,7 @@ void Wektor2<T>::uloz_unikat_licz(uint32_t*& _mapa_wier) const {
 	_mapa_wier = _t1;
 }
 template<class T>
-void Wektor2<T>::uloz_wyk(uint32_t const*const& _mapa_wier) {
+void Wek2<T>::uloz_wyk(uint32_t const*const& _mapa_wier) {
 	wier.uloz_wyk(_mapa_wier);
 
 	// twórz mapę elementów, aktualizuj wiersze
@@ -424,14 +425,14 @@ void Wektor2<T>::uloz_wyk(uint32_t const*const& _mapa_wier) {
 	el.uloz_wyk(_mapa_el);
 }
 template<class T>
-void Wektor2<T>::usun(uint32_t const& _nr, uint32_t _il) {
+void Wek2<T>::usun(uint32_t const& _nr, uint32_t _il) {
 	for(uint32_t _i = 0; _i < _il; ++_i) {
 		el.usun(wier[_nr+_i].pierw, wier[_nr+_i].drug);
 		wier.usun(_nr+_i);
 	}
 }
 template<class T>
-void Wektor2<T>::usun_kon(uint32_t _il) {
+void Wek2<T>::usun_kon(uint32_t _il) {
 	if(_il > wier.wez_il()) _il = wier.wez_il();
 	for(uint32_t _i = 0; _i < _il; ++_i) {
 		el.usun_kon(wier[wier.wez_il()-1].drug);
@@ -439,21 +440,25 @@ void Wektor2<T>::usun_kon(uint32_t _il) {
 	}
 }
 template<class T>
-uint32_t const& Wektor2<T>::wez_il() const {
+uint32_t const& Wek2<T>::wez_il1() const {
 	return wier.wez_il();
 }
 template<class T>
-typename Wektor2<T>::Wiersz_ const& Wektor2<T>::wez_wier(uint32_t const& _nr) const {
+uint32_t const& Wek2<T>::wez_il2() const {
+	return el.wez_il();
+}
+template<class T>
+typename Wek2<T>::Wiersz_ const& Wek2<T>::wez_wier(uint32_t const& _nr) const {
 	return wier[_nr];
 }
 template<class T>
-void Wektor2<T>::wstaw_kon(T const*const& _el, uint32_t const& _il) {
+void Wek2<T>::wstaw_kon(T const*const& _el, uint32_t const& _il) {
 	if(_il == 0) return;
 	wier.wstaw_kon({el.wez_il(), _il});
 	el.wstaw_kon(*_el, _il);
 }
 template<class T>
-typename Wektor2<T>::Wiersz_ const Wektor2<T>::pusty = gen_min<Wiersz_>();
+typename Wek2<T>::Wiersz_ const Wek2<T>::pusty = gen_min<Wiersz_>();
 // -------------------------------------------------------
 
 
