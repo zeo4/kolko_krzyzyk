@@ -454,12 +454,12 @@ void TestWek2::testUlozLiczUsunietePoczKon() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	usun(0);
-	usun(wez_il1()-1);
+	usun(wez_il_wier()-1);
 	uint32_t* _mapa = 0;
 	uloz_licz(_mapa);
 	UPEWNIJ_R(_mapa[0], 0x80000000) << "\n";
-	UPEWNIJ_R(_mapa[wez_il1()-1], 0x80000000) << "\n";
-	for(uint32_t _i = 1; _i < wez_il1()-1; ++_i) {
+	UPEWNIJ_R(_mapa[wez_il_wier()-1], 0x80000000) << "\n";
+	for(uint32_t _i = 1; _i < wez_il_wier()-1; ++_i) {
 		UPEWNIJ_NR(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
 	free(_mapa);
@@ -469,14 +469,14 @@ void TestWek2::testUlozLiczUsunieteSrodek() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t _od1, _od2, _il;
-	_od1 = wez_il1()*1/4;
-	_od2 = wez_il1()*3/4;
-	_il = wez_il1()/10;
+	_od1 = wez_il_wier()*1/4;
+	_od2 = wez_il_wier()*3/4;
+	_il = wez_il_wier()/10;
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
 	uloz_licz(_mapa);
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		if(_i < _od1) UPEWNIJ_NR(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 		else if(_i < _od1+_il) UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 		else if(_i < _od2) UPEWNIJ_NR(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
@@ -489,10 +489,10 @@ void TestWek2::testUlozLiczUsunieteSrodek() {
 void TestWek2::testUlozLiczUsunieteWszystkie() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	usun(0, wez_il1());
+	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
 	uloz_licz(_mapa);
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
 	free(_mapa);
@@ -504,7 +504,7 @@ void TestWek2::testUlozNieusunieteZadne() {
 	uint32_t* _mapa = 0;
 	uloz_licz(_mapa);
 	uloz_wyk(_mapa);
-	for(uint32_t _i = 1; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 1; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_MR(el[wier[_i-1].pierw], el[wier[_i].pierw]) << "_i=" << _i << "\n";
 	}
 	free(_mapa);
@@ -513,13 +513,13 @@ void TestWek2::testUlozNieusunieteZadne() {
 void TestWek2::testUlozUsunietePoczKon() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	uint32_t _pocz = el[wier[0].pierw], _kon = el[wier[wez_il1()-1].pierw];
+	uint32_t _pocz = el[wier[0].pierw], _kon = el[wier[wez_il_wier()-1].pierw];
 	uint32_t* _mapa = 0;
 	usun(0);
-	usun(wez_il1()-1);
+	usun(wez_il_wier()-1);
 	uloz_licz(_mapa);
 	uloz_wyk(_mapa);
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_MR(el[wier[_i].pierw], _pocz) << "_i=" << _i << "\n";
 		UPEWNIJ_WR(el[wier[_i].pierw], _kon) << "_i=" << _i << "\n";
 	}
@@ -530,9 +530,9 @@ void TestWek2::testUlozUsunieteSrodek() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t _od1, _od2, _il, _il1 = 0, _il2 = 0;
-	_od1 = wez_il1()*1/4;
-	_od2 = wez_il1()*3/4;
-	_il = wez_il1()/10;
+	_od1 = wez_il_wier()*1/4;
+	_od2 = wez_il_wier()*3/4;
+	_il = wez_il_wier()/10;
 	for(uint32_t _i = _od1; _i < _od1+_il; ++_i) {
 		_il1 += wier[_i].drug;
 	}
@@ -562,7 +562,7 @@ void TestWek2::testUlozUsunieteSrodek() {
 void TestWek2::testUlozUsunieteWszystkie() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	usun(0, wez_il1());
+	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
 	uloz_licz(_mapa);
 	uloz_wyk(_mapa);
@@ -595,13 +595,13 @@ void TestWek2::testUlozUnikatLiczUsunietePoczKon() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	usun(0);
-	usun(wez_il1()-1);
+	usun(wez_il_wier()-1);
 	uint32_t* _mapa = 0;
 	uloz_unikat_licz(_mapa);
 	UPEWNIJ_R(_mapa[0], 0x80000000) << "\n";
-	UPEWNIJ_R(_mapa[wez_il1()-1], 0x80000000) << "\n";
+	UPEWNIJ_R(_mapa[wez_il_wier()-1], 0x80000000) << "\n";
 	uint32_t _ind = 1;
-	for(uint32_t _i = 2; _i < wez_il1()-1; ++_i) {
+	for(uint32_t _i = 2; _i < wez_il_wier()-1; ++_i) {
 		if(el[wier[_ind].pierw] == el[wier[_i].pierw])
 			UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 		else
@@ -615,15 +615,15 @@ void TestWek2::testUlozUnikatLiczUsunieteSrodek() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t _od1, _od2, _il;
-	_od1 = wez_il1()*1/4;
-	_od2 = wez_il1()*3/4;
-	_il = wez_il1()/10;
+	_od1 = wez_il_wier()*1/4;
+	_od2 = wez_il_wier()*3/4;
+	_il = wez_il_wier()/10;
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
 	uloz_unikat_licz(_mapa);
 	uint32_t _ind = 0;
-	for(uint32_t _i = 1; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 1; _i < wez_il_wier(); ++_i) {
 		if(el[wier[_ind].pierw] == el[wier[_i].pierw]) UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 		else if(_i < _od1) UPEWNIJ_NR(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 		else if(_i < _od1+_il) UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
@@ -638,10 +638,10 @@ void TestWek2::testUlozUnikatLiczUsunieteSrodek() {
 void TestWek2::testUlozUnikatLiczUsunieteWszystkie() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	usun(0, wez_il1());
+	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
 	uloz_unikat_licz(_mapa);
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
 	free(_mapa);
@@ -653,7 +653,7 @@ void TestWek2::testUlozUnikatNieusunieteZadne() {
 	uint32_t* _mapa = 0;
 	uloz_unikat_licz(_mapa);
 	uloz_wyk(_mapa);
-	for(uint32_t _i = 1; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 1; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_M(el[wier[_i-1].pierw], el[wier[_i].pierw]) << "_i=" << _i << "\n";
 	}
 	free(_mapa);
@@ -662,13 +662,13 @@ void TestWek2::testUlozUnikatNieusunieteZadne() {
 void TestWek2::testUlozUnikatUsunietePoczKon() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	uint32_t _pocz = el[wier[0].pierw], _kon = el[wier[wez_il1()-1].pierw];
+	uint32_t _pocz = el[wier[0].pierw], _kon = el[wier[wez_il_wier()-1].pierw];
 	uint32_t* _mapa = 0;
 	usun(0);
-	usun(wez_il1()-1);
+	usun(wez_il_wier()-1);
 	uloz_unikat_licz(_mapa);
 	uloz_wyk(_mapa);
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_MR(el[wier[_i].pierw], _pocz) << "_i=" << _i << "\n";
 		UPEWNIJ_WR(el[wier[_i].pierw], _kon) << "_i=" << _i << "\n";
 	}
@@ -679,9 +679,9 @@ void TestWek2::testUlozUnikatUsunieteSrodek() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t _od1, _od2, _il, _il1 = 0, _il2 = 0;
-	_od1 = wez_il1()*1/4;
-	_od2 = wez_il1()*3/4;
-	_il = wez_il1()/10;
+	_od1 = wez_il_wier()*1/4;
+	_od2 = wez_il_wier()*3/4;
+	_il = wez_il_wier()/10;
 	for(uint32_t _i = _od1; _i < _od1+_il; ++_i) {
 		_il1 += wier[_i].drug;
 	}
@@ -711,7 +711,7 @@ void TestWek2::testUlozUnikatUsunieteSrodek() {
 void TestWek2::testUlozUnikatUsunieteWszystkie() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
-	usun(0, wez_il1());
+	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
 	uloz_unikat_licz(_mapa);
 	uloz_wyk(_mapa);
@@ -724,14 +724,14 @@ void TestWek2::testDefragLiczZdefrag() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	defrag_licz(_mapa_wier, _mapa_el, wez_il1());
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	defrag_licz(_mapa_wier, _mapa_el, wez_il_wier());
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_R(_mapa_wier[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
 	for(uint32_t _i = 0; _i < el.wez_il(); ++_i) {
 		UPEWNIJ_R(_mapa_el[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
-	UPEWNIJ_R(wez_il1(), 50) << "\n";
+	UPEWNIJ_R(wez_il_wier(), 50) << "\n";
 	free(_mapa_wier);
 	free(_mapa_el);
 	niszcz();
@@ -739,12 +739,12 @@ void TestWek2::testDefragLiczZdefrag() {
 void TestWek2::testDefragPocz() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
-	uint32_t _ind1 = 0, _ind2 = wez_il1()/2;
+	uint32_t _ind1 = 0, _ind2 = wez_il_wier()/2;
 	usun(_ind1);
 	usun(_ind2);
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	for(_ind1; _ind1 < wez_il1()-2; ++_ind1) {
-		for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(_ind1; _ind1 < wez_il_wier()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
@@ -753,7 +753,7 @@ void TestWek2::testDefragPocz() {
 		defrag_licz(_mapa_wier, _mapa_el, 1);
 		defrag_wyk(_mapa_wier, _mapa_el);
 	}
-	UPEWNIJ_R(wez_il1(), 48) << "\n";
+	UPEWNIJ_R(wez_il_wier(), 48) << "\n";
 	free(_mapa_wier);
 	free(_mapa_el);
 	niszcz();
@@ -761,12 +761,12 @@ void TestWek2::testDefragPocz() {
 void TestWek2::testDefragSrodek() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
-	uint32_t _ind1 = wez_il1()/4, _ind2 = wez_il1()/2;
+	uint32_t _ind1 = wez_il_wier()/4, _ind2 = wez_il_wier()/2;
 	usun(_ind1);
 	usun(_ind2);
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	for(_ind1; _ind1 < wez_il1()-2; ++_ind1) {
-		for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(_ind1; _ind1 < wez_il_wier()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else if(_ind1 < _ind2 && _i == _ind2) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else if(_ind1 >= _ind2 && _i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
@@ -775,7 +775,7 @@ void TestWek2::testDefragSrodek() {
 		defrag_licz(_mapa_wier, _mapa_el, 1);
 		defrag_wyk(_mapa_wier, _mapa_el);
 	}
-	UPEWNIJ_R(wez_il1(), 48) << "\n";
+	UPEWNIJ_R(wez_il_wier(), 48) << "\n";
 	free(_mapa_wier);
 	free(_mapa_el);
 	niszcz();
@@ -783,12 +783,12 @@ void TestWek2::testDefragSrodek() {
 void TestWek2::testDefragSrodekLaczony() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
-	uint32_t _ind1 = wez_il1()/2-1, _ind2 = wez_il1()/2;
+	uint32_t _ind1 = wez_il_wier()/2-1, _ind2 = wez_il_wier()/2;
 	usun(_ind1);
 	usun(_ind2);
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	for(_ind1; _ind1 < wez_il1()-2; ++_ind1) {
-		for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	for(_ind1; _ind1 < wez_il_wier()-2; ++_ind1) {
+		for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 			if(_i == _ind1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else if(_i == _ind1+1) UPEWNIJ_R(wier[_i], pusty) << "_i=" << _i << "\n";
 			else UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
@@ -796,7 +796,7 @@ void TestWek2::testDefragSrodekLaczony() {
 		defrag_licz(_mapa_wier, _mapa_el, 1);
 		defrag_wyk(_mapa_wier, _mapa_el);
 	}
-	UPEWNIJ_R(wez_il1(), 48) << "\n";
+	UPEWNIJ_R(wez_il_wier(), 48) << "\n";
 	free(_mapa_wier);
 	free(_mapa_el);
 	niszcz();
@@ -804,12 +804,12 @@ void TestWek2::testDefragSrodekLaczony() {
 void TestWek2::testDefragKon() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
-	uint32_t _il = wez_il1();
-	usun(wez_il1()-1);
+	uint32_t _il = wez_il_wier();
+	usun(wez_il_wier()-1);
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
 	defrag_licz(_mapa_wier, _mapa_el, 1);
 	defrag_wyk(_mapa_wier, _mapa_el);
-	UPEWNIJ_R(wez_il1(), _il-1) << "\n";
+	UPEWNIJ_R(wez_il_wier(), _il-1) << "\n";
 	free(_mapa_wier);
 	free(_mapa_el);
 	niszcz();
@@ -817,14 +817,14 @@ void TestWek2::testDefragKon() {
 void TestWek2::testDefragCalosc() {
 	std::cout << __FUNCTION__ << "\n";
 	inicMalo();
-	uint32_t _ind1 = wez_il1()/4, _ind2 = wez_il1()/2;
+	uint32_t _ind1 = wez_il_wier()/4, _ind2 = wez_il_wier()/2;
 	usun(_ind1);
 	usun(_ind2);
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	defrag_licz(_mapa_wier, _mapa_el, 2*wez_il1());
+	defrag_licz(_mapa_wier, _mapa_el, 2*wez_il_wier());
 	defrag_wyk(_mapa_wier, _mapa_el);
-	UPEWNIJ_R(wez_il1(), 48) << "\n";
-	for(uint32_t _i = 0; _i < wez_il1(); ++_i) {
+	UPEWNIJ_R(wez_il_wier(), 48) << "\n";
+	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_NR(wier[_i], pusty) << "_i=" << _i << "\n";
 	}
 	free(_mapa_wier);

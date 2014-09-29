@@ -44,8 +44,8 @@ void Swiat::niszczObiektySwiat() {
 }*/
 void Swiat::inic() {
 	graf.lacz_fiz(&fiz);
-	tworz_ob(MOD_KURSOR, TEKS_KURSOR);
 	graf.inic();
+	tworz_ob(MOD_KURSOR, TEKS_KURSOR);
 }
 void Swiat::rysuj() {
 	graf.aktual_klatka();

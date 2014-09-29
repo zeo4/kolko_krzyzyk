@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <debug.h>
 #include <grafika.h>
 #include <uch.h>
 // -------------------------------------------------------
@@ -13,11 +14,11 @@ ZasobyGraf::ZasobyGraf()
 	model_wierz_buf(0),
 	model_teks_buf(0),
 	model_ind_buf(0),
-	wierz_szad(0),
-	wierz_szad_buf(0),
-	piks_szad(0),
-	piks_szad_buf(0),
-	blad_szad_buf(0),
+	szad_wierz(0),
+	szad_wierz_buf(0),
+	szad_piks(0),
+	szad_piks_buf(0),
+	szad_blad_buf(0),
 	gleb_szab_teks2(0),
 	gleb_szab_wid(0),
 	cel_rend_wid(0),
@@ -31,12 +32,12 @@ ZasobyGraf::~ZasobyGraf() {
 	model_wierz_buf->Release();
 	model_teks_buf->Release();
 	model_ind_buf->Release();
-	wierz_szad->Release();
-	wierz_szad_buf->Release();
-	piks_szad->Release();
-	piks_szad_buf->Release();
-	if(blad_szad_buf != 0) {
-		blad_szad_buf->Release();
+	szad_wierz->Release();
+	szad_wierz_buf->Release();
+	szad_piks->Release();
+	szad_piks_buf->Release();
+	if(szad_blad_buf != 0) {
+		szad_blad_buf->Release();
 	}
 	gleb_szab_teks2->Release();
 	gleb_szab_wid->Release();
@@ -47,46 +48,70 @@ ZasobyGraf::~ZasobyGraf() {
 }
 void ZasobyGraf::aktual_co_ob(CoOb const& _co_ob) {
 	rend->UpdateSubresource(co_ob_buf, 0, 0, &_co_ob, 0, 0);
+	logi.pisz("", "aktualizuj buf co ob");
 }
 void ZasobyGraf::aktual_model_ind(Wek2<DWORD>const& _model_ind) {
 	D3D11_BUFFER_DESC _opis;
 	model_ind_buf->GetDesc(&_opis);
-	if(_model_ind.wez_il2()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
-		tworz_buf<DWORD>(karta, model_ind_buf, _model_ind.wez_il2(), D3D11_BIND_INDEX_BUFFER);
+	if(_model_ind.wez_il_el()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
+		tworz_buf<DWORD>(karta, model_ind_buf, _model_ind.wez_il_el(), D3D11_BIND_INDEX_BUFFER);
 	}
-	rend->UpdateSubresource(model_ind_buf, 0, 0, &_model_ind[0], 0, 0);
+	rend->UpdateSubresource(model_ind_buf, 0, 0, _model_ind[0], 0, 0);
+	logi.pisz("", "aktualizuj buf ind");
 }
 void ZasobyGraf::aktual_model_wierz(Wek2<XMFLOAT3>const& _model_wierz) {
 	D3D11_BUFFER_DESC _opis;
 	model_wierz_buf->GetDesc(&_opis);
-	if(_model_wierz.wez_il2()*sizeof(XMFLOAT3) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT3>(karta, model_wierz_buf, _model_wierz.wez_il2(), D3D11_BIND_VERTEX_BUFFER);
+	if(_model_wierz.wez_il_el()*sizeof(XMFLOAT3) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT3>(karta, model_wierz_buf, _model_wierz.wez_il_el(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(model_wierz_buf, 0, 0, &_model_wierz[0], 0, 0);
+	rend->UpdateSubresource(model_wierz_buf, 0, 0, _model_wierz[0], 0, 0);
+	logi.pisz("", "aktualizuj buf wierz");
 }
 void ZasobyGraf::aktual_model_teks(Wek2<XMFLOAT2>const& _model_teks) {
 	D3D11_BUFFER_DESC _opis;
 	model_teks_buf->GetDesc(&_opis);
-	if(_model_teks.wez_il2()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT2>(karta, model_teks_buf, _model_teks.wez_il2(), D3D11_BIND_VERTEX_BUFFER);
+	if(_model_teks.wez_il_el()*sizeof(XMFLOAT2) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT2>(karta, model_teks_buf, _model_teks.wez_il_el(), D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(model_teks_buf, 0, 0, &_model_teks[0], 0, 0);
+	rend->UpdateSubresource(model_teks_buf, 0, 0, _model_teks[0], 0, 0);
+	logi.pisz("", "aktual buf teks");
 }
 void ZasobyGraf::czysc_ekran() const {
 	FLOAT const kolor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	rend->ClearRenderTargetView(cel_rend_wid, kolor);
 	rend->ClearDepthStencilView(gleb_szab_wid, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
+	logi.pisz("", "czysc ekran");
+}
+void ZasobyGraf::inic_model_ind() {
+	tworz_buf<DWORD>(karta, model_ind_buf, 1, D3D11_BIND_INDEX_BUFFER);
+	logi.pisz("", "inic buf ind");
+}
+void ZasobyGraf::inic_model_wierz() {
+	tworz_buf<XMFLOAT3>(karta, model_wierz_buf, 1, D3D11_BIND_VERTEX_BUFFER);
+	logi.pisz("", "inic buf wierz");
+}
+void ZasobyGraf::inic_model_teks() {
+	tworz_buf<XMFLOAT2>(karta, model_teks_buf, 1, D3D11_BIND_VERTEX_BUFFER);
+	logi.pisz("", "inic buf teks");
+}
+void ZasobyGraf::rysuj_ob(uint32_t const& _il_ind, uint32_t const& _nr_ind) const {
+	rend->DrawIndexed(_il_ind, _nr_ind, 0);
+	logi.pisz("", "rysuj ob");
 }
 void ZasobyGraf::tworz_cel_rend_wid() {
-	ID3D11Texture2D* buf_tyl;
-	lanc->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&buf_tyl);
-	karta->CreateRenderTargetView(buf_tyl, 0, &cel_rend_wid);
-	buf_tyl->Release();
+	ID3D11Texture2D* _buf_tyl;
+	lanc->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&_buf_tyl);
+	HRESULT w = karta->CreateRenderTargetView(_buf_tyl, 0, &cel_rend_wid);
+	if(w != S_OK) logi.pisz("", "nie stworzono wid cel rend");
+	_buf_tyl->Release();
+	logi.pisz("", "tworz wid cel rend");
 }
 void ZasobyGraf::tworz_co_ob() {
 	tworz_buf<CoOb>(karta, co_ob_buf, 1, D3D11_BIND_CONSTANT_BUFFER);
+	logi.pisz("", "tworz buf co ob");
 }
-void ZasobyGraf::tworz_gleb_szab_buf_wid() {
+void ZasobyGraf::tworz_gleb_szab_wid() {
 	D3D11_TEXTURE2D_DESC gleb_szab_opis;
 	gleb_szab_opis.Width = szerRend;
 	gleb_szab_opis.Height = wysRend;
@@ -99,8 +124,11 @@ void ZasobyGraf::tworz_gleb_szab_buf_wid() {
 	gleb_szab_opis.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	gleb_szab_opis.CPUAccessFlags = 0;
 	gleb_szab_opis.MiscFlags = 0;
-	karta->CreateTexture2D(&gleb_szab_opis, 0, &gleb_szab_teks2);
-	karta->CreateDepthStencilView(gleb_szab_teks2, 0, &gleb_szab_wid);
+	HRESULT w = karta->CreateTexture2D(&gleb_szab_opis, 0, &gleb_szab_teks2);
+	if(w != S_OK) logi.pisz("", "nie stworzono teks");
+	w = karta->CreateDepthStencilView(gleb_szab_teks2, 0, &gleb_szab_wid);
+	if(w != S_OK) logi.pisz("", "nie stworzono wid gleb szab");
+	logi.pisz("", "tworz wid gleb szab");
 }
 void ZasobyGraf::tworz_karta_rend_lanc() {
 	DXGI_MODE_DESC buf_tyl_opis;
@@ -122,30 +150,12 @@ void ZasobyGraf::tworz_karta_rend_lanc() {
 	lanc_opis.OutputWindow = uchOknoGl;
 	lanc_opis.Windowed = true;
 	lanc_opis.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	D3D11CreateDeviceAndSwapChain(
+	HRESULT w = D3D11CreateDeviceAndSwapChain(
 		0, D3D_DRIVER_TYPE_HARDWARE, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 0, 0,
 		D3D11_SDK_VERSION, &lanc_opis, &lanc, &karta, 0, &rend
 	);
-}
-void ZasobyGraf::tworz_model_ind() {
-	tworz_buf<DWORD>(karta, model_ind_buf, 1, D3D11_BIND_INDEX_BUFFER);
-}
-void ZasobyGraf::tworz_model_wierz() {
-	tworz_buf<XMFLOAT3>(karta, model_wierz_buf, 1, D3D11_BIND_VERTEX_BUFFER);
-}
-void ZasobyGraf::tworz_model_teks() {
-	tworz_buf<XMFLOAT2>(karta, model_teks_buf, 1, D3D11_BIND_VERTEX_BUFFER);
-}
-void ZasobyGraf::tworz_piks_szad() {
-	D3DX11CompileFromFile(
-		"szader\\efekty.fx", 0, 0, "SP", "ps_4_0", 0, 0, 0,
-		&piks_szad_buf, &blad_szad_buf, 0
-	);
-	karta->CreatePixelShader(
-		piks_szad_buf->GetBufferPointer(),
-		piks_szad_buf->GetBufferSize(),
-		0, &piks_szad
-	);
+	if(w != S_OK) logi.pisz("", "nie stworzono karty rend lanc");
+	logi.pisz("", "tworz karta rend lanc");
 }
 void ZasobyGraf::tworz_rzutnia() {
 	ZeroMemory(&rzutnia, sizeof(rzutnia));
@@ -155,6 +165,7 @@ void ZasobyGraf::tworz_rzutnia() {
 	rzutnia.Height = wysRend;
 	rzutnia.MinDepth = 0.0f;
 	rzutnia.MaxDepth = 1.0f;
+	logi.pisz("", "tworz rzutnia");
 }
 void ZasobyGraf::tworz_stan_prob() {
 	D3D11_SAMPLER_DESC stan_prob_opis;
@@ -166,61 +177,96 @@ void ZasobyGraf::tworz_stan_prob() {
 	stan_prob_opis.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	stan_prob_opis.MinLOD = 0;
 	stan_prob_opis.MaxLOD = D3D11_FLOAT32_MAX;
-	karta->CreateSamplerState(&stan_prob_opis, &stan_prob);
+	HRESULT w = karta->CreateSamplerState(&stan_prob_opis, &stan_prob);
+	if(w != S_OK) logi.pisz("", "nie stworzono stan prob");
+	logi.pisz("", "tworz stan prob");
 }
 void ZasobyGraf::tworz_strukt_we() {
-	D3D11_INPUT_ELEMENT_DESC strukt_we_opis[] = {
+	D3D11_INPUT_ELEMENT_DESC _strukt_we_opis[] = {
 		{"POZYCJA", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEKSTURA", 0, DXGI_FORMAT_R32G32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	karta->CreateInputLayout(
-		strukt_we_opis, ARRAYSIZE(strukt_we_opis), wierz_szad_buf->GetBufferPointer(),
-		wierz_szad_buf->GetBufferSize(), &strukt_we
+	HRESULT w = karta->CreateInputLayout(
+		_strukt_we_opis, ARRAYSIZE(_strukt_we_opis), szad_wierz_buf->GetBufferPointer(),
+		szad_wierz_buf->GetBufferSize(), &strukt_we
 	);
+	if(w != S_OK) logi.pisz("", "nie stworzono strukt we");
+	logi.pisz("", "tworz strukt we");
 }
-void ZasobyGraf::tworz_wierz_szad() {
-	D3DX11CompileFromFile(
+void ZasobyGraf::tworz_szad_piks() {
+	HRESULT w = D3DX11CompileFromFile(
+		"szader\\efekty.fx", 0, 0, "SP", "ps_4_0", 0, 0, 0,
+		&szad_piks_buf, &szad_blad_buf, 0
+	);
+	if(w != S_OK) logi.pisz("", "nie skompilowano szad piks");
+	w = karta->CreatePixelShader(
+		szad_piks_buf->GetBufferPointer(),
+		szad_piks_buf->GetBufferSize(),
+		0, &szad_piks
+	);
+	if(w != S_OK) logi.pisz("", "nie stworzono szad piks");
+	logi.pisz("", "tworz szad piks");
+}
+void ZasobyGraf::tworz_szad_wierz() {
+	HRESULT w = D3DX11CompileFromFile(
 		"szader\\efekty.fx", 0, 0, "SW", "vs_4_0", 0, 0, 0,
-		&wierz_szad_buf, &blad_szad_buf, 0
+		&szad_wierz_buf, &szad_blad_buf, 0
 	);
-	karta->CreateVertexShader(
-		wierz_szad_buf->GetBufferPointer(),
-		wierz_szad_buf->GetBufferSize(),
-		0, &wierz_szad
+	if(w != S_OK) logi.pisz("", "nie skompilowano szad wierz");
+	w = karta->CreateVertexShader(
+		szad_wierz_buf->GetBufferPointer(),
+		szad_wierz_buf->GetBufferSize(),
+		0, &szad_wierz
 	);
+	if(w != S_OK) logi.pisz("", "nie stworzono szad wierz");
+	logi.pisz("", "tworz szad wierz");
 }
 void ZasobyGraf::wiaz_co_ob() const {
 	rend->VSSetConstantBuffers(0, 1, &co_ob_buf);
+	logi.pisz("", "wiaz buf co ob");
 }
 void ZasobyGraf::wiaz_cele_rend() const {
 	rend->OMSetRenderTargets(1, &cel_rend_wid, gleb_szab_wid);
+	logi.pisz("", "wiaz wid cele rend");
 }
 void ZasobyGraf::wiaz_model_ind()const {
 	rend->IASetIndexBuffer(model_ind_buf, DXGI_FORMAT_R32_UINT, 0);
+	logi.pisz("", "wiaz buf ind");
 }
 void ZasobyGraf::wiaz_model_wierz(uint32_t const& _il_wierz) const {
 	ID3D11Buffer* _buf_we[] = {model_wierz_buf, model_teks_buf};
 	uint32_t _kroki[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT2)};
-	uint32_t _przes[] = {0, _il_wierz * sizeof(XMFLOAT3)};
+	uint32_t _przes[] = {0, 0};
 	rend->IASetVertexBuffers(0, 2, _buf_we, _kroki, _przes);
-}
-void ZasobyGraf::wiaz_piks_szad() const {
-	rend->PSSetShader(piks_szad, 0, 0);
+	logi.pisz("", "wiaz buf wierz i teks");
 }
 void ZasobyGraf::wiaz_rzutnia() const {
 	rend->RSSetViewports(1, &rzutnia);
+	logi.pisz("", "wiaz rzutnia");
 }
 void ZasobyGraf::wiaz_stan_prob() const {
 	rend->PSSetSamplers(0, 1, &stan_prob);
+	logi.pisz("", "wiaz stan prob");
 }
 void ZasobyGraf::wiaz_strukt_we() const {
 	rend->IASetInputLayout(strukt_we);
+	logi.pisz("", "wiaz strukt we");
+}
+void ZasobyGraf::wiaz_szad_piks() const {
+	rend->PSSetShader(szad_piks, 0, 0);
+	logi.pisz("", "wiaz szad piks");
+}
+void ZasobyGraf::wiaz_szad_wierz() const {
+	rend->VSSetShader(szad_wierz, 0, 0);
+	logi.pisz("", "wiaz szad wierz");
+}
+void ZasobyGraf::wiaz_teks(ID3D11ShaderResourceView*const& _teks_wid) const {
+	rend->PSSetShaderResources(0, 1, &_teks_wid);
+	logi.pisz("", "wiaz wid teks");
 }
 void ZasobyGraf::wiaz_topol_prym() const {
 	rend->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-void ZasobyGraf::wiaz_wierz_szad() const {
-	rend->VSSetShader(wierz_szad, 0, 0);
+	logi.pisz("", "wiaz topol prym");
 }
 // -------------------------------------------------------
 void Grafika::aktual_co_ob(uint32_t const& _nr) {
@@ -231,47 +277,49 @@ void Grafika::aktual_co_ob(uint32_t const& _nr) {
 	);
 }
 void Grafika::aktual_klatka() {
+	logi.pisz("", "-----------KLATKA------------");
 	zas.czysc_ekran();
 	zas.aktual_model_wierz(model_wierz);
 	zas.aktual_model_teks(model_teks);
 	zas.aktual_model_ind(model_ind);
-	zas.wiaz_model_wierz(model_wierz.wez_il2());
+	zas.wiaz_model_wierz(model_wierz.wez_il_el());
 	zas.wiaz_model_ind();
 
-	for(uint32_t _uch = 0; _uch < ob_nr.wez_poj(); ++_uch) {
-		aktual_ob(_uch);
+	for(uint32_t _nr = 0; _nr < ob_model.wez_il(); ++_nr) {
+		aktual_ob(_nr);
 	}
 
 	zas.lanc->Present(0, 0);
 }
-void Grafika::aktual_ob(uint32_t const& _uch) {
-	if(ob_nr[_uch] & 0x80000000) return;
-	aktual_co_ob(ob_nr[_uch]);
+void Grafika::aktual_ob(uint32_t const& _nr) {
+	if(ob_model[_nr] == ob_model.pusty) return;
+
+	aktual_co_ob(_nr);
 	zas.aktual_co_ob(co_ob);
 
-	//_rend->PSSetShaderResources(0, 1, &_ob->teks[*_ob->_teks_mapa[_nr]].pierw);
-	//_rend->DrawIndexed(_ob->ind.wez_seg(_nr).drug, _ob->ind.wez_seg(_nr).pierw, 0);
+	zas.wiaz_teks(teks_wid[teks_nr[ob_teks[_nr]]]);
+	zas.rysuj_ob(model_ind.wez_wier(_nr).drug, model_ind.wez_wier(_nr).pierw);
 }
 void Grafika::inic() {
 	zas.tworz_karta_rend_lanc();
-	zas.tworz_gleb_szab_buf_wid();
+	zas.tworz_gleb_szab_wid();
 	zas.tworz_cel_rend_wid();
-	zas.wiaz_cele_rend();
-	zas.tworz_model_wierz();
-	zas.tworz_model_teks();
-	zas.tworz_model_ind();
-	zas.tworz_wierz_szad();
-	zas.wiaz_wierz_szad();
-	zas.tworz_piks_szad();
-	zas.wiaz_piks_szad();
+	zas.inic_model_wierz();
+	zas.inic_model_teks();
+	zas.inic_model_ind();
+	zas.tworz_szad_wierz();
+	zas.tworz_szad_piks();
 	zas.tworz_strukt_we();
+	zas.tworz_rzutnia();
+	zas.tworz_stan_prob();
+	zas.tworz_co_ob();
+	zas.wiaz_cele_rend();
+	zas.wiaz_szad_wierz();
+	zas.wiaz_szad_piks();
 	zas.wiaz_strukt_we();
 	zas.wiaz_topol_prym();
-	zas.tworz_rzutnia();
 	zas.wiaz_rzutnia();
-	zas.tworz_stan_prob();
 	zas.wiaz_stan_prob();
-	zas.tworz_co_ob();
 	zas.wiaz_co_ob();
 	kam_poz = XMFLOAT3(+0.0f, +0.0f, -0.5f);
 	kam_cel = XMFLOAT3(+0.0f, +0.0f, +0.0f);
@@ -319,7 +367,7 @@ void Grafika::defrag() {
 	ob_teks.defrag_wyk(_mapa1);
 	ob_nr.aktual(_mapa1);
 
-	model_wierz.defrag_licz(_mapa1, _mapa2, model_wierz.wez_il1());
+	model_wierz.defrag_licz(_mapa1, _mapa2, model_wierz.wez_il_wier());
 	model_wierz.defrag_wyk(_mapa1, _mapa2);
 	model_teks.defrag_wyk(_mapa1, _mapa2);
 	model_ind.defrag_wyk(_mapa1, _mapa2);
@@ -338,19 +386,19 @@ void Grafika::tworz_model(uint32_t const& _uch) {
 		++model_odn[_uch];
 		return;
 	} else {
-		model_nr[_uch] = model_wierz.wez_il1();
+		model_nr[_uch] = model_wierz.wez_il_wier();
 		model_odn[_uch] = 1;
 	}
 	if(_uch == MOD_KURSOR) {
 		XMFLOAT3 _w[] = {
-			XMFLOAT3(+0.0f, -0.2f, +0.0f),
-			XMFLOAT3(+0.0f, +0.0f, +0.0f),
-			XMFLOAT3(+0.2f, -0.0f, +0.0f),
+			XMFLOAT3(0.0f, -0.2f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT3(0.2f, -0.0f, 0.0f),
 		};
 		XMFLOAT2 _t[] = {
-			XMFLOAT2(+0.0f, +1.0f),
-			XMFLOAT2(+0.5f, +0.0f),
-			XMFLOAT2(+1.0f, +1.0f),
+			XMFLOAT2(0.0f, 1.0f),
+			XMFLOAT2(0.0f, 0.0f),
+			XMFLOAT2(1.0f, 0.0f),
 		};
 		DWORD _i[] = {0, 1, 2};
 		model_wierz.wstaw_kon(&_w[0], 3);
@@ -429,11 +477,11 @@ void Grafika::tworz_teks(uint32_t const& _uch) {
 char const*const Grafika::wez_teks_sciezka(uint32_t const& _nr) const {
 	switch(_nr) {
 	case TEKS_KURSOR:
-		return "kursor.jpg";
+		return "tekstury/kursor.jpg";
 	case TEKS_KWADRAT:
-		return "kwadrat.jpg";
+		return "tekstury/kwadrat.jpg";
 	case TEKS_DIAMENT:
-		return "diament.jpg";
+		return "tekstury/diament.jpg";
 	}
 }
 // -------------------------------------------------------

@@ -3,7 +3,7 @@
 #include <fizyka.h>
 
 uint32_t Fizyka::wpisz_ob() {
-	przes.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	przes.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
 	return ob_nr.wstaw(przes.wez_il()-1);
 }
 

@@ -270,8 +270,8 @@ public:
 	inline void					usun(uint32_t const&, uint32_t = 1);
 	inline void					usun_kon(uint32_t = 1);
 	inline Wiersz_ const&		wez_wier(uint32_t const&) const;
-	inline uint32_t const&		wez_il1() const;
-	inline uint32_t const&		wez_il2() const;
+	inline uint32_t const&		wez_il_wier() const;
+	inline uint32_t const&		wez_il_el() const;
 	void						defrag_licz(uint32_t*&, uint32_t*&, uint32_t const&);
 	void						defrag_wyk(uint32_t const*const&,
 									uint32_t const*const&);
@@ -440,12 +440,12 @@ void Wek2<T>::usun_kon(uint32_t _il) {
 	}
 }
 template<class T>
-uint32_t const& Wek2<T>::wez_il1() const {
-	return wier.wez_il();
+uint32_t const& Wek2<T>::wez_il_el() const {
+	return el.wez_il();
 }
 template<class T>
-uint32_t const& Wek2<T>::wez_il2() const {
-	return el.wez_il();
+uint32_t const& Wek2<T>::wez_il_wier() const {
+	return wier.wez_il();
 }
 template<class T>
 typename Wek2<T>::Wiersz_ const& Wek2<T>::wez_wier(uint32_t const& _nr) const {

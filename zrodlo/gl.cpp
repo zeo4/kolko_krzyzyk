@@ -4,9 +4,6 @@
 #include "debug.h"
 #include "logika.h"
 
-#include <wek.h>
-#include <uchwyty.h>
-
 HINSTANCE uchAp;
 
 LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM paramL) {
@@ -131,13 +128,12 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Kolizja liczona na podstawie prostej przesunięcia brył (nie jest liczona po łuku przesunięcia). Dorobić.
 // Dopisać kolizje dla szybko poruszających się obiektów.
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
-// Tworzyć tekstury w jednej tablicy tekstury a nie każdą osobno.
+// Tworzyć tekstury w jednej tablicy tekstur a nie każdą osobno.
 
-// Dokończyć przebudowę Drzewo8 pod optymalizację.
-// WektorSeg: Wpisywać do wolnych segmentów idąc od początku tablicy _seg.
 // Obiekty3w::usun_wykonaj: źle usuwa.
 // Obiekty3w::tworz_ob: czemu nie widzi domyślnego parametru.
-// Usunąć "ZasobyGraf::tworz_model_teks" i podobne?
+// ZasobyGraf:: ustawić wszystkie możliwe metody na inline.
+// Usunąć logi z Grafika.
 
 
 
