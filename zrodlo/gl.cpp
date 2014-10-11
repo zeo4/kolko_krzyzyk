@@ -1,12 +1,11 @@
 #pragma once
-
-#include "globalne.h"
-#include "debug.h"
-#include "logika.h"
-
+#include <globalne.h>
+#include <debug.h>
+#include <logika.h>
+// -------------------------------------------------------
 HINSTANCE uchAp;
-
-LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM paramL) {
+// -------------------------------------------------------
+LRESULT CALLBACK ProcOknoGl(HWND _uch_okno, UINT wiad, WPARAM paramW, LPARAM paramL) {
 	// indywidualna obsługa wiadomości
 	switch(wiad){
 		// gdy wciśnięty klawisz
@@ -14,7 +13,7 @@ LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM param
 			// gdy escape
 			if(paramW == VK_ESCAPE){
 				// niszcz okno
-				DestroyWindow(uchOknoGl);
+				DestroyWindow(uch_okno);
 			}
 			return 0;
 		// gdy okno zniszczone
@@ -25,14 +24,15 @@ LRESULT CALLBACK ProcOknoGl(HWND uchOkno, UINT wiad, WPARAM paramW, LPARAM param
 	}
 
 	// domyślna obsługa wiadomości
-	return DefWindowProc(uchOkno, wiad, paramW, paramL);
+	return DefWindowProc(_uch_okno, wiad, paramW, paramL);
 }
+// -------------------------------------------------------
 void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
-	Logika logika(uchAp);
-	logika.inic();
+	Logika logika;
+	logika.inicScena();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -41,6 +41,7 @@ void PetlaWiad() {
 			if(wiad.message == WM_QUIT) {
 				break;
 			}
+			logika.obsluz_wej(wiad);
 			// przerób na wiadomość tekstową
 			TranslateMessage(&wiad);
 			// ślij wiadomość
@@ -48,10 +49,11 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			logika.tworzKolejnaKlatka();
+			logika.rys_klatka();
 		}
 	}
 }
+// -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
 
@@ -79,7 +81,7 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 	}
 
 	// stwórz okno główne
-	uchOknoGl = CreateWindowEx(
+	uch_okno = CreateWindowEx(
 		WS_EX_OVERLAPPEDWINDOW,
 		"KolkoKrzyzyk",
 		"Kolko Krzyzyk",
@@ -92,20 +94,21 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 		0,
 		uchAplikacji,
 		0);
-	if(uchOknoGl == 0){
+	if(uch_okno == 0){
 		MessageBox(0, "Tworzenie okna glownego", 0, MB_OK|MB_ICONERROR);
 		return 0;
 	}
 
 	// pokaż i odśwież okno
-	ShowWindow(uchOknoGl, opcjaWysw);
-	UpdateWindow(uchOknoGl);
+	ShowWindow(uch_okno, opcjaWysw);
+	UpdateWindow(uch_okno);
 
 	// pętla wiadomości
 	PetlaWiad();
 
 	return 1;
 }
+// -------------------------------------------------------
 
 // input layout zgodny z parametrami wejściowymi szadera wierzchołków - sprawdzić
 // template tworzBufor bez danych inicjalizujących
@@ -130,10 +133,9 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
 // Tworzyć tekstury w jednej tablicy tekstur a nie każdą osobno.
 
-// Obiekty3w::usun_wykonaj: źle usuwa.
-// Obiekty3w::tworz_ob: czemu nie widzi domyślnego parametru.
-// ZasobyGraf:: ustawić wszystkie możliwe metody na inline.
-// Usunąć logi z Grafika.
+// ZasobyGraf: ustawić wszystkie możliwe metody na inline.
+// Fizyka: zmienić miejsce pobierania rozmiaru obszaru klienta okna, tak aby pobierany był rzadziej.
+// Wejscie ma należeć do Swiata (podłączyć wejście z fiz).
 
 
 

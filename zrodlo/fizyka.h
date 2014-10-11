@@ -1,21 +1,39 @@
 ﻿#pragma once
 
 #include <globalne.h>
-#include <typedefy.h>
-#include <drzewo8.h>
 #include <wek.h>
 #include <uch.h>
-
+#include <zasoby.h>
+#include <zadania.h>
 class Grafika;
-
-class Fizyka {
-	friend class Grafika;
+// -------------------------------------------------------
+class Fizyka : protected Zadania, protected Kamera, protected Obiekty, protected ParFiz {
 public:
-	uint32_t			wpisz_ob();
+	void				wyk_zad();
+public:
+	void				inic();
+	void				wykonaj();
+	void				tworz_ob();
+	uint32_t			wyb_ob() const;
 protected:
-	UchPula				ob_nr;
-	Wek<XMFLOAT3>		przes;
+	void				uwzgl_v();
+	void				uwzgl_poz();
+	void				licz_prom_klik(XMVECTOR&, XMVECTOR&,
+							uint32_t const&, uint32_t const&) const;
+	float				licz_prom_ob(XMVECTOR const&, XMVECTOR const&,
+							uint32_t const&) const;
+	float				licz_prom_troj(XMVECTOR const&, XMVECTOR const&,
+							CXMVECTOR const&, CXMVECTOR const&,
+							CXMVECTOR const&) const;
+	inline XMMATRIX		licz_swiat_odwr(uint32_t const&) const;
 };
+XMMATRIX Fizyka::licz_swiat_odwr(uint32_t const& _nr_ob) const {
+	return XMMatrixInverse(
+		&XMVectorSet(0,0,0,0),
+		XMLoadFloat4x4(&par_fiz.mac_swiat[_nr_ob])
+	);
+}
+// -------------------------------------------------------
 
 // ---------------------------------------------
 //class Fizyka {

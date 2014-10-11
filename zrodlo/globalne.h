@@ -45,7 +45,7 @@ using std::pair;
 using std::tuple;
 using std::get;
 
-HWND extern uchOknoGl;
+HWND extern uch_okno;
 float extern szerRend;
 float extern wysRend;
 

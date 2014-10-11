@@ -1,11 +1,137 @@
 ﻿#pragma once
-
 #include <fizyka.h>
-
-uint32_t Fizyka::wpisz_ob() {
-	przes.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
-	return ob_nr.wstaw(przes.wez_il()-1);
+// -------------------------------------------------------
+void Fizyka::wyk_zad() {
+	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {
+		switch(*(KodZad*)zad[_i]) {
+		case USTAW_OB:
+		{
+			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
+			par_fiz.poz[ob.nr[z.uch_ob]] = z.w;
+			break;
+		}
+		case TWORZ_OB:
+			break;
+		}
+	}
 }
+
+void Fizyka::inic() {
+	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
+		par_fiz.poz[_i] = XMFLOAT3(0.0f, 0.0f, 0.5f);
+		par_fiz.v[_i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	}
+}
+void Fizyka::licz_prom_klik(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x, uint32_t const& _y) const {
+	// licz początek
+	_pocz = XMLoadFloat3(&kam.poz);
+
+	// licz kierunek
+	RECT _kwadr;
+	GetClientRect(uch_okno, &_kwadr);
+	_kier = XMVectorSet(
+		(float(2 * _x) / _kwadr.right - 1) / kam.mac_proj._11,
+		(- float(2 * _y) / _kwadr.bottom + 1) / kam.mac_proj._22,
+		1.0f,
+		0
+	);
+}
+float Fizyka::licz_prom_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
+	XMVECTOR _w0, _w1, _w2;
+	XMFLOAT3*const _wierz = ob.mod_wierz[ob.mod_nr[ob.mod_uch[_nr_ob]]];
+	DWORD*const _ind = ob.mod_ind[ob.mod_nr[ob.mod_uch[_nr_ob]]];
+	float _t = 1000.0f, _t1;
+	for(uint32_t _i = 0; _i < ob.mod_ind.wez_wier(_nr_ob).drug; _i += 3) {
+		_w0 = XMLoadFloat3(&_wierz[_ind[_i]]);
+		_w1 = XMLoadFloat3(&_wierz[_ind[_i+1]]);
+		_w2 = XMLoadFloat3(&_wierz[_ind[_i+2]]);
+		_t1 = licz_prom_troj(_pocz, _kier, _w0, _w1, _w2);
+		if(_t1 < _t) _t = _t1;
+	}
+	return _t;
+}
+float Fizyka::licz_prom_troj(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVECTOR const& _w0, CXMVECTOR const& _w1, CXMVECTOR const& _w2) const {
+	//------------------WZORY-------------------------
+	// pkt promienia r(t) = pocz + t*kier
+	// wekt1 = w1 - w0, wekt2 = w2 - w0
+	// pkt trojkata T(u,v) = w0 + u*wekt1 + v*wekt2, dla u >= 0, v >= 0, u+v <= 1
+	// m = pocz - w0
+	// t = wekt2 * (m x wekt1) / wekt1 * (kier x wekt2)
+	// u = m * (kier x wekt2) / wekt1 * (kier x wekt2)
+	// v = kier * (m x wekt1) / wekt1 * (kier x wekt2)
+	//------------------------------------------------
+	XMVECTOR _wekt1 = _w1 - _w0;
+	XMVECTOR _wekt2 = _w2 - _w0;
+	XMVECTOR _m = _pocz - _w0;
+	XMVECTOR _kxwekt2 = XMVector3Cross(_kier, _wekt2);
+	XMVECTOR _mxwekt1 = XMVector3Cross(_m, _wekt1);
+	XMVECTOR _U = XMVector3Dot(_m, _kxwekt2) / XMVector3Dot(_wekt1, _kxwekt2);
+	XMVECTOR _V = XMVector3Dot(_kier, _mxwekt1) / XMVector3Dot(_wekt1, _kxwekt2);
+	float _u = XMVectorGetX(_U);
+	float _v = XMVectorGetX(_V);
+
+	// jeśli kolizja
+	if(_u >= 0 && _v >= 0 && _u + _v <= 1) {
+		XMVECTOR _T = XMVector3Dot(_wekt2, _mxwekt1) / XMVector3Dot(_wekt1, _kxwekt2);
+		return XMVectorGetX(_T);
+	} else {
+		return 1000.0f;
+	}
+}
+void Fizyka::tworz_ob() {
+	par_fiz.poz.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
+	par_fiz.v.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	par_fiz.mac_swiat.wstaw_kon(XMFLOAT4X4());
+	XMStoreFloat4x4(
+		&par_fiz.mac_swiat[par_fiz.mac_swiat.wez_il()-1], XMMatrixIdentity()
+	);
+}
+void Fizyka::uwzgl_poz() {
+	for(uint32_t _i = 0; _i < par_fiz.mac_swiat.wez_il(); ++_i) {
+		XMStoreFloat4x4(
+			&par_fiz.mac_swiat[_i],
+			XMMatrixTranslationFromVector(XMLoadFloat3(&par_fiz.poz[_i])
+		));
+	}
+}
+void Fizyka::uwzgl_v() {
+	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
+		XMStoreFloat3(
+			&par_fiz.poz[_i],
+			XMLoadFloat3(&par_fiz.poz[_i]) + XMLoadFloat3(&par_fiz.v[_i])
+		);
+	}
+}
+uint32_t Fizyka::wyb_ob() const {
+	POINT pkt;
+	GetCursorPos(&pkt);
+	ScreenToClient(uch_okno, &pkt);
+	XMVECTOR _pocz, _kier;
+	licz_prom_klik(_pocz, _kier, pkt.x, pkt.y);
+	float _t = 1000.0f, _t1;
+	uint32_t _uch_wybr = 0x80000000;
+	for(uint32_t _uch_ob = 0; _uch_ob < ob.nr.wez_poj(); ++_uch_ob) {
+		if(ob.nr.sprawdz_pusty(_uch_ob)) continue;
+		_pocz = XMVector3TransformCoord(_pocz, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+		));
+		_kier = XMVector3TransformNormal(_kier, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+		));
+		_t1 = licz_prom_ob(_pocz, _kier, ob.nr[_uch_ob]);
+		if(_t1 < _t) {
+			_t = _t1;
+			_uch_wybr = _uch_ob;
+		}
+	}
+	return _uch_wybr;
+}
+void Fizyka::wykonaj() {
+	wyk_zad();
+	uwzgl_v();
+	uwzgl_poz();
+}
+// -------------------------------------------------------
 
 //IFizyka::IFizyka(IObiekt* const ob) : obiekt (ob)
 //	{}
@@ -347,6 +473,6 @@ uint32_t Fizyka::wpisz_ob() {
 //
 //FizykaTekst::FizykaTekst(ObiektZbior* const ob) : FizykaZbior(ob)
 //	{}
-
-// #############################################
+//
+//// #############################################
 

@@ -1,9 +1,47 @@
 ﻿#pragma once
-
-#include "swiat.h"
-#include "fizyka.h"
-#include "grafika.h"
+#include <swiat.h>
+#include <fizyka.h>
+#include <grafika.h>
 #include "drzewo8.h"
+// -------------------------------------------------------
+Swiat::Swiat()
+	: fiz(new Fizyka),
+	graf(new Grafika) {
+	zas.tworz_karta_rend_lanc();
+	zas.tworz_gleb_szab_wid();
+	zas.tworz_cel_rend_wid();
+	zas.inic_mod_wierz();
+	zas.inic_mod_teks();
+	zas.inic_mod_ind();
+	zas.tworz_szad_wierz();
+	zas.tworz_szad_piks();
+	zas.tworz_strukt_we();
+	zas.tworz_rzutnia();
+	zas.tworz_stan_prob();
+	zas.tworz_co_ob();
+	zas.wiaz_cele_rend();
+	zas.wiaz_szad_wierz();
+	zas.wiaz_szad_piks();
+	zas.wiaz_strukt_we();
+	zas.wiaz_topol_prym();
+	zas.wiaz_rzutnia();
+	zas.wiaz_stan_prob();
+	zas.wiaz_co_ob();
+}
+Swiat::~Swiat() {
+	delete fiz;
+	delete graf;
+}
+void Swiat::rys_klatka() {
+	fiz->wykonaj();
+	graf->wykonaj();
+	graf->rys_klatka();
+}
+uint32_t Swiat::tworz_ob(uint32_t const& _MOD, uint32_t const& _TEKS) {
+	fiz->tworz_ob();
+	return graf->tworz_ob(_MOD, _TEKS);
+}
+// -------------------------------------------------------
 
 /*
 Swiat::~Swiat() {
@@ -42,22 +80,7 @@ void Swiat::niszczObiektySwiat() {
 		niszczObiektSwiat(*it++);
 	}
 }*/
-void Swiat::inic() {
-	graf.lacz_fiz(&fiz);
-	graf.inic();
-	tworz_ob(MOD_KURSOR, TEKS_KURSOR);
-}
-void Swiat::rysuj() {
-	graf.aktual_klatka();
-}
-uint32_t Swiat::tworz_ob(uint32_t const& _MOD, uint32_t const& _TEKS) {
-	fiz.wpisz_ob();
-	graf.tworz_ob(_MOD, _TEKS);
-	//ob.tworz(MOD_KURSOR, TEKS_KURSOR);
-	//ob.tworz(MOD_KWADRAT, TEKS_KWADRAT);
-	//ob.tworz(MOD_DIAMENT, TEKS_DIAMENT);
-	return 0;
-}
+
 /*
 void Swiat::usunProjekcjaZ1(XMVECTOR* const pkt3W, float const x, float const y) const {
 	// współrzędne 3W przy założeniu, że z = 1 (w ten sposób usuwamy projekcję)

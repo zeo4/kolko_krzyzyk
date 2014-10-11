@@ -28,6 +28,7 @@ public:
 	inline void					usun(uint32_t const&);
 	inline uint32_t const&		wez_poj() const;
 	void						aktual(uint32_t const*const&);
+	inline bool					sprawdz_pusty(uint32_t const&) const;
 protected:
 	uint32_t*					el;
 	uint32_t					poj;
@@ -35,6 +36,9 @@ protected:
 };
 uint32_t& UchPula::operator[](uint32_t const& _nr) const {
 	return el[_nr];
+}
+bool UchPula::sprawdz_pusty(uint32_t const& _nr) const {
+	return el[_nr] & 0x80000000;
 }
 void UchPula::usun(uint32_t const& _nr) {
 	if(el[_nr] & 0x80000000) return;

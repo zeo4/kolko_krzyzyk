@@ -1,43 +1,42 @@
 ﻿#pragma once
+#include <logika.h>
+// -------------------------------------------------------
+void Logika::inicScena() {
+	swiat.tworz_ob(MOD_TROJKAT, TEKS_TROJKAT);
+	dane_gra.uch_wybr = 0x80000000;
+}
+void Logika::obsluz_wej(MSG const& _wiad) {
+	if(_wiad.message == WM_LBUTTONDOWN) {
+		dane_gra.uch_wybr = swiat.fiz->wyb_ob();
+	}
+	if(_wiad.message == WM_KEYDOWN) {
+		if(_wiad.wParam == 0x41) {
+			// lewy
+			ZadUstawOb z = {USTAW_OB, 0, XMFLOAT3(-0.5f, 0.0f, 0.5f)};
+			zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+		}
+		if(_wiad.wParam == 0x44) {
+			// prawy
+			ZadUstawOb z = {USTAW_OB, 0, XMFLOAT3(0.5f, 0.0f, 0.5f)};
+			zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+		}
+		if(_wiad.wParam == 0x53) {
+			// dół
+			ZadUstawOb z = {USTAW_OB, 0, XMFLOAT3(0.0f, -0.5f, 0.5f)};
+			zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+		}
+		if(_wiad.wParam == 0x57) {
+			// góra
+			ZadUstawOb z = {USTAW_OB, 0, XMFLOAT3(0.0f, 0.5f, 0.5f)};
+			zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+		}
+	}
+}
+void Logika::rys_klatka() {
+	swiat.rys_klatka();
+}
+// -------------------------------------------------------
 
-#include "logika.h"
-#include "fizyka.h"
-
-//void Logika::uwzglWejscie() {
-//	BYTE stanKlawiatura[256];
-//	DIMOUSESTATE stanMysz;
-//	wejscie.wez(stanKlawiatura, &stanMysz);
-//
-//	if(obiektWybrany != NULL) {
-//		if(stanKlawiatura[DIK_W] & 0x80) {
-//			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.0f, +0.015f, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//		if(stanKlawiatura[DIK_S] & 0x80) {
-//			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.0f, -0.015f, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//		if(stanKlawiatura[DIK_A] & 0x80) {
-//			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(-0.015f, +0.0f, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//		if(stanKlawiatura[DIK_D] & 0x80) {
-//			obiektWybrany->wezFiz()->zadajRuch(XMVectorSet(+0.015f, +0.0f, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//	}
-//	if(obiektKursor != NULL) {
-//		if(stanMysz.lX != 0) {
-//			float p = stanMysz.lX * 0.001f;
-//			obiektKursor->wezFiz()->zadajRuch(XMVectorSet(p, +0.0f, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//		if(stanMysz.lY != 0) {
-//			float p = -stanMysz.lY * 0.001f;
-//			obiektKursor->wezFiz()->zadajRuch(XMVectorSet(+0.0f, p, +0.0f, +0.0f), 0, 0, 0);
-//		}
-//		if(stanMysz.rgbButtons[0] & 0x80) {
-//			swiat.wezObPromien(&obiektWybrany, obiektKursor);
-//		}
-//	}
-//}
-Logika::Logika(HINSTANCE const uchwyt) /*: wejscie(uchwyt)*/
-	{}
 //void Logika::inicScena() {
 //	try{
 //	obiektKursor = swiat.tworzObiektKursor();
@@ -53,12 +52,6 @@ Logika::Logika(HINSTANCE const uchwyt) /*: wejscie(uchwyt)*/
 //	ObslugaWyjatek(wyj);
 //	}
 //}
-void Logika::inic() {
-	swiat.inic();
-}
-void Logika::tworzKolejnaKlatka() {
-	//uwzglWejscie();
-	//swiat.wykonajFizyka();
-	swiat.rysuj();
-}
+
+
 

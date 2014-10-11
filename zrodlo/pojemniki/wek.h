@@ -264,7 +264,6 @@ template<class T>
 class Wek2 {
 public:
 	typedef Paraa<uint32_t> Wiersz_;
-	typedef Paraa<T const*,uint32_t> WierszEl_;
 	inline T*const&				operator[](uint32_t const&) const;
 	inline void					wstaw_kon(T const*const&, uint32_t const&);
 	inline void					usun(uint32_t const&, uint32_t = 1);

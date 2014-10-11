@@ -1,21 +1,20 @@
 ﻿#pragma once
-
-#include "globalne.h"
-#include "debug.h"
-#include "wejscie.h"
-#include "swiat.h"
-#include "obiektyGra.h"
-
-class Logika {
-	//Obiekt3w*		obiektKursor;
-	//IObiekt*		obiektWybrany;
-	Swiat			swiat;
-	//Wejscie			wejscie;
-	//void			uwzglWejscie();
+#include <globalne.h>
+#include <debug.h>
+#include <swiat.h>
+#include <zadania.h>
+// -------------------------------------------------------
+class Logika : protected Zadania {
 public:
-					Logika(HINSTANCE const);
-	void			inic();
-	//void			inicScena();
-	void			tworzKolejnaKlatka();
+	void			rys_klatka();
+	void			obsluz_wej(MSG const&);
+	void			inicScena();
+protected:
+	DaneGra			dane_gra;
+	Swiat			swiat;
 };
+// -------------------------------------------------------
+
+
+
 
