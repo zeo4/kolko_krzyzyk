@@ -8,9 +8,10 @@ class Logika : protected Zadania {
 public:
 	void			rys_klatka();
 	void			obsluz_wej(MSG const&);
+	void			wez_wyn();
 	void			inicScena();
 protected:
-	DaneGra			dane_gra;
+	DaneGra			gra_dane;
 	Swiat			swiat;
 };
 // -------------------------------------------------------

@@ -3,23 +3,25 @@
 // -------------------------------------------------------
 void Fizyka::wyk_zad() {
 	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {
-		switch(*(KodZad*)zad[_i]) {
-		case USTAW_OB:
-		{
-			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
-			par_fiz.poz[ob.nr[z.uch_ob]] = z.w;
-			break;
-		}
-		case TWORZ_OB:
-			break;
-		}
-	}
-}
+		if(zad.wez_wier(_i) == zad.pusty) continue;
 
-void Fizyka::inic() {
-	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
-		par_fiz.poz[_i] = XMFLOAT3(0.0f, 0.0f, 0.5f);
-		par_fiz.v[_i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		switch(*(KodZad*)zad[_i]) {
+		case USTAW_OB: {
+			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
+			par_fiz.poz[ob.nr[z.uch_ob]] = z.poz;
+			break;
+		}
+		case WYB_OB: {
+			ZadWybOb z = *(ZadWybOb*)zad[_i];
+			WynWybOb w;
+			w.kod_zad = WYB_OB;
+			w.uch_ob = wyb_ob(z.x, z.y);
+			wyn.wstaw_kon((uint8_t*)&w, sizeof(w));
+			break;
+		}
+		}
+
+		zad.usun(_i);
 	}
 }
 void Fizyka::licz_prom_klik(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x, uint32_t const& _y) const {
@@ -78,6 +80,35 @@ float Fizyka::licz_prom_troj(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVE
 		return 1000.0f;
 	}
 }
+uint32_t Fizyka::wyb_ob(uint32_t const& _x, uint32_t const& _y) const {
+	XMVECTOR _pocz, _kier;
+	licz_prom_klik(_pocz, _kier, _x, _y);
+	float _t = 1000.0f, _t1;
+	uint32_t _uch_wybr = 0x80000000;
+	for(uint32_t _uch_ob = 0; _uch_ob < ob.nr.wez_poj(); ++_uch_ob) {
+		if(ob.nr.sprawdz_pusty(_uch_ob)) continue;
+		_pocz = XMVector3TransformCoord(_pocz, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+		));
+		_kier = XMVector3TransformNormal(_kier, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+		));
+		_t1 = licz_prom_ob(_pocz, _kier, ob.nr[_uch_ob]);
+		if(_t1 < _t) {
+			_t = _t1;
+			_uch_wybr = _uch_ob;
+		}
+	}
+	return _uch_wybr;
+}
+
+
+void Fizyka::inic() {
+	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
+		par_fiz.poz[_i] = XMFLOAT3(0.0f, 0.0f, 0.5f);
+		par_fiz.v[_i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	}
+}
 void Fizyka::tworz_ob() {
 	par_fiz.poz.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
 	par_fiz.v.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
@@ -101,30 +132,6 @@ void Fizyka::uwzgl_v() {
 			XMLoadFloat3(&par_fiz.poz[_i]) + XMLoadFloat3(&par_fiz.v[_i])
 		);
 	}
-}
-uint32_t Fizyka::wyb_ob() const {
-	POINT pkt;
-	GetCursorPos(&pkt);
-	ScreenToClient(uch_okno, &pkt);
-	XMVECTOR _pocz, _kier;
-	licz_prom_klik(_pocz, _kier, pkt.x, pkt.y);
-	float _t = 1000.0f, _t1;
-	uint32_t _uch_wybr = 0x80000000;
-	for(uint32_t _uch_ob = 0; _uch_ob < ob.nr.wez_poj(); ++_uch_ob) {
-		if(ob.nr.sprawdz_pusty(_uch_ob)) continue;
-		_pocz = XMVector3TransformCoord(_pocz, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
-		));
-		_kier = XMVector3TransformNormal(_kier, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
-		));
-		_t1 = licz_prom_ob(_pocz, _kier, ob.nr[_uch_ob]);
-		if(_t1 < _t) {
-			_t = _t1;
-			_uch_wybr = _uch_ob;
-		}
-	}
-	return _uch_wybr;
 }
 void Fizyka::wykonaj() {
 	wyk_zad();

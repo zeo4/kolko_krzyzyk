@@ -135,7 +135,8 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 
 // ZasobyGraf: ustawić wszystkie możliwe metody na inline.
 // Fizyka: zmienić miejsce pobierania rozmiaru obszaru klienta okna, tak aby pobierany był rzadziej.
-// Wejscie ma należeć do Swiata (podłączyć wejście z fiz).
+// Przy wybieraniu obiektu sprawdzać obszary, które zajmuje promień wyboru.
+// Defragmentacja zadań i wyników zrobiona.
 
 
 

@@ -239,23 +239,23 @@ template<class T>
 T const Wek<T>::pusty = gen_min<T>();
 // -------------------------------------------------------
 template<class A, class B = A>
-struct Paraa {
-	inline bool		operator==(Paraa const&) const;
-	inline bool		operator!=(Paraa const&) const;
+struct Para {
+	inline bool		operator==(Para const&) const;
+	inline bool		operator!=(Para const&) const;
 	A				pierw;
 	B				drug;
 };
 template<class A, class B>
-bool Paraa<A,B>::operator==(Paraa const& _para) const {
+bool Para<A,B>::operator==(Para const& _para) const {
 	return (pierw == _para.pierw && drug == _para.drug);
 }
 template<class A, class B>
-bool Paraa<A,B>::operator!=(Paraa const& _para) const {
+bool Para<A,B>::operator!=(Para const& _para) const {
 	return !operator==(_para);
 }
 // -------------------------------------------------------
 template<class A, class B>
-std::ostream& operator<<(std::ostream& _strumien, Paraa<A,B> const& _para) {
+std::ostream& operator<<(std::ostream& _strumien, Para<A,B> const& _para) {
 	_strumien << "{" << _para.pierw << ", " << _para.drug << "}";
 	return _strumien;
 }
@@ -263,7 +263,7 @@ std::ostream& operator<<(std::ostream& _strumien, Paraa<A,B> const& _para) {
 template<class T>
 class Wek2 {
 public:
-	typedef Paraa<uint32_t> Wiersz_;
+	typedef Para<uint32_t> Wiersz_;
 	inline T*const&				operator[](uint32_t const&) const;
 	inline void					wstaw_kon(T const*const&, uint32_t const&);
 	inline void					usun(uint32_t const&, uint32_t = 1);

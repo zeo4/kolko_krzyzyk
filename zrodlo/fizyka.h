@@ -10,14 +10,7 @@ class Grafika;
 class Fizyka : protected Zadania, protected Kamera, protected Obiekty, protected ParFiz {
 public:
 	void				wyk_zad();
-public:
-	void				inic();
-	void				wykonaj();
-	void				tworz_ob();
-	uint32_t			wyb_ob() const;
 protected:
-	void				uwzgl_v();
-	void				uwzgl_poz();
 	void				licz_prom_klik(XMVECTOR&, XMVECTOR&,
 							uint32_t const&, uint32_t const&) const;
 	float				licz_prom_ob(XMVECTOR const&, XMVECTOR const&,
@@ -25,6 +18,14 @@ protected:
 	float				licz_prom_troj(XMVECTOR const&, XMVECTOR const&,
 							CXMVECTOR const&, CXMVECTOR const&,
 							CXMVECTOR const&) const;
+	uint32_t			wyb_ob(uint32_t const&, uint32_t const&) const;
+public:
+	void				inic();
+	void				wykonaj();
+	void				tworz_ob();
+protected:
+	void				uwzgl_v();
+	void				uwzgl_poz();
 	inline XMMATRIX		licz_swiat_odwr(uint32_t const&) const;
 };
 XMMATRIX Fizyka::licz_swiat_odwr(uint32_t const& _nr_ob) const {
