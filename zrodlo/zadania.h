@@ -26,23 +26,23 @@ struct WynWybOb {
 	uint32_t		uch_ob;
 };
 struct Zad {
-	uint32_t		el : 22;
-	KodZad			kod : 10;
+	KodZad			kod;
+	uint32_t		el;
 };
 struct ZadTworzOb {
-	uint32_t		el : 22;
-	KodZad			kod : 10;
+	KodZad			kod;
+	uint32_t		el;
 	uint32_t		uch_mod;
 	uint32_t		uch_teks;
 };
 struct ZadUstawOb {
-	uint32_t		el : 22;
-	KodZad			kod : 10;
+	KodZad			kod;
+	uint32_t		el;
 	XMFLOAT3		poz;
 };
 struct ZadWybOb {
-	uint32_t		el : 22;
-	KodZad			kod : 10;
+	KodZad			kod;
+	uint32_t		el;
 	uint32_t		x;
 	uint32_t		y;
 };

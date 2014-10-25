@@ -8,10 +8,10 @@ void WekLuz<bool>::czysc() {
 void WekLuz<bool>::rezerw_tyl(uint32_t const& _poj) {
 	if(_poj <= poj) return;
 
-	bool*const _el = (bool*)malloc(_poj * sizeof(bool));
+	bool*const _el = (bool*)((uint8_t*)malloc(_poj * sizeof(bool) + 12) + 12);
 	memcpy(_el, el, poj * sizeof(bool));
 	memset(_el + poj, 0, (_poj - poj) * sizeof(bool));
-	free(el);
+	free((uint8_t*)el - 12);
 	el = _el;
 	poj = _poj;
 }

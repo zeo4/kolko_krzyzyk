@@ -26,10 +26,6 @@ T gen_pusty() {
 	*((uint8_t*)&wart + sizeof(T) - 1) = 1 << 7;
 	return wart;
 }
-template<class T>
-uint32_t wez_hasz(T const& _el) {
-	return *(uint32_t*)&_el;
-}
 // -------------------------------------------------------
 template<class T>
 void wyp_pam(T*const& _pam, T const& _wart, uint32_t const& _il) {
@@ -44,28 +40,19 @@ public:
 	inline uint32_t		operator()(T const&) const;
 };
 template<class T>
-uint32_t FunHasz<T>::operator()(T const& wart) const {
-	return *((uint32_t*)(&wart));
+uint32_t FunHasz<T>::operator()(T const& _wart) const {
+	return *(uint32_t*)&_wart;
 }
-
+// -------------------------------------------------------
 template<class T>
-class FunHasz<T*> {
+class FunHasz2 {
 public:
-	inline uint32_t		operator()(T const*const) const;
+	inline uint32_t		operator()(T const&) const;
 };
 template<class T>
-uint32_t FunHasz<T*>::operator()(T const*const wart) const {
-	return (uint32_t)wart;
+uint32_t FunHasz2<T>::operator()(T const& _wart) const {
+	return *((uint32_t*)&_wart + 1);
 }
 
-template<class T>
-class FunMniej {
-public:
-	inline bool		operator()(T const, T const) const;
-};
-template<class T>
-bool FunMniej<T>::operator()(T const ob1, T const ob2) const {
-	return ob1 < ob2;
-}
 
 

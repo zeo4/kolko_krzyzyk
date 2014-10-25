@@ -28,7 +28,7 @@ Swiat::Swiat()
 	zas.wiaz_rzutnia();
 	zas.wiaz_stan_prob();
 	zas.wiaz_co_klat();
-	wstaw_zad(Zad{0, AKTUAL_KAM});
+	wstaw_zad(Zad{AKTUAL_KAM, 0});
 }
 Swiat::~Swiat() {
 	delete fiz;
@@ -38,6 +38,7 @@ void Swiat::wyk_zad() {
 	if(zad.wez_il_wier() > 1) {
 		uint32_t* _mapa = 0;
 		zad.uloz_uni_licz(_mapa);
+		tutaj
 		zad.uloz_wyk(_mapa);
 		free(_mapa);
 	}
@@ -47,12 +48,12 @@ void Swiat::wyk_zad() {
 
 		switch(((Zad*)zad[_i])->kod) {
 		case USTAW_OB:
-			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{0, AKTUAL_SWIAT});
-			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{0, RYSUJ});
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
+			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		case TWORZ_OB:
-			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{0, AKTUAL_SWIAT});
-			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{0, RYSUJ});
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
+			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		}
 	}

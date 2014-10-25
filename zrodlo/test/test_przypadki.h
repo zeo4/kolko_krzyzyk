@@ -35,6 +35,7 @@ public:
 	void		testDefragSrodekLaczony();
 	void		testDefragKon();
 	void		testDefragCalosc();
+	void		testUsunDupl();
 };
 // -------------------------------------------------------
 class TestWek2 : public Wek2<uint32_t> {
@@ -65,6 +66,7 @@ public:
 	void		testDefragSrodekLaczony();
 	void		testDefragKon();
 	void		testDefragCalosc();
+	void		testUsunDupl();
 };
 // -------------------------------------------------------
 class TestWekLuz : public WekLuz<uint32_t> {

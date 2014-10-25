@@ -3,7 +3,7 @@
 // -------------------------------------------------------
 void Logika::inicScena() {
 	for(uint32_t _i = 0; _i < 1024; ++_i) {
-		wstaw_zad(ZadTworzOb{_i, TWORZ_OB, MOD_DIAMENT, TEKS_DIAMENT});
+		wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
 	}
 	gra_dane.uch_wybr = 0x80000000;
 }
@@ -12,35 +12,35 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 		POINT _pkt;
 		GetCursorPos(&_pkt);
 		ScreenToClient(uch_okno, &_pkt);
-		wstaw_zad(ZadWybOb{0, WYB_OB, _pkt.x, _pkt.y});
+		wstaw_zad(ZadWybOb{WYB_OB, 0, _pkt.x, _pkt.y});
 	}
 	if(_wiad.message == WM_KEYDOWN) {
 		if(gra_dane.uch_wybr != 0x80000000) {
 			if(_wiad.wParam == 0x41) {
 				// lewy
-				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(-0.5f, 0.0f, 0.5f)});
+				wstaw_zad(ZadUstawOb{USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(-0.5f, 0.0f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x44) {
 				// prawy
-				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.5f, 0.0f, 0.5f)});
+				wstaw_zad(ZadUstawOb{USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.5f, 0.0f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x53) {
 				// dół
-				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.0f, -0.5f, 0.5f)});
+				wstaw_zad(ZadUstawOb{USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.0f, -0.5f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x57) {
 				// góra
-				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.0f, 0.5f, 0.5f)});
+				wstaw_zad(ZadUstawOb{USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.0f, 0.5f, 0.5f)});
 			}
 		}
 	}
 }
 void Logika::wykonaj() {
 	logi.pisz("", "------------");
-	//logi.czas();
-	wstaw_zad(Zad{0, RYSUJ});
+	logi.czas();
+	wstaw_zad(Zad{RYSUJ, 0});
 	swiat.wyk_zad();
-	//logi.czas();
+	logi.czas();
 	wez_wyn();
 	zad.usun_kon(zad.wez_il_wier());
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;

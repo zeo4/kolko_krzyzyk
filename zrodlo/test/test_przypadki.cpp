@@ -386,6 +386,31 @@ void TestWek::testDefragCalosc() {
 	free(_mapa);
 	niszcz();
 }
+void TestWek::testUsunDupl() {
+	std::cout << __FUNCTION__ << "\n";
+	wstaw_kon(pusty);
+	wstaw_kon(1);
+	wstaw_kon(1);
+	wstaw_kon(pusty);
+	wstaw_kon(2);
+	wstaw_kon(pusty);
+	wstaw_kon(2);
+	wstaw_kon(pusty);
+	wstaw_kon(pusty);
+	wstaw_kon(3);
+	wstaw_kon(3);
+	wstaw_kon(1);
+	wstaw_kon(pusty);
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa);
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(il, 3) << "\n";
+	UPEWNIJ_R(el[0], 1) << "\n";
+	UPEWNIJ_R(el[1], 2) << "\n";
+	UPEWNIJ_R(el[2], 3) << "\n";
+	free(_mapa);
+	niszcz();
+}
 void TestWek::wykonaj() {
 	testUlozLiczNieusunieteZadne();
 	testUlozLiczUsunietePoczKon();
@@ -409,6 +434,7 @@ void TestWek::wykonaj() {
 	testDefragSrodekLaczony();
 	testDefragKon();
 	testDefragCalosc();
+	testUsunDupl();
 }
 // -------------------------------------------------------
 void TestWekLuz::inic() {
@@ -905,6 +931,37 @@ void TestWek2::testDefragCalosc() {
 	free(_mapa_el);
 	niszcz();
 }
+void TestWek2::testUsunDupl() {
+	std::cout << __FUNCTION__ << "\n";
+	uint32_t _t[] = {0, 4, 3, 2, 1};
+	wstaw_kon(_t, 5); usun(0);
+	_t[0] = 1; wstaw_kon(_t, 5);
+	_t[0] = 1; wstaw_kon(_t, 5);
+	wstaw_kon(_t, 5); usun(3);
+	_t[0] = 2; wstaw_kon(_t, 5);
+	wstaw_kon(_t, 5); usun(5);
+	_t[0] = 2; wstaw_kon(_t, 5);
+	wstaw_kon(_t, 5); usun(7);
+	wstaw_kon(_t, 5); usun(8);
+	_t[0] = 3; wstaw_kon(_t, 5);
+	_t[0] = 3; wstaw_kon(_t, 5);
+	_t[0] = 1; wstaw_kon(_t, 5);
+	wstaw_kon(_t, 5); usun(12);
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa);
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(wier.wez_il(), 3) << "\n";
+	UPEWNIJ_R(el.wez_il(), 15) << "\n";
+	for(uint32_t _i = 0; _i < wier.wez_il(); ++_i) {
+		UPEWNIJ_R(el[wier[_i].pierw], _i + 1) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw + 1], 4) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw + 2], 3) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw + 3], 2) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw + 4], 1) << "_i=" << _i << "\n";
+	}
+	free(_mapa);
+	niszcz();
+}
 void TestWek2::wykonaj() {
 	testUlozLiczNieusunieteZadne();
 	testUlozLiczUsunietePoczKon();
@@ -928,6 +985,7 @@ void TestWek2::wykonaj() {
 	testDefragSrodekLaczony();
 	testDefragKon();
 	testDefragCalosc();
+	testUsunDupl();
 }
 // -------------------------------------------------------
 void TestUchPula::inic() {
