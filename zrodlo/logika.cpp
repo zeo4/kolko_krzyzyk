@@ -2,7 +2,9 @@
 #include <logika.h>
 // -------------------------------------------------------
 void Logika::inicScena() {
-	swiat.tworz_ob(MOD_TROJKAT, TEKS_TROJKAT);
+	for(uint32_t _i = 0; _i < 1024; ++_i) {
+		wstaw_zad(ZadTworzOb{_i, TWORZ_OB, MOD_DIAMENT, TEKS_DIAMENT});
+	}
 	gra_dane.uch_wybr = 0x80000000;
 }
 void Logika::obsluz_wej(MSG const& _wiad) {
@@ -10,40 +12,38 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 		POINT _pkt;
 		GetCursorPos(&_pkt);
 		ScreenToClient(uch_okno, &_pkt);
-		ZadWybOb z = {WYB_OB, _pkt.x, _pkt.y};
-		zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+		wstaw_zad(ZadWybOb{0, WYB_OB, _pkt.x, _pkt.y});
 	}
 	if(_wiad.message == WM_KEYDOWN) {
 		if(gra_dane.uch_wybr != 0x80000000) {
 			if(_wiad.wParam == 0x41) {
 				// lewy
-				ZadUstawOb z = {USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(-0.5f, 0.0f, 0.5f)};
-				zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(-0.5f, 0.0f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x44) {
 				// prawy
-				ZadUstawOb z = {USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.5f, 0.0f, 0.5f)};
-				zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.5f, 0.0f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x53) {
 				// dół
-				ZadUstawOb z = {USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.0f, -0.5f, 0.5f)};
-				zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.0f, -0.5f, 0.5f)});
 			}
 			if(_wiad.wParam == 0x57) {
 				// góra
-				ZadUstawOb z = {USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.0f, 0.5f, 0.5f)};
-				zad.wstaw_kon((uint8_t*)&z, sizeof(z));
+				wstaw_zad(ZadUstawOb{gra_dane.uch_wybr, USTAW_OB, XMFLOAT3(0.0f, 0.5f, 0.5f)});
 			}
 		}
 	}
 }
-void Logika::rys_klatka() {
-	swiat.rys_klatka();
+void Logika::wykonaj() {
+	logi.pisz("", "------------");
+	//logi.czas();
+	wstaw_zad(Zad{0, RYSUJ});
+	swiat.wyk_zad();
+	//logi.czas();
 	wez_wyn();
+	zad.usun_kon(zad.wez_il_wier());
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;
-	zad.defrag_licz(_mapa_wier, _mapa_el, 1);
-	zad.defrag_wyk(_mapa_wier, _mapa_el);
 	wyn.defrag_licz(_mapa_wier, _mapa_el, 1);
 	wyn.defrag_wyk(_mapa_wier, _mapa_el);
 	free(_mapa_wier);

@@ -1,29 +1,6 @@
 ﻿#pragma once
 #include <fizyka.h>
 // -------------------------------------------------------
-void Fizyka::wyk_zad() {
-	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {
-		if(zad.wez_wier(_i) == zad.pusty) continue;
-
-		switch(*(KodZad*)zad[_i]) {
-		case USTAW_OB: {
-			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
-			par_fiz.poz[ob.nr[z.uch_ob]] = z.poz;
-			break;
-		}
-		case WYB_OB: {
-			ZadWybOb z = *(ZadWybOb*)zad[_i];
-			WynWybOb w;
-			w.kod_zad = WYB_OB;
-			w.uch_ob = wyb_ob(z.x, z.y);
-			wyn.wstaw_kon((uint8_t*)&w, sizeof(w));
-			break;
-		}
-		}
-
-		zad.usun(_i);
-	}
-}
 void Fizyka::licz_prom_klik(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x, uint32_t const& _y) const {
 	// licz początek
 	_pocz = XMLoadFloat3(&kam.poz);
@@ -40,13 +17,12 @@ void Fizyka::licz_prom_klik(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x
 }
 float Fizyka::licz_prom_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
 	XMVECTOR _w0, _w1, _w2;
-	XMFLOAT3*const _wierz = ob.mod_wierz[ob.mod_nr[ob.mod_uch[_nr_ob]]];
-	DWORD*const _ind = ob.mod_ind[ob.mod_nr[ob.mod_uch[_nr_ob]]];
+	uint32_t const _nr_mod = par_graf.mod_nr[par_graf.mod_uch[_nr_ob]];
 	float _t = 1000.0f, _t1;
-	for(uint32_t _i = 0; _i < ob.mod_ind.wez_wier(_nr_ob).drug; _i += 3) {
-		_w0 = XMLoadFloat3(&_wierz[_ind[_i]]);
-		_w1 = XMLoadFloat3(&_wierz[_ind[_i+1]]);
-		_w2 = XMLoadFloat3(&_wierz[_ind[_i+2]]);
+	for(uint32_t _i = 0; _i < par_graf.mod_ind.wez_wier(_nr_mod).drug; _i += 3) {
+		_w0 = XMLoadFloat3(par_graf.mod_wierz[_nr_mod] + par_graf.mod_ind[_nr_mod][_i]);
+		_w1 = XMLoadFloat3(par_graf.mod_wierz[_nr_mod] + par_graf.mod_ind[_nr_mod][_i+1]);
+		_w2 = XMLoadFloat3(par_graf.mod_wierz[_nr_mod] + par_graf.mod_ind[_nr_mod][_i+2]);
 		_t1 = licz_prom_troj(_pocz, _kier, _w0, _w1, _w2);
 		if(_t1 < _t) _t = _t1;
 	}
@@ -81,19 +57,19 @@ float Fizyka::licz_prom_troj(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVE
 	}
 }
 uint32_t Fizyka::wyb_ob(uint32_t const& _x, uint32_t const& _y) const {
-	XMVECTOR _pocz, _kier;
+	XMVECTOR _pocz, _pocz1, _kier, _kier1;
 	licz_prom_klik(_pocz, _kier, _x, _y);
 	float _t = 1000.0f, _t1;
 	uint32_t _uch_wybr = 0x80000000;
-	for(uint32_t _uch_ob = 0; _uch_ob < ob.nr.wez_poj(); ++_uch_ob) {
-		if(ob.nr.sprawdz_pusty(_uch_ob)) continue;
-		_pocz = XMVector3TransformCoord(_pocz, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+	for(uint32_t _uch_ob = 0; _uch_ob < par_graf.nr.wez_poj(); ++_uch_ob) {
+		if(par_graf.nr.sprawdz_pusty(_uch_ob)) continue;
+		_pocz1 = XMVector3TransformCoord(_pocz, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[par_graf.nr[_uch_ob]])
 		));
-		_kier = XMVector3TransformNormal(_kier, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[ob.nr[_uch_ob]])
+		_kier1 = XMVector3TransformNormal(_kier, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&par_fiz.mac_swiat[par_graf.nr[_uch_ob]])
 		));
-		_t1 = licz_prom_ob(_pocz, _kier, ob.nr[_uch_ob]);
+		_t1 = licz_prom_ob(_pocz1, _kier1, par_graf.nr[_uch_ob]);
 		if(_t1 < _t) {
 			_t = _t1;
 			_uch_wybr = _uch_ob;
@@ -101,42 +77,54 @@ uint32_t Fizyka::wyb_ob(uint32_t const& _x, uint32_t const& _y) const {
 	}
 	return _uch_wybr;
 }
+void Fizyka::wyk_zad() {
+	if(zad.wez_il_wier() > 1) {
+		uint32_t* _mapa = 0;
+		zad.uloz_uni_licz(_mapa);
+		zad.uloz_wyk(_mapa);
+	}
 
+	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {
+		if(zad.wez_wier(_i) == zad.pusty) continue;
 
-void Fizyka::inic() {
-	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
-		par_fiz.poz[_i] = XMFLOAT3(0.0f, 0.0f, 0.5f);
-		par_fiz.v[_i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		switch(((Zad*)zad[_i])->kod) {
+		case USTAW_OB: {
+			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
+			par_fiz.poz[par_graf.nr[z.el]] = z.poz;
+			zad.usun(_i);
+			break;
+		}
+		case WYB_OB: {
+			ZadWybOb z = *(ZadWybOb*)zad[_i];
+			WynWybOb w;
+			w.kod_zad = WYB_OB;
+			w.uch_ob = wyb_ob(z.x, z.y);
+			wyn.wstaw_kon((uint8_t*)&w, sizeof(w));
+			zad.usun(_i);
+			break;
+		}
+		case TWORZ_OB:
+			par_fiz.poz.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
+			par_fiz.v.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			par_fiz.mac_swiat.wstaw_kon(XMFLOAT4X4());
+			XMStoreFloat4x4(
+				&par_fiz.mac_swiat[par_fiz.mac_swiat.wez_il()-1], XMMatrixIdentity()
+			);
+			par_fiz.nr.wstaw(par_fiz.poz.wez_il()-1);
+			break;
+		case AKTUAL_SWIAT:
+			for(uint32_t _i = 0; _i < par_fiz.mac_swiat.wez_il(); ++_i) {
+				XMStoreFloat4x4(
+					&par_fiz.mac_swiat[_i],
+					XMMatrixTranslationFromVector(XMLoadFloat3(&par_fiz.poz[_i]))
+				);
+			}
+			break;
+		case DEFRAG_FIZ:
+			zad.usun(_i);
+			break;
+		}
 	}
-}
-void Fizyka::tworz_ob() {
-	par_fiz.poz.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
-	par_fiz.v.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	par_fiz.mac_swiat.wstaw_kon(XMFLOAT4X4());
-	XMStoreFloat4x4(
-		&par_fiz.mac_swiat[par_fiz.mac_swiat.wez_il()-1], XMMatrixIdentity()
-	);
-}
-void Fizyka::uwzgl_poz() {
-	for(uint32_t _i = 0; _i < par_fiz.mac_swiat.wez_il(); ++_i) {
-		XMStoreFloat4x4(
-			&par_fiz.mac_swiat[_i],
-			XMMatrixTranslationFromVector(XMLoadFloat3(&par_fiz.poz[_i])
-		));
-	}
-}
-void Fizyka::uwzgl_v() {
-	for(uint32_t _i = 0; _i < par_fiz.poz.wez_il(); ++_i) {
-		XMStoreFloat3(
-			&par_fiz.poz[_i],
-			XMLoadFloat3(&par_fiz.poz[_i]) + XMLoadFloat3(&par_fiz.v[_i])
-		);
-	}
-}
-void Fizyka::wykonaj() {
-	wyk_zad();
-	uwzgl_v();
-	uwzgl_poz();
 }
 // -------------------------------------------------------
 

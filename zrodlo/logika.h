@@ -6,7 +6,7 @@
 // -------------------------------------------------------
 class Logika : protected Zadania {
 public:
-	void			rys_klatka();
+	void			wykonaj();
 	void			obsluz_wej(MSG const&);
 	void			wez_wyn();
 	void			inicScena();

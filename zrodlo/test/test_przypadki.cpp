@@ -148,7 +148,7 @@ void TestWek::testUlozUnikatLiczNieusunieteZadne() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uint32_t _ind;
 	for(_ind = 0; _ind < il; ++_ind) {
 		if(_mapa[_ind] == 0x80000000) continue;
@@ -170,7 +170,7 @@ void TestWek::testUlozUnikatLiczUsunietePoczKon() {
 	usun(0);
 	usun(il-1);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	UPEWNIJ_R(_mapa[0], 0x80000000) << "\n";
 	UPEWNIJ_R(_mapa[il-1], 0x80000000) << "\n";
 	uint32_t _ind = 1;
@@ -194,7 +194,7 @@ void TestWek::testUlozUnikatLiczUsunieteSrodek() {
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uint32_t _ind = 0;
 	for(uint32_t _i = 1; _i < il; ++_i) {
 		if(el[_ind] == el[_i]) UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
@@ -213,7 +213,7 @@ void TestWek::testUlozUnikatLiczUsunieteWszystkie() {
 	inic();
 	usun(0, il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	for(uint32_t _i = 0; _i < il; ++_i) {
 		UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
@@ -224,7 +224,7 @@ void TestWek::testUlozUnikatNieusunieteZadne() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 1; _i < il; ++_i) {
 		UPEWNIJ_M(el[_i-1], el[_i]) << "_i=" << _i << "\n";
@@ -239,7 +239,7 @@ void TestWek::testUlozUnikatUsunietePoczKon() {
 	uint32_t* _mapa = 0;
 	usun(0);
 	usun(il-1);
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 0; _i < il; ++_i) {
 		UPEWNIJ_MR(el[_i], _pocz) << "_i=" << _i << "\n";
@@ -262,7 +262,7 @@ void TestWek::testUlozUnikatUsunieteSrodek() {
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 0; _i < il-_il+1; ++_i) {
 		UPEWNIJ_NR(memcmp(_ciag1, &el[_i], _il*4), 0) << "_i=" << _i << "\n";
@@ -278,7 +278,7 @@ void TestWek::testUlozUnikatUsunieteWszystkie() {
 	inic();
 	usun(0, il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	UPEWNIJ_R(il, 0) << "\n";
 	free(_mapa);
@@ -409,6 +409,80 @@ void TestWek::wykonaj() {
 	testDefragSrodekLaczony();
 	testDefragKon();
 	testDefragCalosc();
+}
+// -------------------------------------------------------
+void TestWekLuz::inic() {
+	uint32_t _il = 10;
+	for(uint32_t _i = 0; _i < _il; ++_i) {
+		if((_i + 1) % 3) el[_i] = _il-1-_i;
+	}
+}
+void TestWekLuz::niszcz() {
+	uint32_t _il = 10;
+	for(uint32_t _i = 0; _i < _il; ++_i) {
+		el[_i] = pusty;
+	}
+}
+void TestWekLuz::testAktualWszystkie() {
+	std::cout << __FUNCTION__ << "\n";
+	inic();
+	uint32_t _mapa[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+	aktual(_mapa);
+	for(uint32_t _i = 0; _i < 10; ++_i) {
+		if((_i + 1) % 3) UPEWNIJ_R(el[_i], _i) << "_i=" << _i << "\n";
+		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+	}
+	niszcz();
+}
+void TestWekLuz::testAktualPoczKon() {
+	std::cout << __FUNCTION__ << "\n";
+	inic();
+	uint32_t _mapa[10];
+	for(uint32_t _i = 1; _i < 10-1; ++_i) _mapa[_i] = 0x80000000;
+	_mapa[0] = 9;
+	_mapa[9] = 0;
+	aktual(_mapa);
+	UPEWNIJ_R(el[0], 0) << "\n";
+	UPEWNIJ_R(el[9], 9) << "\n";
+	for(uint32_t _i = 1; _i < 10-1; ++_i) {
+		if((_i + 1) % 3) UPEWNIJ_R(el[_i], 9-_i) << "_i=" << _i << "\n";
+		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+	}
+	niszcz();
+}
+void TestWekLuz::testAktualSrodek() {
+	std::cout << __FUNCTION__ << "\n";
+	inic();
+	uint32_t _mapa[10];
+	_mapa[0] = 0x80000000;
+	_mapa[9] = 0x80000000;
+	for(uint32_t _i = 1; _i < 10-1; ++_i) _mapa[_i] = 9-_i;
+	aktual(_mapa);
+	UPEWNIJ_R(el[0], 9) << "\n";
+	UPEWNIJ_R(el[9], 0) << "\n";
+	for(uint32_t _i = 1; _i < 10-1; ++_i) {
+		if((_i + 1) % 3) UPEWNIJ_R(el[_i], _i) << "_i=" << _i << "\n";
+		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+	}
+	niszcz();
+}
+void TestWekLuz::testAktualZadne() {
+	std::cout << __FUNCTION__ << "\n";
+	inic();
+	uint32_t _mapa[10];
+	for(uint32_t _i = 0; _i < 10; ++_i) _mapa[_i] = 0x80000000;
+	aktual(_mapa);
+	for(uint32_t _i = 0; _i < 10; ++_i) {
+		if((_i + 1) % 3) UPEWNIJ_R(el[_i], 9-_i) << "_i=" << _i << "\n";
+		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
+	}
+	niszcz();
+}
+void TestWekLuz::wykonaj() {
+	testAktualWszystkie();
+	testAktualPoczKon();
+	testAktualSrodek();
+	testAktualZadne();
 }
 // -------------------------------------------------------
 void TestWek2::inic() {
@@ -575,7 +649,7 @@ void TestWek2::testUlozUnikatLiczNieusunieteZadne() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uint32_t _ind;
 	for(_ind = 0; _ind < wier.wez_il(); ++_ind) {
 		if(_mapa[_ind] == 0x80000000) continue;
@@ -597,7 +671,7 @@ void TestWek2::testUlozUnikatLiczUsunietePoczKon() {
 	usun(0);
 	usun(wez_il_wier()-1);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	UPEWNIJ_R(_mapa[0], 0x80000000) << "\n";
 	UPEWNIJ_R(_mapa[wez_il_wier()-1], 0x80000000) << "\n";
 	uint32_t _ind = 1;
@@ -621,7 +695,7 @@ void TestWek2::testUlozUnikatLiczUsunieteSrodek() {
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uint32_t _ind = 0;
 	for(uint32_t _i = 1; _i < wez_il_wier(); ++_i) {
 		if(el[wier[_ind].pierw] == el[wier[_i].pierw]) UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
@@ -640,7 +714,7 @@ void TestWek2::testUlozUnikatLiczUsunieteWszystkie() {
 	inic();
 	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_R(_mapa[_i], 0x80000000) << "_i=" << _i << "\n";
 	}
@@ -651,7 +725,7 @@ void TestWek2::testUlozUnikatNieusunieteZadne() {
 	std::cout << __FUNCTION__ << "\n";
 	inic();
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 1; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_M(el[wier[_i-1].pierw], el[wier[_i].pierw]) << "_i=" << _i << "\n";
@@ -666,7 +740,7 @@ void TestWek2::testUlozUnikatUsunietePoczKon() {
 	uint32_t* _mapa = 0;
 	usun(0);
 	usun(wez_il_wier()-1);
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 0; _i < wez_il_wier(); ++_i) {
 		UPEWNIJ_MR(el[wier[_i].pierw], _pocz) << "_i=" << _i << "\n";
@@ -695,7 +769,7 @@ void TestWek2::testUlozUnikatUsunieteSrodek() {
 	usun(_od1, _il);
 	usun(_od2, _il);
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	for(uint32_t _i = 0; _i < el.wez_il()-_il1+1; ++_i) {
 		UPEWNIJ_NR(memcmp(_ciag1, &el[_i], _il1*4), 0) << "_i=" << _i << "\n";
@@ -713,7 +787,7 @@ void TestWek2::testUlozUnikatUsunieteWszystkie() {
 	inic();
 	usun(0, wez_il_wier());
 	uint32_t* _mapa = 0;
-	uloz_unikat_licz(_mapa);
+	uloz_uni_licz(_mapa);
 	uloz_wyk(_mapa);
 	UPEWNIJ_R(wier.wez_il(), 0) << "\n";
 	UPEWNIJ_R(el.wez_il(), 0) << "\n";
@@ -856,80 +930,6 @@ void TestWek2::wykonaj() {
 	testDefragCalosc();
 }
 // -------------------------------------------------------
-void TestUchLuz::inic() {
-	uint32_t _il = 10;
-	for(uint32_t _i = 0; _i < _il; ++_i) {
-		if((_i + 1) % 3) el[_i] = _il-1-_i;
-	}
-}
-void TestUchLuz::niszcz() {
-	uint32_t _il = 10;
-	for(uint32_t _i = 0; _i < _il; ++_i) {
-		el[_i] = pusty;
-	}
-}
-void TestUchLuz::testAktualWszystkie() {
-	std::cout << __FUNCTION__ << "\n";
-	inic();
-	uint32_t _mapa[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
-	aktual(_mapa);
-	for(uint32_t _i = 0; _i < 10; ++_i) {
-		if((_i + 1) % 3) UPEWNIJ_R(el[_i], _i) << "_i=" << _i << "\n";
-		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
-	}
-	niszcz();
-}
-void TestUchLuz::testAktualPoczKon() {
-	std::cout << __FUNCTION__ << "\n";
-	inic();
-	uint32_t _mapa[10];
-	for(uint32_t _i = 1; _i < 10-1; ++_i) _mapa[_i] = 0x80000000;
-	_mapa[0] = 9;
-	_mapa[9] = 0;
-	aktual(_mapa);
-	UPEWNIJ_R(el[0], 0) << "\n";
-	UPEWNIJ_R(el[9], 9) << "\n";
-	for(uint32_t _i = 1; _i < 10-1; ++_i) {
-		if((_i + 1) % 3) UPEWNIJ_R(el[_i], 9-_i) << "_i=" << _i << "\n";
-		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
-	}
-	niszcz();
-}
-void TestUchLuz::testAktualSrodek() {
-	std::cout << __FUNCTION__ << "\n";
-	inic();
-	uint32_t _mapa[10];
-	_mapa[0] = 0x80000000;
-	_mapa[9] = 0x80000000;
-	for(uint32_t _i = 1; _i < 10-1; ++_i) _mapa[_i] = 9-_i;
-	aktual(_mapa);
-	UPEWNIJ_R(el[0], 9) << "\n";
-	UPEWNIJ_R(el[9], 0) << "\n";
-	for(uint32_t _i = 1; _i < 10-1; ++_i) {
-		if((_i + 1) % 3) UPEWNIJ_R(el[_i], _i) << "_i=" << _i << "\n";
-		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
-	}
-	niszcz();
-}
-void TestUchLuz::testAktualZadne() {
-	std::cout << __FUNCTION__ << "\n";
-	inic();
-	uint32_t _mapa[10];
-	for(uint32_t _i = 0; _i < 10; ++_i) _mapa[_i] = 0x80000000;
-	aktual(_mapa);
-	for(uint32_t _i = 0; _i < 10; ++_i) {
-		if((_i + 1) % 3) UPEWNIJ_R(el[_i], 9-_i) << "_i=" << _i << "\n";
-		else UPEWNIJ_R(el[_i], pusty) << "_i=" << _i << "\n";
-	}
-	niszcz();
-}
-void TestUchLuz::wykonaj() {
-	testAktualWszystkie();
-	testAktualPoczKon();
-	testAktualSrodek();
-	testAktualZadne();
-}
-// -------------------------------------------------------
 void TestUchPula::inic() {
 	uint32_t _il = 10;
 	for(uint32_t _i = 0; _i < _il; ++_i) {
@@ -1001,10 +1001,18 @@ void TestUchPula::wykonaj() {
 }
 // -------------------------------------------------------
 void main() {
-	TestWek().wykonaj();
-	TestWek2().wykonaj();
-	TestUchLuz().wykonaj();
-	TestUchPula().wykonaj();
+	TestWek _test_Wek;
+	_test_Wek.wykonaj();
+	_test_Wek.niszcz();
+	TestWekLuz _test_WekLuz;
+	_test_WekLuz.wykonaj();
+	_test_WekLuz.niszcz();
+	TestWek2 _test_Wek2;
+	_test_Wek2.wykonaj();
+	_test_Wek2.niszcz();
+	TestUchPula _test_UchPula;
+	_test_UchPula.wykonaj();
+	_test_UchPula.niszcz();
 	std::cout << "Sukces! Nacisnij ENTER";
 	std::cin.get();
 }

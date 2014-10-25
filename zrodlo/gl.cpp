@@ -49,13 +49,28 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			logika.rys_klatka();
+			logika.wykonaj();
 		}
 	}
 }
 // -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
+	Wek2<uint32_t> w;
+	uint32_t _w[] = {5, 4, 3, 2, 1};
+	for(uint32_t _i = 0; _i < 1000; ++_i) {
+		_w[0] = 10000000 - _i * 10000;
+		w.wstaw_kon(_w, 5);
+	}
+	uint32_t* _mapa = 0;
+	logi.czas();
+	w.uloz_licz(_mapa);
+	logi.czas();
+	w.uloz_wyk(_mapa);
+	logi.czas();
+	for(uint32_t _i = 0; _i < 1000; ++_i) {
+		logi.pisz("test", to_string(w[_i][0]) + " " + to_string(w[_i][1]) + " " + to_string(w[_i][2]) + " " + to_string(w[_i][3]) + " " + to_string(w[_i][4]));
+	}
 
 	uchAp = uchAplikacji;
 
@@ -132,11 +147,16 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Dopisać kolizje dla szybko poruszających się obiektów.
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
 // Tworzyć tekstury w jednej tablicy tekstur a nie każdą osobno.
+// Wektory: Za każdym razem kiedy jest zmiana, trzeba jawnie aktualizować nagłówek obszaru pamięci. Wykombinować jak nie aktualizować tego jawnie.
 
 // ZasobyGraf: ustawić wszystkie możliwe metody na inline.
 // Fizyka: zmienić miejsce pobierania rozmiaru obszaru klienta okna, tak aby pobierany był rzadziej.
 // Przy wybieraniu obiektu sprawdzać obszary, które zajmuje promień wyboru.
-// Defragmentacja zadań i wyników zrobiona.
+// Zrobić defragmentację w jednym, jasnym miejscu.
+// Zrobić tekst.
+// Usunąć pobieranie wielkości bufora prosto z karty graficznej przy aktualizacji bufora. Transfer GPU -> CPU jest wolny. Niech rozmiar będzie trzymana po stronie CPU również.
+// Przerobić na jedną komendę DrawIndexed.
+// Przetestować Wek2::wstaw_kon(Wek2) czy działa dobrze.
 
 
 

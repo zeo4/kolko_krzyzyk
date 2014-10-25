@@ -10,15 +10,16 @@ Swiat::Swiat()
 	zas.tworz_karta_rend_lanc();
 	zas.tworz_gleb_szab_wid();
 	zas.tworz_cel_rend_wid();
-	zas.inic_mod_wierz();
-	zas.inic_mod_teks();
-	zas.inic_mod_ind();
+	zas.inic_wierz();
+	zas.inic_teks();
+	zas.inic_swiat();
+	zas.inic_ind();
 	zas.tworz_szad_wierz();
 	zas.tworz_szad_piks();
 	zas.tworz_strukt_we();
 	zas.tworz_rzutnia();
 	zas.tworz_stan_prob();
-	zas.tworz_co_ob();
+	zas.tworz_co_klat();
 	zas.wiaz_cele_rend();
 	zas.wiaz_szad_wierz();
 	zas.wiaz_szad_piks();
@@ -26,20 +27,39 @@ Swiat::Swiat()
 	zas.wiaz_topol_prym();
 	zas.wiaz_rzutnia();
 	zas.wiaz_stan_prob();
-	zas.wiaz_co_ob();
+	zas.wiaz_co_klat();
+	wstaw_zad(Zad{0, AKTUAL_KAM});
 }
 Swiat::~Swiat() {
 	delete fiz;
 	delete graf;
 }
-void Swiat::rys_klatka() {
-	fiz->wykonaj();
-	graf->wykonaj();
-	graf->rys_klatka();
-}
-uint32_t Swiat::tworz_ob(uint32_t const& _MOD, uint32_t const& _TEKS) {
-	fiz->tworz_ob();
-	return graf->tworz_ob(_MOD, _TEKS);
+void Swiat::wyk_zad() {
+	if(zad.wez_il_wier() > 1) {
+		uint32_t* _mapa = 0;
+		zad.uloz_uni_licz(_mapa);
+		zad.uloz_wyk(_mapa);
+		free(_mapa);
+	}
+
+	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {
+		if(zad.wez_wier(_i) == zad.pusty) continue;
+
+		switch(((Zad*)zad[_i])->kod) {
+		case USTAW_OB:
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{0, AKTUAL_SWIAT});
+			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{0, RYSUJ});
+			break;
+		case TWORZ_OB:
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{0, AKTUAL_SWIAT});
+			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{0, RYSUJ});
+			break;
+		}
+	}
+
+	fiz->wyk_zad();
+	graf->wyk_zad();
+	flg_zad.czysc();
 }
 // -------------------------------------------------------
 

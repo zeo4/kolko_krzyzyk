@@ -6,17 +6,18 @@
 #include <fizyka.h>
 #include <grafika.h>
 // -------------------------------------------------------
-class Swiat : protected ZasGraf {
+class Swiat : protected ZasGraf, protected Zadania {
 public:
 							Swiat();
 							~Swiat();
-	void					rys_klatka();
-	uint32_t				tworz_ob(uint32_t const&, uint32_t const&);
+	void					wyk_zad();
+protected:
+	Fizyka*					fiz;
+	Grafika*				graf;
+public:
 	//void					dodaj(IObiekt* const);
 	//void					wezObPromien(IObiekt** const, Obiekt3w const* const) const;
 	//void					wykonajFizyka();
-	Fizyka*					fiz;
-	Grafika*				graf;
 private:
 	//MapaSasiedzi_			sasiedzi;
 	//void					aktualizujSasiedzi();

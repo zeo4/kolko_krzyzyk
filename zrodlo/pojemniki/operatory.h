@@ -20,6 +20,13 @@ T gen_min() {
 	return wart;
 }
 template<class T>
+T gen_pusty() {
+	T wart;
+	memset(&wart, 0, sizeof(T));
+	*((uint8_t*)&wart + sizeof(T) - 1) = 1 << 7;
+	return wart;
+}
+template<class T>
 uint32_t wez_hasz(T const& _el) {
 	return *(uint32_t*)&_el;
 }
@@ -27,7 +34,7 @@ uint32_t wez_hasz(T const& _el) {
 template<class T>
 void wyp_pam(T*const& _pam, T const& _wart, uint32_t const& _il) {
 	for(int32_t _i = 0; _i < _il; ++_i) {
-		memmove(_pam+_i, &_wart, sizeof(T));
+		memcpy(_pam+_i, &_wart, sizeof(T));
 	}
 }
 // -------------------------------------------------------

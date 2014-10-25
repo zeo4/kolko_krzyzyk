@@ -67,7 +67,7 @@ public:
 	void		testDefragCalosc();
 };
 // -------------------------------------------------------
-class TestUchLuz : public UchLuz {
+class TestWekLuz : public WekLuz<uint32_t> {
 public:
 	void		inic();
 	void		niszcz();

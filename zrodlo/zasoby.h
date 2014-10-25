@@ -8,7 +8,7 @@
 using namespace DirectX;
 // -------------------------------------------------------
 template<class T>
-void tworz_buf(ID3D11Device*const& _karta, ID3D11Buffer*& _bufor, UINT const _il_el, UINT const _laczenie) {
+void tworz_buf(ID3D11Device*const& _karta, ID3D11Buffer*& _bufor, UINT const _il_el, UINT const _wiazanie) {
 	if(_bufor != 0) {
 		_bufor->Release();
 	}
@@ -17,12 +17,12 @@ void tworz_buf(ID3D11Device*const& _karta, ID3D11Buffer*& _bufor, UINT const _il
 	ZeroMemory(&_opis, sizeof(_opis));
 	_opis.ByteWidth = sizeof(T) * _il_el;
 	_opis.Usage = D3D11_USAGE_DEFAULT;
-	_opis.BindFlags = _laczenie;
+	_opis.BindFlags = _wiazanie;
 	_opis.CPUAccessFlags = 0;
 	_opis.MiscFlags = 0;
 
 	HRESULT w = _karta->CreateBuffer(&_opis, NULL, &_bufor);
-	if(w != S_OK) logi.pisz("", "nie stworzono buf");
+	if(w != S_OK) logi.pisz("", string("nie stworzono buf z wiazaniem ") + to_string(_wiazanie));
 }
 // -------------------------------------------------------
 enum {
@@ -35,15 +35,16 @@ enum {
 };
 // -------------------------------------------------------
 struct ZGraf {
-	struct CoOb {
-						CoOb();
-		XMMATRIX		mac_swp;
+	struct CoKlat {
+						CoKlat();
+		XMMATRIX		mac_swp[1024];
 	};
 									ZGraf();
 									~ZGraf();
-	void							inic_mod_wierz();
-	void							inic_mod_teks();
-	void							inic_mod_ind();
+	void							inic_wierz();
+	void							inic_teks();
+	void							inic_swiat();
+	void							inic_ind();
 	void							tworz_karta_rend_lanc();
 	void							tworz_gleb_szab_wid();
 	void							tworz_cel_rend_wid();
@@ -52,11 +53,12 @@ struct ZGraf {
 	void							tworz_strukt_we();
 	void							tworz_szad_wierz();
 	void							tworz_szad_piks();
-	void							tworz_co_ob();
-	void							aktual_mod_wierz(Wek2<XMFLOAT3>const&);
-	void							aktual_mod_teks(Wek2<XMFLOAT2>const&);
-	void							aktual_mod_ind(Wek2<DWORD>const&);
-	void							aktual_co_ob();
+	void							tworz_co_klat();
+	void							aktual_wierz(Wek2<XMFLOAT3>const&);
+	void							aktual_teks(Wek2<XMFLOAT2>const&);
+	void							aktual_swiat(Wek<XMFLOAT4X4>const&);
+	void							aktual_ind(Wek2<DWORD>const&);
+	void							aktual_co_klat();
 	void							wiaz_cele_rend() const;
 	void							wiaz_stan_prob() const;
 	void							wiaz_rzutnia() const;
@@ -64,55 +66,58 @@ struct ZGraf {
 	void							wiaz_topol_prym() const;
 	void							wiaz_szad_wierz() const;
 	void							wiaz_szad_piks() const;
-	void							wiaz_mod_wierz(uint32_t const&) const;
+	void							wiaz_mod_wierz() const;
 	void							wiaz_mod_ind() const;
-	void							wiaz_co_ob() const;
+	void							wiaz_co_klat() const;
 	void							wiaz_teks(ID3D11ShaderResourceView*const&) const;
 	void							czysc_ekran() const;
-	void							rys_model(uint32_t const&, uint32_t const&) const;
 	ID3D11Device*					karta;
 	IDXGISwapChain*					lanc;
 	ID3D11DeviceContext*			rend;
-	ID3D11Buffer*					mod_wierz_buf;
-	ID3D11Buffer*					mod_teks_buf;
-	ID3D11Buffer*					mod_ind_buf;
+	ID3D11Buffer*					buf_wierz;
+	ID3D11Buffer*					buf_teks;
+	ID3D11Buffer*					buf_swiat;
+	ID3D11Buffer*					buf_ind;
+	ID3D11Buffer*					buf_co_klat;
+	ID3D10Blob*						buf_szad_wierz;
+	ID3D10Blob*						buf_szad_piks;
+	ID3D10Blob*						buf_szad_blad;
+	ID3D11DepthStencilView*			wid_gleb_szab;
+	ID3D11RenderTargetView*			wid_cel_rend;
+	ID3D11Texture2D*				teks2_gleb_szab;
 	ID3D11VertexShader*				szad_wierz;
-	ID3D10Blob*						szad_wierz_buf;
 	ID3D11PixelShader*				szad_piks;
-	ID3D10Blob*						szad_piks_buf;
-	ID3D10Blob*						szad_blad_buf;
-	ID3D11Texture2D*				gleb_szab_teks2;
-	ID3D11DepthStencilView*			gleb_szab_wid;
-	ID3D11RenderTargetView*			cel_rend_wid;
 	ID3D11SamplerState*				stan_prob;
 	D3D11_VIEWPORT					rzutnia;
 	ID3D11InputLayout*				strukt_we;
-	CoOb							co_ob;
-	ID3D11Buffer*					co_ob_buf;
+	CoKlat							co_klat;
 };
 struct ZasGraf {
 	static ZGraf		zas;
 };
 // -------------------------------------------------------
-struct Ob {
-	UchPula				nr;
-	Wek<uint32_t>		mod_uch;
-	Wek<uint32_t>		teks_uch;
-	UchLuz				mod_nr;
-	UchLuz				mod_odn;
-	Wek2<XMFLOAT3>		mod_wierz;
-	Wek2<XMFLOAT2>		mod_teks;
-	Wek2<DWORD>			mod_ind;
+struct PGraf {
+							~PGraf();
+	UchPula					nr;
+	Wek<uint32_t>			mod_uch;
+	Wek<uint32_t>			teks_uch;
+	WekLuz<uint32_t>		mod_nr;
+	WekLuz<uint32_t>		mod_odn;
+	Wek2<XMFLOAT3>			mod_wierz;
+	Wek2<XMFLOAT2>			mod_teks;
+	Wek2<DWORD>				mod_ind;
 	typedef ID3D11ShaderResourceView* TeksWid_;
-	UchLuz				teks_nr;
-	UchLuz				teks_odn;
-	Wek<TeksWid_>		teks_wid;
+	WekLuz<uint32_t>		teks_nr;
+	WekLuz<uint32_t>		teks_odn;
+	Wek<TeksWid_>			teks_wid;
 };
-struct Obiekty {
-	static Ob		ob;
+struct ParGraf {
+	static PGraf		par_graf;
 };
 // -------------------------------------------------------
 struct PFiz {
+						~PFiz();
+	UchPula				nr;
 	Wek<XMFLOAT3>		poz;
 	Wek<XMFLOAT3>		v;
 	Wek<XMFLOAT4X4>		mac_swiat;

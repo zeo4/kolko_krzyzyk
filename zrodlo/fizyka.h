@@ -7,33 +7,19 @@
 #include <zadania.h>
 class Grafika;
 // -------------------------------------------------------
-class Fizyka : protected Zadania, protected Kamera, protected Obiekty, protected ParFiz {
+class Fizyka : protected Zadania, protected Kamera, protected ParGraf, protected ParFiz {
 public:
-	void				wyk_zad();
+	void			wyk_zad();
 protected:
-	void				licz_prom_klik(XMVECTOR&, XMVECTOR&,
-							uint32_t const&, uint32_t const&) const;
-	float				licz_prom_ob(XMVECTOR const&, XMVECTOR const&,
-							uint32_t const&) const;
-	float				licz_prom_troj(XMVECTOR const&, XMVECTOR const&,
-							CXMVECTOR const&, CXMVECTOR const&,
-							CXMVECTOR const&) const;
-	uint32_t			wyb_ob(uint32_t const&, uint32_t const&) const;
-public:
-	void				inic();
-	void				wykonaj();
-	void				tworz_ob();
-protected:
-	void				uwzgl_v();
-	void				uwzgl_poz();
-	inline XMMATRIX		licz_swiat_odwr(uint32_t const&) const;
+	void			licz_prom_klik(XMVECTOR&, XMVECTOR&,
+						uint32_t const&, uint32_t const&) const;
+	float			licz_prom_ob(XMVECTOR const&, XMVECTOR const&,
+						uint32_t const&) const;
+	float			licz_prom_troj(XMVECTOR const&, XMVECTOR const&,
+						CXMVECTOR const&, CXMVECTOR const&,
+						CXMVECTOR const&) const;
+	uint32_t		wyb_ob(uint32_t const&, uint32_t const&) const;
 };
-XMMATRIX Fizyka::licz_swiat_odwr(uint32_t const& _nr_ob) const {
-	return XMMatrixInverse(
-		&XMVectorSet(0,0,0,0),
-		XMLoadFloat4x4(&par_fiz.mac_swiat[_nr_ob])
-	);
-}
 // -------------------------------------------------------
 
 // ---------------------------------------------
