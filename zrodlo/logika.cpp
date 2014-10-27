@@ -2,7 +2,7 @@
 #include <logika.h>
 // -------------------------------------------------------
 void Logika::inicScena() {
-	for(uint32_t _i = 0; _i < 1024; ++_i) {
+	for(uint32_t _i = 0; _i < 2000; ++_i) {
 		wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
 	}
 	gra_dane.uch_wybr = 0x80000000;
@@ -37,10 +37,10 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 }
 void Logika::wykonaj() {
 	logi.pisz("", "------------");
-	logi.czas();
+	//logi.czas();
 	wstaw_zad(Zad{RYSUJ, 0});
 	swiat.wyk_zad();
-	logi.czas();
+	//logi.czas();
 	wez_wyn();
 	zad.usun_kon(zad.wez_il_wier());
 	uint32_t* _mapa_wier = 0,* _mapa_el = 0;

@@ -19,6 +19,10 @@ public:
 	inline void					usun(uint32_t const&, uint32_t const& = 1);
 	template<class H = FunHasz<T>>
 	void						usun_dupl_licz(uint32_t*&, H = H()) const;
+	template<class H1, class H2>
+	void						usun_dupl_licz(uint32_t*&, H1, H2) const;
+	template<class H>
+	void						uloz_kolej_licz(uint32_t*&, H = H()) const;
 	inline void					usun_kon(uint32_t const& = 1);
 	inline void					zamien(uint32_t const&, uint32_t const&);
 	inline uint32_t const&		wez_il() const;
@@ -273,6 +277,39 @@ void Wek<T>::usun_dupl_licz(uint32_t*& _mapa, H _licz_hasz) const {
 
 	free(_t1);
 }
+template<class T> template<class H1, class H2>
+void Wek<T>::usun_dupl_licz(uint32_t*& _mapa, H1 _licz_hasz1, H2 _licz_hasz2) const {
+	free(_mapa);
+	_mapa = (uint32_t*)malloc(il * 4);
+	uint32_t _hasz_poprz1, _hasz_nast1, _hasz_poprz2, _hasz_nast2, _i = 0, _ind = 0;
+	while(el[_i] == pusty) {
+		_mapa[_i] = 0x80000000;
+		 ++_i;
+	}
+	_hasz_poprz1 = _licz_hasz1(el[_i]);
+	_hasz_poprz2 = _licz_hasz2(el[_i]);
+	_mapa[_i] = _ind++;
+	for(++_i; _i < il; ++_i) {
+		if(el[_i] == pusty) {
+			_mapa[_i] = 0x80000000;
+			continue;
+		}
+		_hasz_nast1 = _licz_hasz1(el[_i]);
+		_hasz_nast2 = _licz_hasz2(el[_i]);
+		if(_hasz_poprz1 == _hasz_nast1) {
+			if(_hasz_poprz2 == _hasz_nast2) {
+				_mapa[_i] = 0x80000000;
+			} else {
+				_hasz_poprz2 = _hasz_nast2;
+				_mapa[_i] = _ind++;
+			}
+		} else {
+			_hasz_poprz1 = _hasz_nast1;
+			_hasz_poprz2 = _hasz_nast2;
+			_mapa[_i] = _ind++;
+		}
+	}
+}
 template<class T>
 void Wek<T>::usun_kon(uint32_t const& _il) {
 	if(il <= _il) il = 0;
@@ -412,6 +449,8 @@ public:
 	inline void					usun(uint32_t const&, uint32_t = 1);
 	template<class H = FunHasz<T>>
 	void						usun_dupl_licz(uint32_t*&, H = H()) const;
+	template<class H1, class H2>
+	void						usun_dupl_licz(uint32_t*&, H1, H2) const;
 	inline void					usun_kon(uint32_t = 1);
 	inline Wiersz_ const&		wez_wier(uint32_t const&) const;
 	inline uint32_t const&		wez_il_wier() const;
@@ -625,6 +664,39 @@ void Wek2<T>::usun_dupl_licz(uint32_t*& _mapa, H _licz_hasz) const {
 	}
 
 	free(_t1);
+}
+template<class T> template<class H1, class H2>
+void Wek2<T>::usun_dupl_licz(uint32_t*& _mapa, H1 _licz_hasz1, H2 _licz_hasz2) const {
+	free(_mapa);
+	_mapa = (uint32_t*)malloc(wier.wez_il() *4);
+	uint32_t _hasz_poprz1, _hasz_nast1, _hasz_poprz2, _hasz_nast2, _i = 0, _ind = 0;
+	while(wier[_i] == pusty) {
+		_mapa[_i] = 0x80000000;
+		++_i;
+	}
+	_hasz_poprz1 = _licz_hasz1(el[wier[_i].pierw]);
+	_hasz_poprz2 = _licz_hasz2(el[wier[_i].pierw]);
+	_mapa[_i] = _ind++;
+	for(++_i; _i < wier.wez_il(); ++_i) {
+		if(wier[_i] == pusty) {
+			_mapa[_i] = 0x80000000;
+			continue;
+		}
+		_hasz_nast1 = _licz_hasz1(el[wier[_i].pierw]);
+		_hasz_nast2 = _licz_hasz2(el[wier[_i].pierw]);
+		if(_hasz_poprz1 == _hasz_nast1) {
+			if(_hasz_poprz2 == _hasz_nast2) {
+				_mapa[_i] = 0x80000000;
+			} else {
+				_hasz_poprz2 = _hasz_nast2;
+				_mapa[_i] = _ind++;
+			}
+		} else {
+			_hasz_poprz1 = _hasz_nast1;
+			_hasz_poprz2 = _hasz_nast2;
+			_mapa[_i] = _ind++;
+		}
+	}
 }
 template<class T>
 void Wek2<T>::usun_kon(uint32_t _il) {

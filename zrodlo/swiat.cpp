@@ -37,8 +37,9 @@ Swiat::~Swiat() {
 void Swiat::wyk_zad() {
 	if(zad.wez_il_wier() > 1) {
 		uint32_t* _mapa = 0;
-		zad.uloz_uni_licz(_mapa);
-		tutaj
+		zad.uloz_licz(_mapa);
+		zad.uloz_wyk(_mapa);
+		zad.usun_dupl_licz(_mapa, FunHasz<uint8_t>(), FunHasz2<uint8_t>());
 		zad.uloz_wyk(_mapa);
 		free(_mapa);
 	}

@@ -221,14 +221,8 @@ void ZGraf::wiaz_co_klat() const {
 void ZGraf::wiaz_cele_rend() const {
 	rend->OMSetRenderTargets(1, &wid_cel_rend, wid_gleb_szab);
 }
-void ZGraf::wiaz_mod_ind()const {
+void ZGraf::wiaz_ind()const {
 	rend->IASetIndexBuffer(buf_ind, DXGI_FORMAT_R32_UINT, 0);
-}
-void ZGraf::wiaz_mod_wierz() const {
-	ID3D11Buffer* _buf_we[] = {buf_wierz, buf_teks, buf_swiat};
-	uint32_t _kroki[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT2), sizeof(XMFLOAT4X4)};
-	uint32_t _przes[] = {0, 0, 0};
-	rend->IASetVertexBuffers(0, 3, _buf_we, _kroki, _przes);
 }
 void ZGraf::wiaz_rzutnia() const {
 	rend->RSSetViewports(1, &rzutnia);
@@ -250,6 +244,12 @@ void ZGraf::wiaz_teks(ID3D11ShaderResourceView*const& _teks_wid) const {
 }
 void ZGraf::wiaz_topol_prym() const {
 	rend->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+void ZGraf::wiaz_wierz() const {
+	ID3D11Buffer* _buf_we[] = {buf_wierz, buf_teks, buf_swiat};
+	uint32_t _kroki[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT2), sizeof(XMFLOAT4X4)};
+	uint32_t _przes[] = {0, 0, 0};
+	rend->IASetVertexBuffers(0, 3, _buf_we, _kroki, _przes);
 }
 ZGraf::CoKlat::CoKlat() {
 	for(uint32_t _i = 0; _i < 1024; ++_i) {

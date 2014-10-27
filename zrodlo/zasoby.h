@@ -66,8 +66,8 @@ struct ZGraf {
 	void							wiaz_topol_prym() const;
 	void							wiaz_szad_wierz() const;
 	void							wiaz_szad_piks() const;
-	void							wiaz_mod_wierz() const;
-	void							wiaz_mod_ind() const;
+	void							wiaz_wierz() const;
+	void							wiaz_ind() const;
 	void							wiaz_co_klat() const;
 	void							wiaz_teks(ID3D11ShaderResourceView*const&) const;
 	void							czysc_ekran() const;

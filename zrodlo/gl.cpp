@@ -53,37 +53,9 @@ void PetlaWiad() {
 		}
 	}
 }
-
-class A {
-public:
-	uint32_t k1;
-	uint32_t k2;
-};
-
 // -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	//Wek2<A> w;
-	//A _w[] = {{5, 5}, {4, 4}, {3, 3}, {2, 2}, {1, 1}};
-	//for(uint32_t _i = 0; _i < 1000; ++_i) {
-	//	_w[0] = {_i, 1000 - _i};
-	//	w.wstaw_kon(_w, 5);
-	//}
-	//uint32_t* _mapa = 0;
-	//logi.czas();
-	////w.uloz_licz(_mapa, FunHasz2<A>());
-	//logi.czas();
-	////w.uloz_wyk(_mapa);
-	//logi.czas();
-	//for(uint32_t _i = 0; _i < 1000; ++_i) {
-	//	logi.pisz("test",
-	//		"{" + to_string(w[_i][0].k1) + "," + to_string(w[_i][0].k2) + "}" + " " +
-	//		"{" + to_string(w[_i][1].k1) + "," + to_string(w[_i][1].k2) + "}" + " " +
-	//		"{" + to_string(w[_i][2].k1) + "," + to_string(w[_i][2].k2) + "}" + " " +
-	//		"{" + to_string(w[_i][3].k1) + "," + to_string(w[_i][3].k2) + "}" + " " +
-	//		"{" + to_string(w[_i][4].k1) + "," + to_string(w[_i][4].k2) + "}"
-	//	);
-	//}
 
 	uchAp = uchAplikacji;
 

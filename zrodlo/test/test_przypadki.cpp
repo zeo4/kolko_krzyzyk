@@ -437,6 +437,74 @@ void TestWek::wykonaj() {
 	testUsunDupl();
 }
 // -------------------------------------------------------
+void TestWek_Para::niszcz() {
+	usun_kon(il);
+}
+void TestWek_Para::testUsunDuplPoczKonPelny() {
+	std::cout << __FUNCTION__ << "\n";
+	wstaw_kon({1, 1});
+	wstaw_kon({1, 1});
+	wstaw_kon({1, 2});
+	wstaw_kon({1, 1});
+	wstaw_kon(pusty);
+	wstaw_kon(pusty);
+	wstaw_kon({1, 1});
+	wstaw_kon({2, 1});
+	wstaw_kon(pusty);
+	wstaw_kon({3, 1});
+	wstaw_kon({3, 2});
+	wstaw_kon({3, 2});
+	wstaw_kon({3, 1});
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa, FunHasz<Para<uint32_t>>(), FunHasz2<Para<uint32_t>>());
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(il, 7) << "\n";
+	UPEWNIJ_R(el[0], Para<uint32_t>({1, 1})) << "\n";
+	UPEWNIJ_R(el[1], Para<uint32_t>({1, 2})) << "\n";
+	UPEWNIJ_R(el[2], Para<uint32_t>({1, 1})) << "\n";
+	UPEWNIJ_R(el[3], Para<uint32_t>({2, 1})) << "\n";
+	UPEWNIJ_R(el[4], Para<uint32_t>({3, 1})) << "\n";
+	UPEWNIJ_R(el[5], Para<uint32_t>({3, 2})) << "\n";
+	UPEWNIJ_R(el[6], Para<uint32_t>({3, 1})) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWek_Para::testUsunDuplPoczKonPusty() {
+	std::cout << __FUNCTION__ << "\n";
+	wstaw_kon(pusty);
+	wstaw_kon({1, 1});
+	wstaw_kon({1, 1});
+	wstaw_kon({1, 2});
+	wstaw_kon({1, 1});
+	wstaw_kon(pusty);
+	wstaw_kon(pusty);
+	wstaw_kon({1, 1});
+	wstaw_kon({2, 1});
+	wstaw_kon(pusty);
+	wstaw_kon({3, 1});
+	wstaw_kon({3, 2});
+	wstaw_kon({3, 2});
+	wstaw_kon({3, 1});
+	wstaw_kon(pusty);
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa, FunHasz<Para<uint32_t>>(), FunHasz2<Para<uint32_t>>());
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(il, 7) << "\n";
+	UPEWNIJ_R(el[0], Para<uint32_t>({1, 1})) << "\n";
+	UPEWNIJ_R(el[1], Para<uint32_t>({1, 2})) << "\n";
+	UPEWNIJ_R(el[2], Para<uint32_t>({1, 1})) << "\n";
+	UPEWNIJ_R(el[3], Para<uint32_t>({2, 1})) << "\n";
+	UPEWNIJ_R(el[4], Para<uint32_t>({3, 1})) << "\n";
+	UPEWNIJ_R(el[5], Para<uint32_t>({3, 2})) << "\n";
+	UPEWNIJ_R(el[6], Para<uint32_t>({3, 1})) << "\n";
+	free(_mapa);
+	niszcz();
+}
+void TestWek_Para::wykonaj() {
+	testUsunDuplPoczKonPelny();
+	testUsunDuplPoczKonPusty();
+}
+// -------------------------------------------------------
 void TestWekLuz::inic() {
 	uint32_t _il = 10;
 	for(uint32_t _i = 0; _i < _il; ++_i) {
@@ -988,6 +1056,92 @@ void TestWek2::wykonaj() {
 	testUsunDupl();
 }
 // -------------------------------------------------------
+void TestWek2_Para::niszcz() {
+	usun_kon(wier.wez_il());
+}
+void TestWek2_Para::testUsunDuplPoczKonPelny() {
+	std::cout << __FUNCTION__ << "\n";
+	Para<uint32_t> _t[] = {{0,0}, {5,5}, {4,4}, {3,3}, {2,2}, {1,1}};
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {1,2}; wstaw_kon(_t, 6);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	wstaw_kon(_t, 6); usun(4);
+	wstaw_kon(_t, 6); usun(5);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {2,1}; wstaw_kon(_t, 6);
+	wstaw_kon(_t, 6); usun(8);
+	_t[0] = {3,1}; wstaw_kon(_t, 6);
+	_t[0] = {3,2}; wstaw_kon(_t, 6);
+	_t[0] = {3,2}; wstaw_kon(_t, 6);
+	_t[0] = {3,1}; wstaw_kon(_t, 6);
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa, FunHasz<Para<uint32_t>>(), FunHasz2<Para<uint32_t>>());
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(wier.wez_il(), 7);
+	UPEWNIJ_R(el.wez_il(), 42);
+	UPEWNIJ_R(el[wier[0].pierw], Para<uint32_t>({1,1})) << "\n";
+	UPEWNIJ_R(el[wier[1].pierw], Para<uint32_t>({1,2})) << "\n";
+	UPEWNIJ_R(el[wier[2].pierw], Para<uint32_t>({1,1})) << "\n";
+	UPEWNIJ_R(el[wier[3].pierw], Para<uint32_t>({2,1})) << "\n";
+	UPEWNIJ_R(el[wier[4].pierw], Para<uint32_t>({3,1})) << "\n";
+	UPEWNIJ_R(el[wier[5].pierw], Para<uint32_t>({3,2})) << "\n";
+	UPEWNIJ_R(el[wier[6].pierw], Para<uint32_t>({3,1})) << "\n";
+	for(uint32_t _i = 0; _i < wier.wez_il(); ++_i) {
+		UPEWNIJ_R(el[wier[_i].pierw+1], Para<uint32_t>({5,5})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+2], Para<uint32_t>({4,4})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+3], Para<uint32_t>({3,3})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+4], Para<uint32_t>({2,2})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+5], Para<uint32_t>({1,1})) << "_i=" << _i << "\n";
+	}
+	free(_mapa);
+	niszcz();
+}
+void TestWek2_Para::testUsunDuplPoczKonPusty() {
+	std::cout << __FUNCTION__ << "\n";
+	Para<uint32_t> _t[] = {{0,0}, {5,5}, {4,4}, {3,3}, {2,2}, {1,1}};
+	wstaw_kon(_t, 6); usun(0);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {1,2}; wstaw_kon(_t, 6);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	wstaw_kon(_t, 6); usun(5);
+	wstaw_kon(_t, 6); usun(6);
+	_t[0] = {1,1}; wstaw_kon(_t, 6);
+	_t[0] = {2,1}; wstaw_kon(_t, 6);
+	wstaw_kon(_t, 6); usun(9);
+	_t[0] = {3,1}; wstaw_kon(_t, 6);
+	_t[0] = {3,2}; wstaw_kon(_t, 6);
+	_t[0] = {3,2}; wstaw_kon(_t, 6);
+	_t[0] = {3,1}; wstaw_kon(_t, 6);
+	wstaw_kon(_t, 6); usun(14);
+	uint32_t* _mapa = 0;
+	usun_dupl_licz(_mapa, FunHasz<Para<uint32_t>>(), FunHasz2<Para<uint32_t>>());
+	uloz_wyk(_mapa);
+	UPEWNIJ_R(wier.wez_il(), 7);
+	UPEWNIJ_R(el.wez_il(), 42);
+	UPEWNIJ_R(el[wier[0].pierw], Para<uint32_t>({1,1})) << "\n";
+	UPEWNIJ_R(el[wier[1].pierw], Para<uint32_t>({1,2})) << "\n";
+	UPEWNIJ_R(el[wier[2].pierw], Para<uint32_t>({1,1})) << "\n";
+	UPEWNIJ_R(el[wier[3].pierw], Para<uint32_t>({2,1})) << "\n";
+	UPEWNIJ_R(el[wier[4].pierw], Para<uint32_t>({3,1})) << "\n";
+	UPEWNIJ_R(el[wier[5].pierw], Para<uint32_t>({3,2})) << "\n";
+	UPEWNIJ_R(el[wier[6].pierw], Para<uint32_t>({3,1})) << "\n";
+	for(uint32_t _i = 0; _i < wier.wez_il(); ++_i) {
+		UPEWNIJ_R(el[wier[_i].pierw+1], Para<uint32_t>({5,5})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+2], Para<uint32_t>({4,4})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+3], Para<uint32_t>({3,3})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+4], Para<uint32_t>({2,2})) << "_i=" << _i << "\n";
+		UPEWNIJ_R(el[wier[_i].pierw+5], Para<uint32_t>({1,1})) << "_i=" << _i << "\n";
+	}
+	free(_mapa);
+	niszcz();
+}
+void TestWek2_Para::wykonaj() {
+	testUsunDuplPoczKonPelny();
+	testUsunDuplPoczKonPusty();
+}
+// -------------------------------------------------------
 void TestUchPula::inic() {
 	uint32_t _il = 10;
 	for(uint32_t _i = 0; _i < _il; ++_i) {
@@ -1062,12 +1216,18 @@ void main() {
 	TestWek _test_Wek;
 	_test_Wek.wykonaj();
 	_test_Wek.niszcz();
+	TestWek_Para _test_Wek_Para;
+	_test_Wek_Para.wykonaj();
+	_test_Wek_Para.niszcz();
 	TestWekLuz _test_WekLuz;
 	_test_WekLuz.wykonaj();
 	_test_WekLuz.niszcz();
 	TestWek2 _test_Wek2;
 	_test_Wek2.wykonaj();
 	_test_Wek2.niszcz();
+	TestWek2_Para _test_Wek2_Para;
+	_test_Wek2_Para.wykonaj();
+	_test_Wek2_Para.niszcz();
 	TestUchPula _test_UchPula;
 	_test_UchPula.wykonaj();
 	_test_UchPula.niszcz();

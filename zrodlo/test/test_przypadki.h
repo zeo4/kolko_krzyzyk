@@ -38,6 +38,14 @@ public:
 	void		testUsunDupl();
 };
 // -------------------------------------------------------
+class TestWek_Para : public Wek<Para<uint32_t>> {
+public:
+	void		niszcz();
+	void		wykonaj();
+	void		testUsunDuplPoczKonPelny();
+	void		testUsunDuplPoczKonPusty();
+};
+// -------------------------------------------------------
 class TestWek2 : public Wek2<uint32_t> {
 public:
 	void		inic();
@@ -67,6 +75,14 @@ public:
 	void		testDefragKon();
 	void		testDefragCalosc();
 	void		testUsunDupl();
+};
+// -------------------------------------------------------
+class TestWek2_Para : public Wek2<Para<uint32_t>> {
+public:
+	void		niszcz();
+	void		wykonaj();
+	void		testUsunDuplPoczKonPelny();
+	void		testUsunDuplPoczKonPusty();
 };
 // -------------------------------------------------------
 class TestWekLuz : public WekLuz<uint32_t> {

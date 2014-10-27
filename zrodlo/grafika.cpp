@@ -31,8 +31,8 @@ void Grafika::rys_klatka() {
 	zas.aktual_wierz(par_graf.mod_wierz);
 	zas.aktual_teks(par_graf.mod_teks);
 	zas.aktual_ind(par_graf.mod_ind);
-	zas.wiaz_mod_wierz();
-	zas.wiaz_mod_ind();
+	zas.wiaz_wierz();
+	zas.wiaz_ind();
 	zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.teks_uch[0]]]);
 	zas.rend->DrawIndexedInstanced(par_graf.mod_ind.wez_wier(0).drug, par_graf.mod_uch.wez_il(), 0, 0, 0);
 	zas.lanc->Present(0, 0);
@@ -136,8 +136,11 @@ char const*const Grafika::wez_teks_sciezka(uint32_t const& _uch_teks) const {
 void Grafika::wyk_zad() {
 	if(zad.wez_il_wier() > 1) {
 		uint32_t* _mapa = 0;
-		zad.uloz_uni_licz(_mapa);
+		zad.uloz_licz(_mapa);
 		zad.uloz_wyk(_mapa);
+		zad.usun_dupl_licz(_mapa, FunHasz<uint8_t>(), FunHasz2<uint8_t>());
+		zad.uloz_wyk(_mapa);
+		free(_mapa);
 	}
 
 	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {

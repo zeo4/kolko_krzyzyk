@@ -80,8 +80,11 @@ uint32_t Fizyka::wyb_ob(uint32_t const& _x, uint32_t const& _y) const {
 void Fizyka::wyk_zad() {
 	if(zad.wez_il_wier() > 1) {
 		uint32_t* _mapa = 0;
-		zad.uloz_uni_licz(_mapa);
+		zad.uloz_licz(_mapa);
 		zad.uloz_wyk(_mapa);
+		zad.usun_dupl_licz(_mapa, FunHasz<uint8_t>(), FunHasz2<uint8_t>());
+		zad.uloz_wyk(_mapa);
+		free(_mapa);
 	}
 
 	for(uint32_t _i = 0; _i < zad.wez_il_wier(); ++_i) {

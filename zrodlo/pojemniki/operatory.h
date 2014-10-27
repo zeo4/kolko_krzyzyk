@@ -28,7 +28,7 @@ T gen_pusty() {
 }
 // -------------------------------------------------------
 template<class T>
-void wyp_pam(T*const& _pam, T const& _wart, uint32_t const& _il) {
+void wyp_pam(T*const _pam, T const& _wart, uint32_t const& _il) {
 	for(int32_t _i = 0; _i < _il; ++_i) {
 		memcpy(_pam+_i, &_wart, sizeof(T));
 	}
