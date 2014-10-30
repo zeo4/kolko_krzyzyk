@@ -53,6 +53,7 @@ void Swiat::wyk_zad() {
 			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		case TWORZ_OB:
+			if(!flg_zad[ULOZ_OB]) wstaw_zad(Zad{ULOZ_OB, 0});
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
 			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;

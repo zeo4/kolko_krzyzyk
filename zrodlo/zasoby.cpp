@@ -260,8 +260,8 @@ ZGraf ZasGraf::zas;
 // -------------------------------------------------------
 PGraf::~PGraf() {
 	nr.niszcz();
-	mod_uch.niszcz();
-	teks_uch.niszcz();
+	uch_mod.niszcz();
+	uch_teks.niszcz();
 	mod_nr.niszcz();
 	mod_odn.niszcz();
 	mod_wierz.niszcz();

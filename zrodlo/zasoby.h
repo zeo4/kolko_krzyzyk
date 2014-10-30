@@ -99,8 +99,8 @@ struct ZasGraf {
 struct PGraf {
 							~PGraf();
 	UchPula					nr;
-	Wek<uint32_t>			mod_uch;
-	Wek<uint32_t>			teks_uch;
+	Wek<uint32_t>			uch_mod;
+	Wek<uint32_t>			uch_teks;
 	WekLuz<uint32_t>		mod_nr;
 	WekLuz<uint32_t>		mod_odn;
 	Wek2<XMFLOAT3>			mod_wierz;

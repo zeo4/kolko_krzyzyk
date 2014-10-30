@@ -19,9 +19,9 @@ void Grafika::defrag() {
 	par_graf.teks_nr.aktual(_mapa1);
 	par_graf.teks_odn.aktual(_mapa1);
 
-	par_graf.mod_uch.defrag_licz(_mapa1, par_graf.mod_uch.wez_il());
-	par_graf.mod_uch.defrag_wyk(_mapa1);
-	par_graf.teks_uch.defrag_wyk(_mapa1);
+	par_graf.uch_mod.defrag_licz(_mapa1, par_graf.uch_mod.wez_il());
+	par_graf.uch_mod.defrag_wyk(_mapa1);
+	par_graf.uch_teks.defrag_wyk(_mapa1);
 
 	free(_mapa1);
 	free(_mapa2);
@@ -33,8 +33,53 @@ void Grafika::rys_klatka() {
 	zas.aktual_ind(par_graf.mod_ind);
 	zas.wiaz_wierz();
 	zas.wiaz_ind();
-	zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.teks_uch[0]]]);
-	zas.rend->DrawIndexedInstanced(par_graf.mod_ind.wez_wier(0).drug, par_graf.mod_uch.wez_il(), 0, 0, 0);
+
+	uint32_t _i, _il_rys = 1, _il_wyrys = 0;
+	for(_i = 1; _i < par_graf.uch_mod.wez_il(); ++_i) {
+		if(par_graf.uch_mod[_i-1] == par_graf.uch_mod[_i] &&
+			par_graf.uch_teks[_i-1] == par_graf.uch_teks[_i]) {
+			++_il_rys;
+		} else {
+			zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
+			zas.rend->DrawIndexedInstanced(
+				par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
+				_il_rys,
+				par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+				par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+				_il_wyrys
+			);
+			logi.pisz("test",
+				to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
+				to_string(_il_rys) + " " +
+				to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+				to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+				to_string(_il_wyrys)
+			);
+			_il_rys = 1;
+			_il_wyrys = _i;
+		}
+	}
+	zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
+	//zas.rend->DrawIndexedInstanced(
+	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
+	//	_il_rys,
+	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+	//	par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+	//	_il_wyrys
+	//);
+	zas.rend->DrawIndexedInstanced(
+		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[0]]).drug,
+		par_graf.uch_mod.wez_il(),
+		0, 0, 0
+	);
+	logi.pisz("test",
+		to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
+		to_string(_il_rys) + " " +
+		to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+		to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+		to_string(_il_wyrys)
+	);
+
 	zas.lanc->Present(0, 0);
 }
 void Grafika::tworz_mod(uint32_t const& _uch_mod) {
@@ -153,9 +198,9 @@ void Grafika::wyk_zad() {
 			w.kod_zad = TWORZ_OB;
 			tworz_mod(z.uch_mod);
 			tworz_teks(z.uch_teks);
-			par_graf.mod_uch.wstaw_kon(z.uch_mod);
-			par_graf.teks_uch.wstaw_kon(z.uch_teks);
-			w.uch_ob = par_graf.nr.wstaw(par_graf.mod_uch.wez_il()-1);
+			par_graf.uch_mod.wstaw_kon(z.uch_mod);
+			par_graf.uch_teks.wstaw_kon(z.uch_teks);
+			w.uch_ob = par_graf.nr.wstaw(par_graf.uch_mod.wez_il()-1);
 			wyn.wstaw_kon((uint8_t*)&w, sizeof(w));
 			zad.usun(_i);
 			break;
@@ -167,6 +212,41 @@ void Grafika::wyk_zad() {
 			XMStoreFloat4x4(&kam.mac_proj, XMMatrixPerspectiveFovLH(
 				kam.kat * 3.14f/180, float(szerRend)/wysRend, kam.blizsza, kam.dalsza
 			));
+			zad.usun(_i);
+			break;
+		}
+		case ULOZ_OB: {
+			uint32_t* _mapa = 0;
+			uint32_t _ind = 0, _j;
+
+			// według tekstur
+			par_graf.uch_teks.uloz_licz(_mapa);
+			par_graf.uch_teks.uloz_wyk(_mapa);
+			par_graf.uch_mod.uloz_wyk(_mapa);
+			wyp_pam(_mapa, 0x80000000, par_graf.uch_teks.wez_il());
+			_mapa[par_graf.teks_nr[par_graf.uch_teks[0]]] = _ind++;
+			for(_j = 1; _j < par_graf.uch_teks.wez_il(); ++_j) {
+				if(par_graf.uch_teks[_j-1] == par_graf.uch_teks[_j]) continue;
+				_mapa[par_graf.teks_nr[par_graf.uch_teks[_j]]] = _ind++;
+			}
+			par_graf.teks_nr.aktual(_mapa);
+			par_graf.teks_wid.uloz_wyk(_mapa);
+
+			// według modeli
+			par_graf.uch_mod.uloz_licz(_mapa);
+			par_graf.uch_mod.uloz_wyk(_mapa);
+			par_graf.uch_teks.uloz_wyk(_mapa);
+			wyp_pam(_mapa, 0x80000000, par_graf.uch_mod.wez_il());
+			_ind = 0;
+			_mapa[par_graf.mod_nr[par_graf.uch_mod[0]]] = _ind++;
+			for(_j = 1; _j < par_graf.uch_mod.wez_il(); ++_j) {
+				if(par_graf.uch_mod[_j-1] == par_graf.uch_mod[_j]) continue;
+				_mapa[par_graf.mod_nr[par_graf.uch_mod[_j]]] = _ind++;
+			}
+			par_graf.mod_nr.aktual(_mapa);
+			par_graf.mod_wierz.uloz_wyk(_mapa);
+			par_graf.mod_teks.uloz_wyk(_mapa);
+			par_graf.mod_ind.uloz_wyk(_mapa);
 			zad.usun(_i);
 			break;
 		}
@@ -198,7 +278,7 @@ void Grafika::wyk_zad() {
 
 void Grafika::usun_ob(uint32_t const& _nr) {
 	// usuń model
-	uint32_t _uch_model = par_graf.mod_uch[_nr];
+	uint32_t _uch_model = par_graf.uch_mod[_nr];
 	uint32_t _nr_model = par_graf.mod_nr[_uch_model];
 	if(par_graf.mod_odn[_uch_model] > 1) --par_graf.mod_odn[_uch_model];
 	else {
@@ -210,7 +290,7 @@ void Grafika::usun_ob(uint32_t const& _nr) {
 	}
 
 	// usuń teksturę
-	uint32_t _uch_teks = par_graf.teks_uch[_nr];
+	uint32_t _uch_teks = par_graf.uch_teks[_nr];
 	uint32_t _nr_teks = par_graf.teks_nr[_uch_teks];
 	if(par_graf.teks_odn[_uch_teks] > 1) --par_graf.teks_odn[_uch_teks];
 	else {
@@ -220,8 +300,8 @@ void Grafika::usun_ob(uint32_t const& _nr) {
 	}
 
 	// usuń obiekt
-	par_graf.mod_uch.usun(_nr);
-	par_graf.teks_uch.usun(_nr);
+	par_graf.uch_mod.usun(_nr);
+	par_graf.uch_teks.usun(_nr);
 }
 // -------------------------------------------------------
 

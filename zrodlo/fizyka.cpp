@@ -17,7 +17,7 @@ void Fizyka::licz_prom_klik(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x
 }
 float Fizyka::licz_prom_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
 	XMVECTOR _w0, _w1, _w2;
-	uint32_t const _nr_mod = par_graf.mod_nr[par_graf.mod_uch[_nr_ob]];
+	uint32_t const _nr_mod = par_graf.mod_nr[par_graf.uch_mod[_nr_ob]];
 	float _t = 1000.0f, _t1;
 	for(uint32_t _i = 0; _i < par_graf.mod_ind.wez_wier(_nr_mod).drug; _i += 3) {
 		_w0 = XMLoadFloat3(par_graf.mod_wierz[_nr_mod] + par_graf.mod_ind[_nr_mod][_i]);
