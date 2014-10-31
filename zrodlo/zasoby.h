@@ -110,6 +110,8 @@ struct PGraf {
 	WekLuz<uint32_t>		teks_nr;
 	WekLuz<uint32_t>		teks_odn;
 	Wek<TeksWid_>			teks_wid;
+
+	uint32_t				flg;
 };
 struct ParGraf {
 	static PGraf		par_graf;

@@ -28,12 +28,16 @@ void Grafika::defrag() {
 }
 void Grafika::rys_klatka() {
 	zas.czysc_ekran();
+	if(par_graf.flg != 1234) {
+		logi.pisz("jest", "jest");
 	zas.aktual_wierz(par_graf.mod_wierz);
 	zas.aktual_teks(par_graf.mod_teks);
 	zas.aktual_ind(par_graf.mod_ind);
 	zas.wiaz_wierz();
 	zas.wiaz_ind();
-
+	}
+	
+	//logi.czas();
 	uint32_t _i, _il_rys = 1, _il_wyrys = 0;
 	for(_i = 1; _i < par_graf.uch_mod.wez_il(); ++_i) {
 		if(par_graf.uch_mod[_i-1] == par_graf.uch_mod[_i] &&
@@ -48,39 +52,42 @@ void Grafika::rys_klatka() {
 				par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
 				_il_wyrys
 			);
-			logi.pisz("test",
-				to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
-				to_string(_il_rys) + " " +
-				to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-				to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-				to_string(_il_wyrys)
-			);
+			//logi.pisz("test",
+			//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
+			//	to_string(_il_rys) + " " +
+			//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+			//	to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+			//	to_string(_il_wyrys)
+			//);
 			_il_rys = 1;
 			_il_wyrys = _i;
 		}
 	}
+	if(par_graf.flg != 1234)
 	zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
-	//zas.rend->DrawIndexedInstanced(
-	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
-	//	_il_rys,
-	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//	par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//	_il_wyrys
-	//);
+	par_graf.flg = 1234;
 	zas.rend->DrawIndexedInstanced(
-		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[0]]).drug,
-		par_graf.uch_mod.wez_il(),
-		0, 0, 0
+		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
+		_il_rys,
+		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+		par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+		_il_wyrys
 	);
-	logi.pisz("test",
-		to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
-		to_string(_il_rys) + " " +
-		to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-		to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-		to_string(_il_wyrys)
-	);
+	//zas.rend->DrawIndexedInstanced(
+	//	par_graf.mod_ind.wez_wier(0).drug,
+	//	par_graf.uch_mod.wez_il(),
+	//	0, 0, 0
+	//);
+	//logi.pisz("test",
+	//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
+	//	to_string(_il_rys) + " " +
+	//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+	//	to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
+	//	to_string(_il_wyrys)
+	//);
 
 	zas.lanc->Present(0, 0);
+	//logi.czas();
 }
 void Grafika::tworz_mod(uint32_t const& _uch_mod) {
 	if(par_graf.mod_nr[_uch_mod] != par_graf.mod_nr.pusty) {

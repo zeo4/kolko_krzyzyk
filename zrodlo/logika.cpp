@@ -2,19 +2,19 @@
 #include <logika.h>
 // -------------------------------------------------------
 void Logika::inicScena() {
-	//for(uint32_t _i = 0; _i < 500; ++_i)
-	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
+	for(uint32_t _i = 0; _i < 500; ++_i)
+	wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_TROJKAT});
 	//for(uint32_t _i = 500; _i < 1000; ++_i)
-	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_KWADRAT});
+	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_TROJKAT});
 	//for(uint32_t _i = 1000; _i < 1500; ++_i)
-	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
+	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_TROJKAT});
 	//for(uint32_t _i = 1500; _i < 2000; ++_i)
-	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_KWADRAT});
+	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_TROJKAT});
 	//for(uint32_t _i = 2000; _i < 2500; ++_i)
-	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_KWADRAT});
-	
-	for(uint32_t _i = 0; _i < 2500; ++_i)
-		wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
+	//wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_KWADRAT, TEKS_TROJKAT});
+
+	//for(uint32_t _i = 0; _i < 2500; ++_i)
+	//	wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
 
 	gra_dane.uch_wybr = 0x80000000;
 }
@@ -43,11 +43,15 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 				// góra
 				wstaw_zad(ZadUstawOb{USTAW_OB, gra_dane.uch_wybr, XMFLOAT3(0.0f, 0.5f, 0.5f)});
 			}
+			if(_wiad.wParam == 0x42) {
+				// b
+				wstaw_zad(ZadUstawOb{USTAW_OB, 0, XMFLOAT3(0.0f, 0.0f, 0.49f)});
+			}
 		}
 	}
 }
 void Logika::wykonaj() {
-	logi.pisz("", "------------");
+	//logi.pisz("", "------------");
 	//logi.czas();
 	wstaw_zad(Zad{RYSUJ, 0});
 	swiat.wyk_zad();
