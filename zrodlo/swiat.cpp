@@ -56,17 +56,20 @@ void Swiat::wyk_zad() {
 		case OB_V:
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
 			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			//if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		case KAM_V:
 			if(!flg_zad[KAM_AKT_POZ]) wstaw_zad(Zad{KAM_AKT_POZ, 0});
 			if(!flg_zad[KAM_AKT]) wstaw_zad(Zad{KAM_AKT, 0});
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
 			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			//if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		case KAM_OBROT:
 			if(!flg_zad[KAM_AKT]) wstaw_zad(Zad{KAM_AKT, 0});
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
 			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			//if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		case TWORZ_OB:
 			if(!flg_zad[ULOZ_OB]) wstaw_zad(Zad{ULOZ_OB, 0});

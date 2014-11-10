@@ -37,55 +37,39 @@ void Grafika::rys() {
 	zas.wiaz_ind();
 	zas.rend->DrawIndexedInstanced(par_graf.mod_ind.wez_wier(0).drug, par_graf.uch_mod.wez_il(), 0, 0, 0);
 	
-	//logi.czas();
-	//uint32_t _i, _il_rys = 1, _il_wyrys = 0;
-	//for(_i = 1; _i < par_graf.uch_mod.wez_il(); ++_i) {
-	//	if(par_graf.uch_mod[_i-1] == par_graf.uch_mod[_i] &&
-	//		par_graf.uch_teks[_i-1] == par_graf.uch_teks[_i]) {
-	//		++_il_rys;
-	//	} else {
-	//		zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
-	//		zas.rend->DrawIndexedInstanced(
-	//			par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
-	//			_il_rys,
-	//			par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//			par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//			_il_wyrys
-	//		);
-	//		//logi.pisz("test",
-	//		//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
-	//		//	to_string(_il_rys) + " " +
-	//		//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-	//		//	to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-	//		//	to_string(_il_wyrys)
-	//		//);
-	//		_il_rys = 1;
-	//		_il_wyrys = _i;
-	//	}
-	//}
-	//zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
-	//zas.rend->DrawIndexedInstanced(
-	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
-	//	_il_rys,
-	//	par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//	par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
-	//	_il_wyrys
-	//);
-	//zas.rend->DrawIndexedInstanced(
-	//	par_graf.mod_ind.wez_wier(0).drug,
-	//	par_graf.uch_mod.wez_il(),
-	//	0, 0, 0
-	//);
-	//logi.pisz("test",
-	//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug) + " " +
-	//	to_string(_il_rys) + " " +
-	//	to_string(par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-	//	to_string(par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw) + " " +
-	//	to_string(_il_wyrys)
-	//);
+	uint32_t _i, _il_rys = 1, _il_wyrys = 0;
+	for(_i = 1; _i < par_graf.uch_mod.wez_il(); ++_i) {
+		if(par_graf.uch_mod[_i-1] == par_graf.uch_mod[_i] &&
+			par_graf.uch_teks[_i-1] == par_graf.uch_teks[_i]) {
+			++_il_rys;
+		} else {
+			zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
+			zas.rend->DrawIndexedInstanced(
+				par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
+				_il_rys,
+				par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+				par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+				_il_wyrys
+			);
+			_il_rys = 1;
+			_il_wyrys = _i;
+		}
+	}
+	zas.wiaz_teks(par_graf.teks_wid[par_graf.teks_nr[par_graf.uch_teks[_i-1]]]);
+	zas.rend->DrawIndexedInstanced(
+		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).drug,
+		_il_rys,
+		par_graf.mod_ind.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+		par_graf.mod_wierz.wez_wier(par_graf.mod_nr[par_graf.uch_mod[_i-1]]).pierw,
+		_il_wyrys
+	);
+	zas.rend->DrawIndexedInstanced(
+		par_graf.mod_ind.wez_wier(0).drug,
+		par_graf.uch_mod.wez_il(),
+		0, 0, 0
+	);
 
 	zas.lanc->Present(0, 0);
-	//logi.czas();
 }
 void Grafika::tworz_mapa_zasl() {
 	zas.ustaw_szad_piks("SP_GL");
@@ -266,10 +250,20 @@ void Grafika::wyk_zad() {
 			zad.usun(_i);
 			break;
 		}
-		case KAM_AKT_POZ:
-			XMStoreFloat3(&kam.poz, XMLoadFloat3(&kam.poz) + XMVector3Rotate(XMLoadFloat3(&kam.v), XMLoadFloat4(&kam.kwat)));
+		case KAM_AKT_POZ: {
+			XMVECTOR _v = XMVectorSet(kam.v.x, 0.0f, kam.v.z, 0.0f);
+			XMVECTOR _dl_v = XMVector3LengthEst(_v);
+			if(XMVectorGetX(_dl_v) != 0.0f) {
+				_v = XMVector3Rotate(_v, XMLoadFloat4(&kam.kwat));
+				_v = XMVectorSetY(_v, 0.0f);
+				XMVECTOR _v_modul = XMVectorAbs(_v);
+				_v = _v / (XMVectorGetX(_v_modul) + XMVectorGetZ(_v_modul)) * _dl_v;
+			}
+			_v = XMVectorSetY(_v, kam.v.y);
+			XMStoreFloat3(&kam.poz, XMLoadFloat3(&kam.poz) + _v);
 			zad.usun(_i);
 			break;
+		}
 		case KAM_AKT: {
 			XMStoreFloat4x4(&kam.mac_wid, XMMatrixLookAtLH(
 				XMLoadFloat3(&kam.poz),

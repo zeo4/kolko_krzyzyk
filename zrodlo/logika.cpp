@@ -2,7 +2,7 @@
 #include <logika.h>
 // -------------------------------------------------------
 void Logika::inicScena() {
-	for(uint32_t _i = 0; _i < 5; ++_i)
+	for(uint32_t _i = 0; _i < 6; ++_i)
 		wstaw_zad(ZadTworzOb{TWORZ_OB, _i, MOD_DIAMENT, TEKS_DIAMENT});
 
 	dane_gra.uch_wybr = 0x80000000;
@@ -25,14 +25,14 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 		_pkt.x = float(_pkt.x) - float(szerRend)/2;
 		_pkt.y = -float(_pkt.y) + float(wysRend)/2;
 		if(_pkt.x > 0) {
-			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(0.0f, 3.14f*1/180, 0.0f)});
+			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(0.0f, 3.14f*2/180, 0.0f)});
 		} else if(_pkt.x < 0) {
-			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(0.0f, -3.14f*1/180, 0.0f)});
+			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(0.0f, -3.14f*2/180, 0.0f)});
 		}
 		if(_pkt.y > 0) {
-			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(-3.14f*1/180, 0.0f, 0.0f)});
+			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(-3.14f*2/180, 0.0f, 0.0f)});
 		}else if(_pkt.y < 0) {
-			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(3.14f*1/180, 0.0f, 0.0f)});
+			wstaw_zad(ZadKamObrot{KAM_OBROT, zad.wez_il_wier(), XMFLOAT3(3.14f*2/180, 0.0f, 0.0f)});
 		}
 		POINT _p = {szerRend/2, wysRend/2};
 		ClientToScreen(uch_okno, &_p);
@@ -55,6 +55,7 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 			wstaw_zad(ZadObPoz{OB_POZ, 2, XMFLOAT3(0.0f, 0.0f, 2.5f)});
 			wstaw_zad(ZadObPoz{OB_POZ, 3, XMFLOAT3(0.5f, 0.0f, 3.0f)});
 			wstaw_zad(ZadObPoz{OB_POZ, 4, XMFLOAT3(1.5f, 0.0f, 4.0f)});
+			wstaw_zad(ZadObPoz{OB_POZ, 5, XMFLOAT3(0.0f, 0.0f, 6.0f)});
 			break;
 		}
 		if(dane_gra.uch_wybr != 0x80000000) {
@@ -75,16 +76,22 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 		} else {
 			switch(_wiad.wParam) {
 			case 0x57: // w
-				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 0.0f, 0.1f)});
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 0.0f, 0.2f)});
 				break;
 			case 0x53: // s
-				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 0.0f, -0.1f)});
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 0.0f, -0.2f)});
 				break;
 			case 0x41: // a
-				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(-0.1f, 0.0f, 0.0f)});
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(-0.2f, 0.0f, 0.0f)});
 				break;
 			case 0x44: // d
-				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.1f, 0.0f, 0.0f)});
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.2f, 0.0f, 0.0f)});
+				break;
+			case 0x52: // r
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 0.2f, 0.0f)});
+				break;
+			case 0x46: // f
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, -0.2f, 0.0f)});
 				break;
 			}
 		}
@@ -105,6 +112,12 @@ void Logika::obsluz_wej(MSG const& _wiad) {
 				break;
 			case 0x44: // d
 				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(0.0f, 1.0f, 1.0f)});
+				break;
+			case 0x52: // r
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(1.0f, 0.0f, 1.0f)});
+				break;
+			case 0x46: // f
+				wstaw_zad(ZadKamV{KAM_V, zad.wez_il_wier(), XMFLOAT3(1.0f, 0.0f, 1.0f)});
 				break;
 			}
 		}
