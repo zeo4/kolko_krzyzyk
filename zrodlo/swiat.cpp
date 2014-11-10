@@ -11,24 +11,24 @@ Swiat::Swiat()
 	zas.tworz_gleb_szab_wid();
 	zas.tworz_cel_rend_wid();
 	zas.inic_wierz();
-	zas.inic_teks();
+	zas.inic_wsp_teks();
 	zas.inic_swiat();
 	zas.inic_ind();
 	zas.tworz_szad_wierz();
-	zas.tworz_szad_piks();
+	//zas.tworz_szad_piks();
 	zas.tworz_strukt_we();
 	zas.tworz_rzutnia();
 	zas.tworz_stan_prob();
 	zas.tworz_co_klat();
 	zas.wiaz_cele_rend();
 	zas.wiaz_szad_wierz();
-	zas.wiaz_szad_piks();
+	//zas.wiaz_szad_piks();
 	zas.wiaz_strukt_we();
 	zas.wiaz_topol_prym();
 	zas.wiaz_rzutnia();
 	zas.wiaz_stan_prob();
 	zas.wiaz_co_klat();
-	wstaw_zad(Zad{AKTUAL_KAM, 0});
+	wstaw_zad(Zad{KAM_AKT, 0});
 }
 Swiat::~Swiat() {
 	delete fiz;
@@ -48,14 +48,31 @@ void Swiat::wyk_zad() {
 		if(zad.wez_wier(_i) == zad.pusty) continue;
 
 		switch(((Zad*)zad[_i])->kod) {
-		case USTAW_OB:
+		case OB_POZ:
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
-			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
+			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			//if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
+			break;
+		case OB_V:
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
+			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			break;
+		case KAM_V:
+			if(!flg_zad[KAM_AKT_POZ]) wstaw_zad(Zad{KAM_AKT_POZ, 0});
+			if(!flg_zad[KAM_AKT]) wstaw_zad(Zad{KAM_AKT, 0});
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
+			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			break;
+		case KAM_OBROT:
+			if(!flg_zad[KAM_AKT]) wstaw_zad(Zad{KAM_AKT, 0});
+			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
+			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
 			break;
 		case TWORZ_OB:
 			if(!flg_zad[ULOZ_OB]) wstaw_zad(Zad{ULOZ_OB, 0});
 			if(!flg_zad[AKTUAL_SWIAT]) wstaw_zad(Zad{AKTUAL_SWIAT, 0});
-			if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
+			if(!flg_zad[TWORZ_MAPA_ZASL]) wstaw_zad(Zad{TWORZ_MAPA_ZASL, 0});
+			//if(!flg_zad[RYSUJ]) wstaw_zad(Zad{RYSUJ, 0});
 			break;
 		}
 	}

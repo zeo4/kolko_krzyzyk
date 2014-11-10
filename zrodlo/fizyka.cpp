@@ -91,35 +91,54 @@ void Fizyka::wyk_zad() {
 		if(zad.wez_wier(_i) == zad.pusty) continue;
 
 		switch(((Zad*)zad[_i])->kod) {
-		case USTAW_OB: {
-			ZadUstawOb z = *(ZadUstawOb*)zad[_i];
-			par_fiz.poz[par_graf.nr[z.el]] = z.poz;
+		case OB_POZ: {
+			ZadObPoz _z = *(ZadObPoz*)zad[_i];
+			par_fiz.poz[par_fiz.nr[_z.el]] = _z.poz;
+			zad.usun(_i);
+			break;
+		}
+		case OB_V: {
+			ZadObV _z = *(ZadObV*)zad[_i];
+			par_fiz.v[par_fiz.nr[_z.el]] = _z.v;
 			zad.usun(_i);
 			break;
 		}
 		case WYB_OB: {
-			ZadWybOb z = *(ZadWybOb*)zad[_i];
-			WynWybOb w;
-			w.kod_zad = WYB_OB;
-			w.uch_ob = wyb_ob(z.x, z.y);
-			wyn.wstaw_kon((uint8_t*)&w, sizeof(w));
+			ZadWybOb _z = *(ZadWybOb*)zad[_i];
+			WynWybOb _w;
+			_w.kod_zad = WYB_OB;
+			_w.uch_ob = wyb_ob(_z.x, _z.y);
+			wyn.wstaw_kon((uint8_t*)&_w, sizeof(_w));
 			zad.usun(_i);
 			break;
 		}
-		case TWORZ_OB:
+		case TWORZ_OB: {
+			par_fiz.nr.wstaw(par_fiz.poz.wez_il());
 			par_fiz.poz.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.5f));
 			par_fiz.v.wstaw_kon(XMFLOAT3(0.0f, 0.0f, 0.0f));
 			par_fiz.mac_swiat.wstaw_kon(XMFLOAT4X4());
 			XMStoreFloat4x4(
 				&par_fiz.mac_swiat[par_fiz.mac_swiat.wez_il()-1], XMMatrixIdentity()
 			);
-			par_fiz.nr.wstaw(par_fiz.poz.wez_il()-1);
+			XMFLOAT3 _t[] = {
+				XMFLOAT3(-1.0f, -1.0f, -1.0f),
+				XMFLOAT3(-1.0f, 1.0f, -1.0f),
+				XMFLOAT3(1.0f, 1.0f, -1.0f),
+				XMFLOAT3(1.0f, -1.0f, -1.0f),
+				XMFLOAT3(-1.0f, -1.0f, 1.0f),
+				XMFLOAT3(-1.0f, 1.0f, 1.0f),
+				XMFLOAT3(1.0f, 1.0f, 1.0f),
+				XMFLOAT3(1.0f, -1.0f, 1.0f),
+			};
+			par_fiz.bryla_gran.wstaw_kon(_t, 8);
 			break;
+		}
 		case AKTUAL_SWIAT:
-			for(uint32_t _i = 0; _i < par_fiz.mac_swiat.wez_il(); ++_i) {
+			for(uint32_t _j = 0; _j < par_fiz.mac_swiat.wez_il(); ++_j) {
+				XMStoreFloat3(&par_fiz.poz[_j], XMLoadFloat3(&par_fiz.poz[_j]) + XMLoadFloat3(&par_fiz.v[_j]));
 				XMStoreFloat4x4(
-					&par_fiz.mac_swiat[_i],
-					XMMatrixTranslationFromVector(XMLoadFloat3(&par_fiz.poz[_i]))
+					&par_fiz.mac_swiat[_j],
+					XMMatrixTranslationFromVector(XMLoadFloat3(&par_fiz.poz[_j]))
 				);
 			}
 			break;

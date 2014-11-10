@@ -42,7 +42,7 @@ struct ZGraf {
 									ZGraf();
 									~ZGraf();
 	void							inic_wierz();
-	void							inic_teks();
+	void							inic_wsp_teks();
 	void							inic_swiat();
 	void							inic_ind();
 	void							tworz_karta_rend_lanc();
@@ -52,30 +52,33 @@ struct ZGraf {
 	void							tworz_rzutnia();
 	void							tworz_strukt_we();
 	void							tworz_szad_wierz();
-	void							tworz_szad_piks();
 	void							tworz_co_klat();
-	void							aktual_wierz(Wek2<XMFLOAT3>const&);
-	void							aktual_teks(Wek2<XMFLOAT2>const&);
-	void							aktual_swiat(Wek<XMFLOAT4X4>const&);
-	void							aktual_ind(Wek2<DWORD>const&);
+	void							aktual_wierz(XMFLOAT3 const*const,
+										uint32_t const);
+	void							aktual_wsp_teks(XMFLOAT2 const*const,
+										uint32_t const);
+	void							aktual_swiat(XMFLOAT4X4 const*const,
+										uint32_t const);
+	void							aktual_ind(DWORD const*const, uint32_t const);
 	void							aktual_co_klat();
+	void							ustaw_szad_piks(char const*const);
 	void							wiaz_cele_rend() const;
 	void							wiaz_stan_prob() const;
 	void							wiaz_rzutnia() const;
 	void							wiaz_strukt_we() const;
 	void							wiaz_topol_prym() const;
 	void							wiaz_szad_wierz() const;
-	void							wiaz_szad_piks() const;
 	void							wiaz_wierz() const;
 	void							wiaz_ind() const;
 	void							wiaz_co_klat() const;
 	void							wiaz_teks(ID3D11ShaderResourceView*const&) const;
-	void							czysc_ekran() const;
+	void							czysc_gleb_szab() const;
+	void							czysc_cel_rend() const;
 	ID3D11Device*					karta;
 	IDXGISwapChain*					lanc;
 	ID3D11DeviceContext*			rend;
 	ID3D11Buffer*					buf_wierz;
-	ID3D11Buffer*					buf_teks;
+	ID3D11Buffer*					buf_wsp_teks;
 	ID3D11Buffer*					buf_swiat;
 	ID3D11Buffer*					buf_ind;
 	ID3D11Buffer*					buf_co_klat;
@@ -104,14 +107,12 @@ struct PGraf {
 	WekLuz<uint32_t>		mod_nr;
 	WekLuz<uint32_t>		mod_odn;
 	Wek2<XMFLOAT3>			mod_wierz;
-	Wek2<XMFLOAT2>			mod_teks;
+	Wek2<XMFLOAT2>			mod_wsp_teks;
 	Wek2<DWORD>				mod_ind;
 	typedef ID3D11ShaderResourceView* TeksWid_;
 	WekLuz<uint32_t>		teks_nr;
 	WekLuz<uint32_t>		teks_odn;
 	Wek<TeksWid_>			teks_wid;
-
-	uint32_t				flg;
 };
 struct ParGraf {
 	static PGraf		par_graf;
@@ -123,6 +124,7 @@ struct PFiz {
 	Wek<XMFLOAT3>		poz;
 	Wek<XMFLOAT3>		v;
 	Wek<XMFLOAT4X4>		mac_swiat;
+	Wek2<XMFLOAT3>		bryla_gran;
 };
 struct ParFiz {
 	static PFiz		par_fiz;
@@ -132,9 +134,9 @@ struct Kam {
 									Kam();
 	XMFLOAT4X4						mac_wid;
 	XMFLOAT4X4						mac_proj;
+	XMFLOAT4						kwat;
 	XMFLOAT3						poz;
-	XMFLOAT3						cel;
-	XMFLOAT3						gora;
+	XMFLOAT3						v;
 	float							kat;
 	float							blizsza;
 	float							dalsza;
@@ -147,6 +149,9 @@ struct DaneGra {
 	uint32_t		uch_wybr;
 };
 // -------------------------------------------------------
+struct DaneWej {
+	bool		flg_mysz;
+};
 
 
 

@@ -9,8 +9,9 @@ class Grafika : protected Zadania, protected ZasGraf, protected Kamera, protecte
 public:
 	void					wyk_zad();
 protected:
-	void					rys_klatka();
+	void					rys();
 	void					defrag();
+	void					tworz_mapa_zasl();
 	void					tworz_mod(uint32_t const&);
 	void					tworz_teks(uint32_t const&);
 	char const*const		wez_teks_sciezka(uint32_t const&) const;

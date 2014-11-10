@@ -6,7 +6,7 @@ ZGraf::ZGraf()
 	lanc(0),
 	rend(0),
 	buf_wierz(0),
-	buf_teks(0),
+	buf_wsp_teks(0),
 	buf_swiat(0),
 	buf_ind(0),
 	szad_wierz(0),
@@ -26,7 +26,7 @@ ZGraf::~ZGraf() {
 	lanc->Release();
 	rend->Release();
 	buf_wierz->Release();
-	buf_teks->Release();
+	buf_wsp_teks->Release();
 	buf_swiat->Release();
 	buf_ind->Release();
 	szad_wierz->Release();
@@ -46,41 +46,43 @@ ZGraf::~ZGraf() {
 void ZGraf::aktual_co_klat() {
 	rend->UpdateSubresource(buf_co_klat, 0, 0, &co_klat, 0, 0);
 }
-void ZGraf::aktual_ind(Wek2<DWORD>const& _mod_ind) {
+void ZGraf::aktual_ind(DWORD const*const _ind, uint32_t const _il) {
 	D3D11_BUFFER_DESC _opis;
 	buf_ind->GetDesc(&_opis);
-	if(_mod_ind.wez_il_el() * sizeof(DWORD) > _opis.ByteWidth) {
-		tworz_buf<DWORD>(karta, buf_ind, _mod_ind.wez_il_el(), D3D11_BIND_INDEX_BUFFER);
+	if(_il * sizeof(DWORD) > _opis.ByteWidth) {
+		tworz_buf<DWORD>(karta, buf_ind, _il, D3D11_BIND_INDEX_BUFFER);
 	}
-	rend->UpdateSubresource(buf_ind, 0, 0, _mod_ind[0], 0, 0);
+	rend->UpdateSubresource(buf_ind, 0, 0, _ind, 0, 0);
 }
-void ZGraf::aktual_swiat(Wek<XMFLOAT4X4>const& _mac_swiat) {
+void ZGraf::aktual_swiat(XMFLOAT4X4 const*const _mac_swiat, uint32_t const _il) {
 	D3D11_BUFFER_DESC _opis;
 	buf_swiat->GetDesc(&_opis);
-	if(_mac_swiat.wez_il() * sizeof(XMFLOAT4X4) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT4X4>(karta, buf_swiat, _mac_swiat.wez_il(), D3D11_BIND_VERTEX_BUFFER);
+	if(_il * sizeof(XMFLOAT4X4) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT4X4>(karta, buf_swiat, _il, D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(buf_swiat, 0, 0, &_mac_swiat[0], 0, 0);
+	rend->UpdateSubresource(buf_swiat, 0, 0, _mac_swiat, 0, 0);
 }
-void ZGraf::aktual_teks(Wek2<XMFLOAT2>const& _mod_teks) {
+void ZGraf::aktual_wsp_teks(XMFLOAT2 const*const _wsp_teks, uint32_t const _il) {
 	D3D11_BUFFER_DESC _opis;
-	buf_teks->GetDesc(&_opis);
-	if(_mod_teks.wez_il_el() * sizeof(XMFLOAT2) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT2>(karta, buf_teks, _mod_teks.wez_il_el(), D3D11_BIND_VERTEX_BUFFER);
+	buf_wsp_teks->GetDesc(&_opis);
+	if(_il * sizeof(XMFLOAT2) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT2>(karta, buf_wsp_teks, _il, D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(buf_teks, 0, 0, _mod_teks[0], 0, 0);
+	rend->UpdateSubresource(buf_wsp_teks, 0, 0, _wsp_teks, 0, 0);
 }
-void ZGraf::aktual_wierz(Wek2<XMFLOAT3>const& _mod_wierz) {
+void ZGraf::aktual_wierz(XMFLOAT3 const*const _wierz, uint32_t const _il) {
 	D3D11_BUFFER_DESC _opis;
 	buf_wierz->GetDesc(&_opis);
-	if(_mod_wierz.wez_il_el() * sizeof(XMFLOAT3) > _opis.ByteWidth) {
-		tworz_buf<XMFLOAT3>(karta, buf_wierz, _mod_wierz.wez_il_el(), D3D11_BIND_VERTEX_BUFFER);
+	if(_il * sizeof(XMFLOAT3) > _opis.ByteWidth) {
+		tworz_buf<XMFLOAT3>(karta, buf_wierz, _il, D3D11_BIND_VERTEX_BUFFER);
 	}
-	rend->UpdateSubresource(buf_wierz, 0, 0, _mod_wierz[0], 0, 0);
+	rend->UpdateSubresource(buf_wierz, 0, 0, _wierz, 0, 0);
 }
-void ZGraf::czysc_ekran() const {
+void ZGraf::czysc_cel_rend() const {
 	FLOAT const kolor[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	rend->ClearRenderTargetView(wid_cel_rend, kolor);
+}
+void ZGraf::czysc_gleb_szab() const {
 	rend->ClearDepthStencilView(wid_gleb_szab, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void ZGraf::inic_ind() {
@@ -89,8 +91,8 @@ void ZGraf::inic_ind() {
 void ZGraf::inic_swiat() {
 	tworz_buf<XMFLOAT4X4>(karta, buf_swiat, 1, D3D11_BIND_VERTEX_BUFFER);
 }
-void ZGraf::inic_teks() {
-	tworz_buf<XMFLOAT2>(karta, buf_teks, 1, D3D11_BIND_VERTEX_BUFFER);
+void ZGraf::inic_wsp_teks() {
+	tworz_buf<XMFLOAT2>(karta, buf_wsp_teks, 1, D3D11_BIND_VERTEX_BUFFER);
 }
 void ZGraf::inic_wierz() {
 	tworz_buf<XMFLOAT3>(karta, buf_wierz, 1, D3D11_BIND_VERTEX_BUFFER);
@@ -186,19 +188,6 @@ void ZGraf::tworz_strukt_we() {
 	);
 	if(w != S_OK) logi.pisz("", "nie stworzono strukt we");
 }
-void ZGraf::tworz_szad_piks() {
-	HRESULT w = D3DX11CompileFromFile(
-		"szader\\efekty.fx", 0, 0, "SP", "ps_4_0", 0, 0, 0,
-		&buf_szad_piks, &buf_szad_blad, 0
-	);
-	if(w != S_OK) logi.pisz("", "nie skompilowano szad piks");
-	w = karta->CreatePixelShader(
-		buf_szad_piks->GetBufferPointer(),
-		buf_szad_piks->GetBufferSize(),
-		0, &szad_piks
-	);
-	if(w != S_OK) logi.pisz("", "nie stworzono szad piks");
-}
 void ZGraf::tworz_szad_wierz() {
 	HRESULT w = D3DX11CompileFromFile(
 		"szader\\efekty.fx", 0, 0, "SW", "vs_4_0", 0, 0, 0,
@@ -214,6 +203,20 @@ void ZGraf::tworz_szad_wierz() {
 		0, &szad_wierz
 	);
 	if(w != S_OK) logi.pisz("", "nie stworzono szad wierz");
+}
+void ZGraf::ustaw_szad_piks(char const*const _nazwa) {
+	HRESULT w = D3DX11CompileFromFile(
+		"szader\\efekty.fx", 0, 0, _nazwa, "ps_4_0", 0, 0, 0,
+		&buf_szad_piks, &buf_szad_blad, 0
+	);
+	if(w != S_OK) logi.pisz("", "nie skompilowano szad piks");
+	w = karta->CreatePixelShader(
+		buf_szad_piks->GetBufferPointer(),
+		buf_szad_piks->GetBufferSize(),
+		0, &szad_piks
+	);
+	if(w != S_OK) logi.pisz("", "nie stworzono szad piks");
+	rend->PSSetShader(szad_piks, 0, 0);
 }
 void ZGraf::wiaz_co_klat() const {
 	rend->VSSetConstantBuffers(0, 1, &buf_co_klat);
@@ -233,9 +236,6 @@ void ZGraf::wiaz_stan_prob() const {
 void ZGraf::wiaz_strukt_we() const {
 	rend->IASetInputLayout(strukt_we);
 }
-void ZGraf::wiaz_szad_piks() const {
-	rend->PSSetShader(szad_piks, 0, 0);
-}
 void ZGraf::wiaz_szad_wierz() const {
 	rend->VSSetShader(szad_wierz, 0, 0);
 }
@@ -246,7 +246,7 @@ void ZGraf::wiaz_topol_prym() const {
 	rend->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 void ZGraf::wiaz_wierz() const {
-	ID3D11Buffer* _buf_we[] = {buf_wierz, buf_teks, buf_swiat};
+	ID3D11Buffer* _buf_we[] = {buf_wierz, buf_wsp_teks, buf_swiat};
 	uint32_t _kroki[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT2), sizeof(XMFLOAT4X4)};
 	uint32_t _przes[] = {0, 0, 0};
 	rend->IASetVertexBuffers(0, 3, _buf_we, _kroki, _przes);
@@ -265,7 +265,7 @@ PGraf::~PGraf() {
 	mod_nr.niszcz();
 	mod_odn.niszcz();
 	mod_wierz.niszcz();
-	mod_teks.niszcz();
+	mod_wsp_teks.niszcz();
 	mod_ind.niszcz();
 	teks_nr.niszcz();
 	teks_odn.niszcz();
@@ -285,9 +285,8 @@ PFiz::~PFiz() {
 PFiz ParFiz::par_fiz;
 // -------------------------------------------------------
 Kam::Kam()
-	: poz(XMFLOAT3(0.0f, 0.0f, -0.5f)),
-	cel(XMFLOAT3(0.0f, 0.0f, 0.0f)),
-	gora(XMFLOAT3(0.0f, 1.0f, 0.0f)),
+	: kwat(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)),
+	poz(XMFLOAT3(0.0f, 0.0f, -0.5f)),
 	kat(90),
 	blizsza(0.5f),
 	dalsza(100.0f) {}

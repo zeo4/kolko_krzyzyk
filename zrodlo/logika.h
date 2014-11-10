@@ -11,7 +11,8 @@ public:
 	void			wez_wyn();
 	void			inicScena();
 protected:
-	DaneGra			gra_dane;
+	DaneWej			dane_wej;
+	DaneGra			dane_gra;
 	Swiat			swiat;
 };
 // -------------------------------------------------------

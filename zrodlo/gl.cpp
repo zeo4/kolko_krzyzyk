@@ -56,17 +56,6 @@ void PetlaWiad() {
 // -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	uint32_t _il = 100000;
-	uint32_t* _t = (uint32_t*)malloc(_il*4);
-	memset(_t, 0, _il*4);
-	XMMATRIX _m = XMMatrixIdentity();
-	XMVECTOR _v = XMVectorSet(1.0f,1.0f,0.5f,0);
-	logi.czas();
-	for(uint32_t _i = 0; _i < _il; ++_i) {
-		//_v * _m;
-		XMVector3TransformNormal(_v, _m);
-	}
-	logi.czas();
 
 	uchAp = uchAplikacji;
 
@@ -153,6 +142,8 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // Usunąć pobieranie wielkości bufora prosto z karty graficznej przy aktualizacji bufora. Transfer GPU -> CPU jest wolny. Niech rozmiar będzie trzymana po stronie CPU również.
 // Przerobić na jedną komendę DrawIndexed.
 // Przetestować Wek2::wstaw_kon(Wek2) czy działa dobrze.
+// Renderować najpierw BB obiekt-u/ów, aktualizując w ten sposób bufor głębi (nie rysować wyniku, wynikiem jest zaktualizowany bufor głębi). Potem podłączyć ten bufor do PS i tam wykonać test głębi.
+// Zrobić FPP na myszce.
 
 
 
