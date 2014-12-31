@@ -1,10 +1,10 @@
 Texture2D<float> ds : register(t0);
 Buffer<float3> bbox : register(c0);
 
-struct f4x4 {
-	float4x4		mtx;
-};
-StructuredBuffer<f4x4> wvp : register(u2);
+//struct f4x4 {
+//	float4x4		mtx;
+//};
+//StructuredBuffer<f4x4> wvp : register(u2);
 
 RWBuffer<bool> is_occluder : register(u0);
 cbuffer scr_size : register(b0) {
@@ -17,19 +17,17 @@ void main(uint3 _gr : SV_GroupID) {
 	uint _bbox_no = _gr.x * 8;
 
 	// compute bounding rectangle
-	float3 _scr_vert = mul(bbox[_bbox_no], wvp[_gr.x].mtx);
-	float _left_f = _scr_vert.x;
+	float _left_f = bbox[_bbox_no].x;
 	float _right_f = _left_f;
-	float _top_f = _scr_vert.y;
+	float _top_f = bbox[_bbox_no].y;
 	float _bottom_f = _top_f;
-	float _z = _scr_vert.z;
+	float _z = bbox[_bbox_no].z;
 	for(uint _i = 1; _i < 8; ++_i) {
-		_scr_vert = mul(bbox[_bbox_no + _i], wvp[_gr.x].mtx);
-		if(_scr_vert.x < _left_f) _left_f = _scr_vert.x;
-		else if(_scr_vert.x > _right_f) _right_f = _scr_vert.x;
-		if(_scr_vert.y < _bottom_f) _bottom_f = _scr_vert.y;
-		else if(_scr_vert.y > _top_f) _top_f = _scr_vert.y;
-		if(_scr_vert.z < _z) _z = _scr_vert.z;
+		if(bbox[_bbox_no + _i].x < _left_f) _left_f = bbox[_bbox_no + _i].x;
+		else if(bbox[_bbox_no + _i].x > _right_f) _right_f = bbox[_bbox_no + _i].x;
+		if(bbox[_bbox_no + _i].y < _bottom_f) _bottom_f = bbox[_bbox_no + _i].y;
+		else if(bbox[_bbox_no + _i].y > _top_f) _top_f = bbox[_bbox_no + _i].y;
+		if(bbox[_bbox_no + _i].z < _z) _z = bbox[_bbox_no + _i].z;
 	}
 
 	// bounding rectangle to pixels

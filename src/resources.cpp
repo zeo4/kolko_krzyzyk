@@ -365,16 +365,13 @@ void GraphR::create_buf_struct() {
 void GraphR::create_scr_size() {
 	D3D11_BUFFER_DESC _scr_size_desc;
 	memset(&_scr_size_desc, 0, sizeof(_scr_size_desc));
-	_scr_size_desc.ByteWidth = sizeof(scr_size);
+	_scr_size_desc.ByteWidth = 16 * (sizeof(scr_size) / 16) + 16; // multiple of 16
 	_scr_size_desc.Usage = D3D11_USAGE_DEFAULT;
 	_scr_size_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//_scr_size_desc.CPUAccessFlags = 0;
-	//_scr_size_desc.MiscFlags = 0;
-	//_scr_size_desc.StructureByteStride = 0;
-	//D3D11_SUBRESOURCE_DATA _scr_size_data;
-	//memset(&_scr_size_data, 0, sizeof(_scr_size_data));
-	//_scr_size_data.pSysMem = &scr_size;
-	HRESULT _r = dev->CreateBuffer(&_scr_size_desc, 0, &scr_size_buf);
+	D3D11_SUBRESOURCE_DATA _scr_size_data;
+	memset(&_scr_size_data, 0, sizeof(_scr_size_data));
+	_scr_size_data.pSysMem = &scr_size;
+	HRESULT _r = dev->CreateBuffer(&_scr_size_desc, &_scr_size_data, &scr_size_buf);
 	if(_r != S_OK) logi.pisz("", "failed to create scr_size_buf");
 }
 void GraphR::create_ds() {
