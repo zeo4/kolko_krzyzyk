@@ -9,99 +9,101 @@
 #include <string>
 using namespace DirectX;
 // -------------------------------------------------------
-template<class T>
-void create_buf(ID3D11Device*const& _dev, ID3D11Buffer*& _bufor, UINT const _size, UINT const _bind_flg) {
-	if(_bufor != 0) {
-		_bufor->Release();
-	}
-	
-	D3D11_BUFFER_DESC _opis;
-	ZeroMemory(&_opis, sizeof(_opis));
-	_opis.ByteWidth = sizeof(T) * _size;
-	_opis.Usage = D3D11_USAGE_DEFAULT;
-	_opis.BindFlags = _bind_flg;
-	_opis.CPUAccessFlags = 0;
-	_opis.MiscFlags = 0;
-
-	HRESULT w = _dev->CreateBuffer(&_opis, NULL, &_bufor);
-	if(w != S_OK) logi.pisz("", string("nie stworzono buf z wiazaniem ") + to_string(_bind_flg));
-}
-// -------------------------------------------------------
 vector<byte> read_bytes(string);
 // -------------------------------------------------------
-enum {
-	MESH_TRI,
-	MESH_RECT,
-	MESH_DIAMENT,
-	TEX_TRI = 0,
-	TEX_RECT,
-	TEX_DIAMENT,
-};
-enum InputStructNr {
+enum InLayNo {
+	IN_F4,
 	IN_F4F2,
+	IN_F4F44,
 	IN_F4F2F44,
 };
-enum VertSzadNo {
-	VS_PASS_ON,
-	VS_WVP_TRANS,
+enum CSNo {
+	CS_OCCL_CULL,
 };
-enum PixSzadNo {
-	PS_TEX_SAMPLE
+enum VSNo {
+	VS_PASS_ON,
+	VS_TFORM,
+	VS_TFORM_TEX,
+	VS_TEST,
+};
+enum PSNo {
+	PS_SAMPLE_TEX,
+	PS_WRITE_DEPTH,
+	PS_TEST,
 };
 // -------------------------------------------------------
-struct GraphR {
-	struct PerFrame {
-						PerFrame();
-		XMMATRIX		mtx_wvp[1024];
+class GraphDev {
+public:
+	struct ScrSize {
+		uint32_t const				width;
+		uint32_t const				height;
 	};
-									GraphR();
-									~GraphR();
-	void							init_vert();
-	void							init_coord_tex();
-	void							init_world();
-	void							init_ind();
-	void							create_dev_ctx_chain();
-	void							create_depth_stencil();
-	void							create_buf_back_rtv();
-	void							create_occlu_map();
-	void							create_per_frame();
-	void							create_viewport();
-	void							create_sampl_state();
-	void							create_in_lay();
-	void							create_szad_pix();
-	void							create_szad_vert();
-	void							update_vert(XMFLOAT3 const*const,
-										uint32_t const);
-	void							update_coord_tex(XMFLOAT2 const*const,
-										uint32_t const);
-	void							update_world(XMFLOAT4X4 const*const,
-										uint32_t const);
-	void							update_ind(DWORD const*const, uint32_t const);
-	void							update_per_frame();
-	void							bind_sampl_state() const;
-	void							bind_viewport() const;
-	void							bind_prim_topol() const;
-	void							bind_vert(uint32_t const) const;
-	void							bind_per_frame() const;
-	ID3D11Device*					dev;
-	IDXGISwapChain*					chain;
-	ID3D11DeviceContext*			devctx;
-	ID3D11Buffer*					buf_vert;
-	ID3D11Buffer*					buf_coord_tex;
-	ID3D11Buffer*					buf_world;
-	ID3D11Buffer*					buf_ind;
-	ID3D11Buffer*					buf_per_frame;
-	ID3D10Blob*						buf_szad_err;
-	ID3D11RenderTargetView*			buf_back_rtv;
-	ID3D11Texture2D*				depth_stencil_tex2;
-	ID3D11DepthStencilView*			depth_stencil_dsv;
-	ID3D11ShaderResourceView*		depth_stencil_srv;
-	Vec<ID3D11VertexShader*>		szad_vert;
-	Vec<ID3D11PixelShader*>			szad_pix;
-	ID3D11SamplerState*				sampl_state;
-	D3D11_VIEWPORT					viewport;
-	Vec<ID3D11InputLayout*>			in_lay;
-	PerFrame						per_frame;
+	static void						create_dev_ctx_chain();
+	static void						destroy_dev_ctx_chain();
+	static ScrSize					scr_size;
+protected:
+	static ID3D11Device*			dev;
+	static IDXGISwapChain*			chain;
+	static ID3D11DeviceContext*		devctx;
+};
+// -------------------------------------------------------
+struct GraphR : public GraphDev {
+	struct ObGroup : public GraphDev {
+										ObGroup();
+										~ObGroup();
+		void							update_wvp(XMFLOAT4X4 const*const,
+											uint32_t const);
+		void							update_bbox(XMFLOAT3 const*const, uint32_t const);
+		void							update_is_occluder(bool const*const,
+											uint32_t const);
+		void							update_vert(XMFLOAT3 const*const, uint32_t const);
+		void							update_coord_tex(XMFLOAT2 const*const,
+											uint32_t const);
+		void							update_ind(DWORD const*const, uint32_t const);
+		void							bind_vert(uint32_t const) const;
+		XMFLOAT4X4*						wvp_tposed;
+		ID3D11Buffer*					wvp_buf;
+		ID3D11ShaderResourceView*		wvp_srv;
+		ID3D11Buffer*					bbox_buf;
+		ID3D11ShaderResourceView*		bbox_srv;
+		ID3D11Buffer*					is_occluder_buf;
+		ID3D11ShaderResourceView*		is_occluder_srv;
+		ID3D11UnorderedAccessView*		is_occluder_uav;
+		ID3D11Buffer*					vert_buf;
+		ID3D11Buffer*					coord_tex_buf;
+		ID3D11Buffer*					ind_buf;
+	};
+										GraphR();
+										~GraphR();
+	void								create_ds();
+	void								create_back_buf();
+	void								create_buf_struct();
+	void								create_scr_size();
+	void								create_viewport();
+	void								create_ss();
+	void								create_in_lay();
+	void								create_cs();
+	void								create_ps();
+	void								create_vs();
+	void								bind_ss() const;
+	void								bind_viewport() const;
+	void								bind_prim_topol() const;
+	void								bind_per_frame() const;
+	ID3D11Buffer*						buf_struct;
+	ID3D11Buffer*						scr_size_buf;
+	ID3D11Buffer*						buf_per_frame;
+	ID3D11RenderTargetView*				back_buf_rtv;
+	ID3D11Texture2D*					ds_tex2;
+	ID3D11DepthStencilView*				ds_dsv;
+	ID3D11ShaderResourceView*			ds_srv;
+	Vec<ID3D11ComputeShader*>			cs;
+	Vec<ID3D11VertexShader*>			vs;
+	Vec<ID3D11PixelShader*>				ps;
+	ID3D11SamplerState*					ss;
+	D3D11_VIEWPORT						viewport;
+	Vec<ID3D11InputLayout*>				in_lay;
+	ObGroup								ob;
+	ObGroup								test;
 };
 struct GraphRes {
 	static GraphR		res;
@@ -136,17 +138,29 @@ protected:
 	Vec2<XMFLOAT2>					coord_tex;
 	Vec2<DWORD>						ind;
 };
+XMFLOAT2 const*const Meshes::get_coord_tex() const {
+	return coord_tex[0];
+}
+XMFLOAT2 const*const Meshes::get_coord_tex(uint32_t const _uch) {
+	return coord_tex[no[_uch]];
+}
+Meshes::Pair_ const Meshes::get_coord_tex_row(uint32_t const _uch) {
+	return coord_tex.get_row(no[_uch]);
+}
+uint32_t Meshes::get_coord_tex_size() const {
+	return coord_tex.get_size();
+}
 DWORD const*const Meshes::get_ind() const {
 	return ind[0];
 }
 DWORD const*const Meshes::get_ind(uint32_t const _uch) {
 	return ind[no[_uch]];
 }
-uint32_t Meshes::get_ind_size() const {
-	return ind.get_size();
-}
 Meshes::Pair_ const Meshes::get_ind_row(uint32_t const _uch) {
 	return ind.get_row(no[_uch]);
+}
+uint32_t Meshes::get_ind_size() const {
+	return ind.get_size();
 }
 uint32_t Meshes::get_mesh_size() const {
 	return vert.get_col_size();
@@ -157,26 +171,14 @@ XMFLOAT3 const*const Meshes::get_vert() const {
 XMFLOAT3 const*const Meshes::get_vert(uint32_t const _uch) {
 	return vert[no[_uch]];
 }
-uint32_t Meshes::get_vert_size() const {
-	return vert.get_size();
-}
 Meshes::Pair_ const Meshes::get_vert_row(uint32_t const _uch) {
 	return vert.get_row(no[_uch]);
 }
-XMFLOAT2 const*const Meshes::get_coord_tex() const {
-	return coord_tex[0];
-}
-XMFLOAT2 const*const Meshes::get_coord_tex(uint32_t const _uch) {
-	return coord_tex[no[_uch]];
-}
-uint32_t Meshes::get_coord_tex_size() const {
-	return coord_tex.get_size();
-}
-Meshes::Pair_ const Meshes::get_coord_tex_row(uint32_t const _uch) {
-	return coord_tex.get_row(no[_uch]);
+uint32_t Meshes::get_vert_size() const {
+	return vert.get_size();
 }
 // -------------------------------------------------------
-class Textures : protected GraphRes {
+class Textures : protected GraphDev {
 	typedef ID3D11ShaderResourceView* TeksWid_;
 public:
 								~Textures();
@@ -193,55 +195,61 @@ protected:
 	VecSparse<uint32_t>			ref;
 	Vec<TeksWid_>				view;
 };
-void Textures::sort_exe(uint32_t const*const _map) {
-	no.update(_map);
-	view.sort_exe(_map);
+Textures::TeksWid_ const& Textures::get(uint32_t const _uch) {
+	return view[no[_uch]];
 }
 uint32_t Textures::get_size() const {
 	return view.get_size();
 }
-Textures::TeksWid_ const& Textures::get(uint32_t const _uch) {
-	return view[no[_uch]];
+void Textures::sort_exe(uint32_t const*const _map) {
+	no.update(_map);
+	view.sort_exe(_map);
 }
 // -------------------------------------------------------
 struct GraphP {
+	struct ObGroup {
+		Vec<uint32_t>		mesh_hnd;
+		Vec<uint32_t>		tex_hnd;
+		Meshes				mesh;
+		Textures			tex;
+		Vec<XMFLOAT4X4>		mtx_world;
+		Vec<XMFLOAT4X4>		mtx_wvp;
+		Vec2<XMFLOAT3>		bbox;
+		Vec<bool>			is_occluder;
+	};
 							~GraphP();
 	UchPula					no;
-	Vec<uint32_t>			occluder_mesh_hnd;
-	Vec<uint32_t>			occluder_tex_hnd;
-	Meshes					occluder_mesh;
-	Textures				occluder_tex;
-	Vec<uint32_t>			occludee_mesh_hnd;
-	Vec<uint32_t>			occludee_tex_hnd;
-	Meshes					occludee_mesh;
-	Textures				occludee_tex;
+	ObGroup					ob;
 };
 struct GraphPar {
-	static GraphP		graph_par;
+	static GraphP		g_par;
 };
 // -------------------------------------------------------
 struct PhysP {
-						~PhysP();
-	UchPula				no;
-	Vec<XMFLOAT3>		pos;
-	Vec<XMFLOAT3>		v;
-	Vec<XMFLOAT4X4>		mtx_world;
-	Vec2<XMFLOAT3>		bound_box;
+	struct Group {
+		Vec<XMFLOAT3>		pos;
+		Vec<XMFLOAT3>		v;
+		Vec<XMFLOAT4X4>		mtx_world;
+		Vec2<XMFLOAT3>		bb;
+	};
+				~PhysP();
+	UchPula		no;
+	Group		colliders;
 };
 struct PhysPar {
-	static PhysP		phys_par;
+	static PhysP		ph_par;
 };
 // -------------------------------------------------------
 struct Cam {
-									Cam();
-	XMFLOAT4X4						mtx_view;
-	XMFLOAT4X4						mtx_proj;
-	XMFLOAT4						quat;
-	XMFLOAT3						pos;
-	XMFLOAT3						v;
-	float							angle;
-	float							near_z;
-	float							far_z;
+					Cam();
+	XMFLOAT4X4		mtx_view;
+	XMFLOAT4X4		mtx_proj;
+	XMFLOAT4		quat;
+	XMFLOAT3		pos;
+	XMFLOAT3		v;
+	float			fov;
+	float			near_z;
+	float			far_z;
 };
 struct Camera {
 	static Cam		cam;

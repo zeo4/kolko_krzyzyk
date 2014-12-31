@@ -17,12 +17,12 @@ void Physics::comp_ray_click(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _
 }
 float Physics::comp_ray_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
 	XMVECTOR _w0, _w1, _w2;
-	uint32_t const _uch_mod = graph_par.occludee_mesh_hnd[_nr_ob];
+	uint32_t const _uch_mod = g_par.ob.mesh_hnd[_nr_ob];
 	float _t = 1000.0f, _t1;
-	for(uint32_t _i = 0; _i < graph_par.occludee_mesh.get_ind_row(_uch_mod).drug; _i += 3) {
-		_w0 = XMLoadFloat3(graph_par.occludee_mesh.get_vert(_uch_mod) + graph_par.occludee_mesh.get_ind(_uch_mod)[_i]);
-		_w1 = XMLoadFloat3(graph_par.occludee_mesh.get_vert(_uch_mod) + graph_par.occludee_mesh.get_ind(_uch_mod)[_i+1]);
-		_w2 = XMLoadFloat3(graph_par.occludee_mesh.get_vert(_uch_mod) + graph_par.occludee_mesh.get_ind(_uch_mod)[_i+2]);
+	for(uint32_t _i = 0; _i < g_par.ob.mesh.get_ind_row(_uch_mod).drug; _i += 3) {
+		_w0 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i]);
+		_w1 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i+1]);
+		_w2 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i+2]);
 		_t1 = comp_ray_tri(_pocz, _kier, _w0, _w1, _w2);
 		if(_t1 < _t) _t = _t1;
 	}
@@ -61,15 +61,15 @@ uint32_t Physics::exe_ob(uint32_t const& _x, uint32_t const& _y) const {
 	comp_ray_click(_pocz, _kier, _x, _y);
 	float _t = 1000.0f, _t1;
 	uint32_t _uch_wybr = 0x80000000;
-	for(uint32_t _uch_ob = 0; _uch_ob < graph_par.no.wez_poj(); ++_uch_ob) {
-		if(graph_par.no.sprawdz_pusty(_uch_ob)) continue;
+	for(uint32_t _uch_ob = 0; _uch_ob < g_par.no.wez_poj(); ++_uch_ob) {
+		if(g_par.no.sprawdz_pusty(_uch_ob)) continue;
 		_pocz1 = XMVector3TransformCoord(_pocz, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&phys_par.mtx_world[graph_par.no[_uch_ob]])
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&ph_par.colliders.mtx_world[g_par.no[_uch_ob]])
 		));
 		_kier1 = XMVector3TransformNormal(_kier, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&phys_par.mtx_world[graph_par.no[_uch_ob]])
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&ph_par.colliders.mtx_world[g_par.no[_uch_ob]])
 		));
-		_t1 = comp_ray_ob(_pocz1, _kier1, graph_par.no[_uch_ob]);
+		_t1 = comp_ray_ob(_pocz1, _kier1, g_par.no[_uch_ob]);
 		if(_t1 < _t) {
 			_t = _t1;
 			_uch_wybr = _uch_ob;
@@ -77,31 +77,13 @@ uint32_t Physics::exe_ob(uint32_t const& _x, uint32_t const& _y) const {
 	}
 	return _uch_wybr;
 }
-void Physics::exe_ob_pos(uint32_t const _i_zad) {
-	TaskObPos _z = *(TaskObPos*)task[_i_zad];
-	phys_par.pos[phys_par.no[_z.el]] = _z.pos;
-	task.erase(_i_zad);
-}
-void Physics::exe_ob_v(uint32_t const _i_zad) {
-	TaksObV _z = *(TaksObV*)task[_i_zad];
-	phys_par.v[phys_par.no[_z.el]] = _z.v;
-	task.erase(_i_zad);
-}
-void Physics::exe_ob_pick(uint32_t const _i_zad) {
-	TaskObPick _z = *(TaskObPick*)task[_i_zad];
-	ResultObPick _w;
-	_w.kod_zad = OB_PICK;
-	_w.uch_ob = exe_ob(_z.x, _z.y);
-	result.push_back((uint8_t*)&_w, sizeof(_w));
-	task.erase(_i_zad);
-}
-void Physics::exe_ob_create(uint32_t const _i_zad) {
-	phys_par.no.wstaw(phys_par.pos.get_size());
-	phys_par.pos.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
-	phys_par.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	phys_par.mtx_world.push_back(XMFLOAT4X4());
+void Physics::exe_ob_create(uint32_t const _i_task) {
+	ph_par.no.wstaw(ph_par.colliders.pos.get_size());
+	ph_par.colliders.pos.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
+	ph_par.colliders.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	ph_par.colliders.mtx_world.push_back(XMFLOAT4X4());
 	XMStoreFloat4x4(
-		&phys_par.mtx_world[phys_par.mtx_world.get_size()-1], XMMatrixIdentity()
+		&ph_par.colliders.mtx_world[ph_par.colliders.mtx_world.get_size()-1], XMMatrixIdentity()
 	);
 	XMFLOAT3 _t[] = {
 		XMFLOAT3(-1.0f, -1.0f, -1.0f),
@@ -113,19 +95,28 @@ void Physics::exe_ob_create(uint32_t const _i_zad) {
 		XMFLOAT3(1.0f, 1.0f, 1.0f),
 		XMFLOAT3(1.0f, -1.0f, 1.0f),
 	};
-	phys_par.bound_box.push_back(_t, 8);
+	ph_par.colliders.bb.push_back(_t, 8);
 }
-void Physics::exe_world_curr(uint32_t const _i_zad) {
-	for(uint32_t _i = 0; _i < phys_par.mtx_world.get_size(); ++_i) {
-		XMStoreFloat3(&phys_par.pos[_i], XMLoadFloat3(&phys_par.pos[_i]) + XMLoadFloat3(&phys_par.v[_i]));
-		XMStoreFloat4x4(
-			&phys_par.mtx_world[_i],
-			XMMatrixTranslationFromVector(XMLoadFloat3(&phys_par.pos[_i]))
-		);
-	}
+void Physics::exe_ob_pick(uint32_t const _i_task) {
+	TaskObPick _z = *(TaskObPick*)task[_i_task];
+	ResultObPick _w;
+	_w.code = TASK_OB_PICK;
+	_w.hnd_ob = exe_ob(_z.x, _z.y);
+	result.push_back((uint8_t*)&_w, sizeof(_w));
+	task.erase(_i_task);
 }
-void Physics::exe_phys_defrag(uint32_t const _i_zad) {
-	task.erase(_i_zad);
+void Physics::exe_ob_pos(uint32_t const _i_task) {
+	TaskObPos _z = *(TaskObPos*)task[_i_task];
+	ph_par.colliders.pos[ph_par.no[_z.el]] = _z.pos;
+	task.erase(_i_task);
+}
+void Physics::exe_ob_v(uint32_t const _i_task) {
+	TaksObV _z = *(TaksObV*)task[_i_task];
+	ph_par.colliders.v[ph_par.no[_z.el]] = _z.v;
+	task.erase(_i_task);
+}
+void Physics::exe_phys_defrag(uint32_t const _i_task) {
+	task.erase(_i_task);
 }
 void Physics::exe_tasks() {
 	if(task.get_col_size() > 1) {
@@ -141,12 +132,11 @@ void Physics::exe_tasks() {
 		if(task.get_row(_i) == task.empty) continue;
 
 		switch(((Task*)task[_i])->code) {
-		case OB_POS: exe_ob_pos(_i); break;
-		case OB_V: exe_ob_v(_i); break;
-		case OB_PICK: exe_ob_pick(_i); break;
-		case OB_CREATE: exe_ob_create(_i); break;
-		case WORLD_UPDATE: exe_world_curr(_i); break;
-		case PHYS_DEFRAG: exe_phys_defrag(_i); break;
+		case TASK_OB_POS: exe_ob_pos(_i); break;
+		case TASK_OB_V: exe_ob_v(_i); break;
+		case TASK_OB_PICK: exe_ob_pick(_i); break;
+		case TASK_OB_CREATE: exe_ob_create(_i); break;
+		case TASK_PHYS_DEFRAG: exe_phys_defrag(_i); break;
 		}
 	}
 }

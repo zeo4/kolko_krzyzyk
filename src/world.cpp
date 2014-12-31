@@ -8,55 +8,53 @@ World::World()
 	: phys(new Physics),
 	graph(new Graphics) {
 	res.create_dev_ctx_chain();
-	res.create_depth_stencil();
-	res.create_buf_back_rtv();
-	res.init_vert();
-	res.init_coord_tex();
-	res.init_world();
-	res.init_ind();
-	res.create_szad_vert();
-	res.create_szad_pix();
+	res.create_ds();
+	res.create_back_buf();
+	res.create_scr_size();
+	res.create_cs();
+	res.create_vs();
+	res.create_ps();
 	res.create_in_lay();
 	res.create_viewport();
-	res.create_sampl_state();
-	res.create_per_frame();
+	res.create_ss();
 	res.bind_prim_topol();
 	res.bind_viewport();
-	res.bind_sampl_state();
+	res.bind_ss();
 	res.bind_per_frame();
-	insert_task(Task{CAM_UPDATE, 0});
+	insert_task(Task{TASK_CAM_UPDATE, 0});
 }
 World::~World() {
+	res.destroy_dev_ctx_chain();
 	delete phys;
 	delete graph;
 }
-void World::exe_ob_pos(uint32_t const _i_zad) {
-	if(!flg_task[WORLD_UPDATE]) insert_task(Task{WORLD_UPDATE, 0});
-	if(!flg_task[OCCLU_ERASE]) insert_task(Task{OCCLU_ERASE, 0});
-	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
-}
-void World::exe_ob_v(uint32_t const _i_zad) {
-	if(!flg_task[WORLD_UPDATE]) insert_task(Task{WORLD_UPDATE, 0});
-	if(!flg_task[OCCLU_ERASE]) insert_task(Task{OCCLU_ERASE, 0});
+void World::exe_cam_rot(uint32_t const _i_zad) {
+	if(!flg_task[TASK_CAM_UPDATE]) insert_task(Task{TASK_CAM_UPDATE, 0});
+	if(!flg_task[TASK_WVP_UPDATE]) insert_task(Task{TASK_WVP_UPDATE, 0});
+	if(!flg_task[TASK_OCCL_CULL]) insert_task(Task{TASK_OCCL_CULL, 0});
 	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
 }
 void World::exe_cam_v(uint32_t const _i_zad) {
-	if(!flg_task[CAM_UPDATE_POS]) insert_task(Task{CAM_UPDATE_POS, 0});
-	if(!flg_task[CAM_UPDATE]) insert_task(Task{CAM_UPDATE, 0});
-	if(!flg_task[WORLD_UPDATE]) insert_task(Task{WORLD_UPDATE, 0});
-	if(!flg_task[OCCLU_ERASE]) insert_task(Task{OCCLU_ERASE, 0});
-	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
-}
-void World::exe_cam_rot(uint32_t const _i_zad) {
-	if(!flg_task[CAM_UPDATE]) insert_task(Task{CAM_UPDATE, 0});
-	if(!flg_task[WORLD_UPDATE]) insert_task(Task{WORLD_UPDATE, 0});
-	if(!flg_task[OCCLU_ERASE]) insert_task(Task{OCCLU_ERASE, 0});
+	if(!flg_task[TASK_CAM_UPDATE_POS]) insert_task(Task{TASK_CAM_UPDATE_POS, 0});
+	if(!flg_task[TASK_CAM_UPDATE]) insert_task(Task{TASK_CAM_UPDATE, 0});
+	if(!flg_task[TASK_WVP_UPDATE]) insert_task(Task{TASK_WVP_UPDATE, 0});
+	if(!flg_task[TASK_OCCL_CULL]) insert_task(Task{TASK_OCCL_CULL, 0});
 	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
 }
 void World::exe_ob_create(uint32_t const _i_zad) {
-	if(!flg_task[OB_SORT]) insert_task(Task{OB_SORT, 0});
-	if(!flg_task[WORLD_UPDATE]) insert_task(Task{WORLD_UPDATE, 0});
-	if(!flg_task[OCCLU_ERASE]) insert_task(Task{OCCLU_ERASE, 0});
+	if(!flg_task[TASK_OB_SORT]) insert_task(Task{TASK_OB_SORT, 0});
+	if(!flg_task[TASK_WVP_UPDATE]) insert_task(Task{TASK_WVP_UPDATE, 0});
+	if(!flg_task[TASK_OCCL_CULL]) insert_task(Task{TASK_OCCL_CULL, 0});
+	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
+}
+void World::exe_ob_pos(uint32_t const _i_zad) {
+	if(!flg_task[TASK_WVP_UPDATE]) insert_task(Task{TASK_WVP_UPDATE, 0});
+	if(!flg_task[TASK_OCCL_CULL]) insert_task(Task{TASK_OCCL_CULL, 0});
+	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
+}
+void World::exe_ob_v(uint32_t const _i_zad) {
+	if(!flg_task[TASK_WVP_UPDATE]) insert_task(Task{TASK_WVP_UPDATE, 0});
+	if(!flg_task[TASK_OCCL_CULL]) insert_task(Task{TASK_OCCL_CULL, 0});
 	//if(!flg_task[RYSUJ]) insert_task(Task{RYSUJ, 0});
 }
 void World::exe_tasks() {
@@ -73,11 +71,11 @@ void World::exe_tasks() {
 		if(task.get_row(_i) == task.empty) continue;
 
 		switch(((Task*)task[_i])->code) {
-		case OB_POS: exe_ob_pos(_i); break;
-		case OB_V: exe_ob_v(_i); break;
-		case CAM_V: exe_cam_v(_i); break;
-		case CAM_ROT: exe_cam_rot(_i); break;
-		case OB_CREATE: exe_ob_create(_i); break;
+		case TASK_OB_POS: exe_ob_pos(_i); break;
+		case TASK_OB_V: exe_ob_v(_i); break;
+		case TASK_CAM_V: exe_cam_v(_i); break;
+		case TASK_CAM_ROT: exe_cam_rot(_i); break;
+		case TASK_OB_CREATE: exe_ob_create(_i); break;
 		}
 	}
 

@@ -48,8 +48,6 @@ using std::tuple;
 using std::get;
 
 HWND extern uch_okno;
-float extern szerRend;
-float extern wysRend;
 
 template<class TYP>
 class Wsk {

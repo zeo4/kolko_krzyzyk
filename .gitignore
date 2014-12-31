@@ -14,4 +14,6 @@ src/kolko_krzyzyk.exe
 src/kolko_krzyzyk.ilk
 src/kolko_krzyzyk.pdb
 *.txt
+*.sln
+*.suo
 src/*.txt

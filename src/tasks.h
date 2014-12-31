@@ -5,30 +5,42 @@
 using namespace DirectX;
 // -------------------------------------------------------
 enum TaskCode {
-	OB_POS,
-	OB_V,
-	CAM_V,
-	CAM_ROT,
-	OB_PICK,
-	OB_CREATE,
-	OB_ERASE,
-	CAM_UPDATE_POS,
-	CAM_UPDATE,
-	OB_SORT,
-	WORLD_UPDATE,
-	OCCLU_ERASE,
-	DRAW,
-	PHYS_DEFRAG,
-	GRAPH_DEFRAG,
+	TASK_OB_POS,
+	TASK_OB_V,
+	TASK_CAM_V,
+	TASK_CAM_ROT,
+	TASK_OB_PICK,
+	TASK_OB_CREATE,
+	TASK_OB_ERASE,
+	TASK_CAM_UPDATE_POS,
+	TASK_CAM_UPDATE,
+	TASK_OB_SORT,
+	TASK_WORLD_UPDATE,
+	TASK_WVP_UPDATE,
+	TASK_BBOX_UPDATE,
+	TASK_OCCL_CULL,
+	TASK_DRAW,
+	TASK_PHYS_DEFRAG,
+	TASK_GRAPH_DEFRAG,
+};
+enum MeshNo{
+	MESH_TRI,
+	MESH_RECT,
+	MESH_DIAMENT,
+};
+enum TexNo{
+	TEX_TRI,
+	TEX_RECT,
+	TEX_DIAMENT,
 };
 // -------------------------------------------------------
 struct ResultObCreate {
-	TaskCode		kod_zad;
-	uint32_t		uch_ob;
+	TaskCode		code;
+	uint32_t		hnd_ob;
 };
 struct ResultObPick {
-	TaskCode		kod_zad;
-	uint32_t		uch_ob;
+	TaskCode		code;
+	uint32_t		hnd_ob;
 };
 struct Task {
 	TaskCode		code;
@@ -37,8 +49,8 @@ struct Task {
 struct TaskObCreate {
 	TaskCode		code;
 	uint32_t		el;
-	uint32_t		hnd_mesh;
-	uint32_t		hnd_tex;
+	MeshNo			hnd_mesh;
+	TexNo			hnd_tex;
 };
 struct TaskObPos {
 	TaskCode		code;

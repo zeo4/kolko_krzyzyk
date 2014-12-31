@@ -14,7 +14,6 @@ protected:
 	void			exe_ob_v(uint32_t const);
 	void			exe_ob_pick(uint32_t const);
 	void			exe_ob_create(uint32_t const);
-	void			exe_world_curr(uint32_t const);
 	void			exe_phys_defrag(uint32_t const);
 	void			comp_ray_click(XMVECTOR&, XMVECTOR&,
 						uint32_t const&, uint32_t const&) const;
