@@ -61,8 +61,8 @@ void GraphDev::create_dev_ctx_chain() {
 	//_msg_filter.DenyList.pIDList = _msg_hide;
 	//debug_info->AddStorageFilterEntries(&_msg_filter);
 
-	_r = DXGIGetDebugInterface1(0, __uuidof(g_analysis), reinterpret_cast<void**>(&g_analysis));
-	if(_r != S_OK) logi.pisz("", "failed to create graphics analysis interface");
+	//_r = DXGIGetDebugInterface1(0, __uuidof(g_analysis), reinterpret_cast<void**>(&g_analysis));
+	//if(_r != S_OK) logi.pisz("", "failed to create graphics analysis interface");
 }
 void GraphDev::destroy_dev_ctx_chain() {
 	dev->Release();
@@ -223,7 +223,7 @@ void GraphR::ObGroup::update_coord_tex(XMFLOAT2 const*const _coord_tex, uint32_t
 	devctx->UpdateSubresource(coord_tex_buf, 0, 0, _coord_tex, 0, 0);
 }
 void GraphR::ObGroup::update_ind(DWORD const*const _ind, uint32_t const _size) {
-	if(_ind == 0 || _size == 0) return;
+	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
 	if(ind_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
@@ -239,7 +239,7 @@ void GraphR::ObGroup::update_ind(DWORD const*const _ind, uint32_t const _size) {
 		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &ind_buf);
 		if(_r != S_OK) logi.pisz("", "failed to create index buffer");
 	}
-	devctx->UpdateSubresource(ind_buf, 0, 0, _ind, 0, 0);
+	if(_ind != 0) devctx->UpdateSubresource(ind_buf, 0, 0, _ind, 0, 0);
 }
 void GraphR::ObGroup::update_is_occluder(bool const*const _is_occluder, uint32_t const _size) {
 	if(_size == 0) return;
@@ -283,7 +283,7 @@ void GraphR::ObGroup::update_is_occluder(bool const*const _is_occluder, uint32_t
 	devctx->UpdateSubresource(occluder_buf, 0, 0, _is_occluder, 0, 0);
 }
 void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _size) {
-	if(_vert == 0 || _size == 0) return;
+	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
 	if(vert_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
@@ -300,7 +300,7 @@ void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _si
 		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &vert_buf);
 		if(_r != S_OK) logi.pisz("", "failed to create vertex buffer");
 	}
-	devctx->UpdateSubresource(vert_buf, 0, 0, _vert, 0, 0);
+	if(_vert != 0) devctx->UpdateSubresource(vert_buf, 0, 0, _vert, 0, 0);
 }
 void GraphR::ObGroup::bind_vert(uint32_t const _nr_szad) const {
 	switch(_nr_szad) {

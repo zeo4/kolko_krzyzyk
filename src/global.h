@@ -30,9 +30,9 @@
 #include <d3dx11.h>
 #define DIRECTINPUT_VERSION 0x0800 // bez tego DirectInput zgłasza ostrzeżenie
 #include <dinput.h>
-#include <DXGItype.h>
-#include <dxgi1_2.h>
-#include <dxgi1_3.h>
+//#include <DXGItype.h>
+//#include <dxgi1_2.h>
+//#include <dxgi1_3.h>
 
 using namespace DirectX;
 using std::string;
