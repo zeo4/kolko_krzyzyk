@@ -11,8 +11,8 @@ public:
 	void			get_result();
 	void			init_scene();
 protected:
-	InputData		input_data;
-	GameData		game_data;
+	DataInput		data_input;
+	DataGame		data_game;
 	World			world;
 };
 // -------------------------------------------------------

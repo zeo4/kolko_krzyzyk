@@ -1,9 +1,60 @@
 ﻿#pragma once
 #include <physics.h>
 // -------------------------------------------------------
-void Physics::comp_ray_click(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x, uint32_t const& _y) const {
+void Physics::do_tasks() {
+	if(task.get_col_size() > 1) {
+		uint32_t* _mapa = 0;
+		task.sort_comp(_mapa);
+		task.sort_exe(_mapa);
+		task.erase_dupl_comp(_mapa, FunHasz<uint8_t>(), FunHasz2<uint8_t>());
+		task.sort_exe(_mapa);
+		free(_mapa);
+	}
+
+	for(uint32_t _i = 0; _i < task.get_col_size(); ++_i) {
+		if(task.get_row(_i) == task.empty) continue;
+
+		switch(((Task*)task[_i])->code) {
+		case TASK_PICK_OB: pick_ob(_i); break;
+		case TASK_SET_LOC_OB: set_loc_ob(_i); break;
+		case TASK_SET_V_OB: set_v_ob(_i); break;
+		case TASK_SET_ROT_CAM: set_rot_cam(_i); break;
+		case TASK_SET_V_CAM: set_v_cam(_i); break;
+		case TASK_CREATE_OB: create_ob(_i); break;
+		}
+	}
+}
+void Physics::pick_ob(uint32_t const _i_task) {
+	TaskPickOb _task = *(TaskPickOb*)task[_i_task];
+	ResultPickOb _w;
+	_w.code = TASK_PICK_OB;
+
+	XMVECTOR _loc, _loc1, _dir, _dir1;
+	compute_ray_click(_loc, _dir, _task.x, _task.y);
+	float _t = 1000.0f, _t1;
+	uint32_t _hnd_pick = 0x80000000;
+	for(uint32_t _hnd_ob = 0; _hnd_ob < data_e.no.wez_poj(); ++_hnd_ob) {
+		if(data_e.no.sprawdz_pusty(_hnd_ob)) continue;
+		_loc1 = XMVector3TransformCoord(_loc, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.mtx_world[data_e.no[_hnd_ob]])
+		));
+		_dir1 = XMVector3TransformNormal(_dir, XMMatrixInverse(
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.mtx_world[data_e.no[_hnd_ob]])
+		));
+		_t1 = compute_ray_ob(_dir1, _dir1, data_e.no[_hnd_ob]);
+		if(_t1 < _t) {
+			_t = _t1;
+			_hnd_pick = _hnd_ob;
+		}
+	}
+	_w.ob_hnd = _hnd_pick;
+
+	result.push_back((uint8_t*)&_w, sizeof(_w));
+	task.erase(_i_task);
+}
+void Physics::compute_ray_click(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _x, uint32_t const& _y) const {
 	// licz początek
-	_pocz = XMLoadFloat3(&cam.pos);
+	_pocz = XMLoadFloat3(&cam.loc);
 
 	// licz kierunek
 	RECT _kwadr;
@@ -15,20 +66,20 @@ void Physics::comp_ray_click(XMVECTOR& _pocz, XMVECTOR& _kier, uint32_t const& _
 		0
 	);
 }
-float Physics::comp_ray_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
+float Physics::compute_ray_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint32_t const& _nr_ob) const {
 	XMVECTOR _w0, _w1, _w2;
-	uint32_t const _uch_mod = g_par.ob.mesh_hnd[_nr_ob];
+	uint32_t const _uch_mod = data_e.mesh_hnd[_nr_ob];
 	float _t = 1000.0f, _t1;
-	for(uint32_t _i = 0; _i < g_par.ob.mesh.get_ind_row(_uch_mod).drug; _i += 3) {
-		_w0 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i]);
-		_w1 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i+1]);
-		_w2 = XMLoadFloat3(g_par.ob.mesh.get_vert(_uch_mod) + g_par.ob.mesh.get_ind(_uch_mod)[_i+2]);
-		_t1 = comp_ray_tri(_pocz, _kier, _w0, _w1, _w2);
+	for(uint32_t _i = 0; _i < data_e.mesh.get_ind_row(_uch_mod).drug; _i += 3) {
+		_w0 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i]);
+		_w1 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i+1]);
+		_w2 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i+2]);
+		_t1 = compute_ray_tri(_pocz, _kier, _w0, _w1, _w2);
 		if(_t1 < _t) _t = _t1;
 	}
 	return _t;
 }
-float Physics::comp_ray_tri(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVECTOR const& _w0, CXMVECTOR const& _w1, CXMVECTOR const& _w2) const {
+float Physics::compute_ray_tri(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVECTOR const& _w0, CXMVECTOR const& _w1, CXMVECTOR const& _w2) const {
 	//------------------WZORY-------------------------
 	// pkt promienia r(t) = pocz + t*kier
 	// wekt1 = w1 - w0, wekt2 = w2 - w0
@@ -56,89 +107,83 @@ float Physics::comp_ray_tri(XMVECTOR const& _pocz, XMVECTOR const& _kier, CXMVEC
 		return 1000.0f;
 	}
 }
-uint32_t Physics::exe_ob(uint32_t const& _x, uint32_t const& _y) const {
-	XMVECTOR _pocz, _pocz1, _kier, _kier1;
-	comp_ray_click(_pocz, _kier, _x, _y);
-	float _t = 1000.0f, _t1;
-	uint32_t _uch_wybr = 0x80000000;
-	for(uint32_t _uch_ob = 0; _uch_ob < g_par.no.wez_poj(); ++_uch_ob) {
-		if(g_par.no.sprawdz_pusty(_uch_ob)) continue;
-		_pocz1 = XMVector3TransformCoord(_pocz, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&ph_par.colliders.mtx_world[g_par.no[_uch_ob]])
-		));
-		_kier1 = XMVector3TransformNormal(_kier, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&ph_par.colliders.mtx_world[g_par.no[_uch_ob]])
-		));
-		_t1 = comp_ray_ob(_pocz1, _kier1, g_par.no[_uch_ob]);
-		if(_t1 < _t) {
-			_t = _t1;
-			_uch_wybr = _uch_ob;
-		}
-	}
-	return _uch_wybr;
+void Physics::set_loc_ob(uint32_t const _i_task) {
+	TaskSetLocOb _task = *(TaskSetLocOb*)task[_i_task];
+	data_e.loc[data_e.no[_task.el]] = _task.loc;
+	task.erase(_i_task);
 }
-void Physics::exe_ob_create(uint32_t const _i_task) {
-	ph_par.no.wstaw(ph_par.colliders.pos.get_size());
-	ph_par.colliders.pos.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
-	ph_par.colliders.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	ph_par.colliders.mtx_world.push_back(XMFLOAT4X4());
+void Physics::set_v_ob(uint32_t const _i_task) {
+	TaskSetVOb _task = *(TaskSetVOb*)task[_i_task];
+	data_e.v[data_e.no[_task.el]] = _task.v;
+	task.erase(_i_task);
+}
+void Physics::set_rot_cam(uint32_t const _i_task) {
+	XMFLOAT3 _rot = ((TaskSetRotCam*)task[_i_task])->rot;
+
+	// obrót poziomy
+	XMVECTOR _q_rot = XMQuaternionRotationRollPitchYaw(0.0f, _rot.y, 0.0f);
+	XMVECTOR _q_cam = XMLoadFloat4(&cam.q);
+	_q_cam = XMQuaternionMultiply(_q_cam, _q_rot);
+
+	// obrót pionowy
+	_q_rot = XMQuaternionRotationRollPitchYaw(_rot.x, 0.0f, 0.0f);
+	XMStoreFloat4(&cam.q, XMQuaternionMultiply(_q_rot, _q_cam));
+
+	task.erase(_i_task);
+}
+void Physics::set_loc_cam(uint32_t const _i_task) {
+}
+void Physics::set_v_cam(uint32_t const _i_task) {
+	XMFLOAT3 _v = ((TaskSetVCam*)task[_i_task])->v;
+	if(_v.x && _v.y) cam.v.z = _v.z;
+	else if(_v.x && _v.z) cam.v.y = _v.y;
+	else if(_v.y && _v.z) cam.v.x = _v.x;
+	else if(_v.x) cam.v.x = _v.x;
+	else if(_v.y) cam.v.y = _v.y;
+	else if(_v.z) cam.v.z = _v.z;
+	task.erase(_i_task);
+}
+void Physics::create_ob(uint32_t const _i_task) {
+	TaskCreateOb _task = *(TaskCreateOb*)task[_i_task];
+	data_e.loc.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
+	data_e.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	data_e.mtx_world.push_back(XMFLOAT4X4());
 	XMStoreFloat4x4(
-		&ph_par.colliders.mtx_world[ph_par.colliders.mtx_world.get_size()-1], XMMatrixIdentity()
+		&data_e.mtx_world[data_e.mtx_world.get_size()-1], XMMatrixIdentity()
 	);
-	XMFLOAT3 _t[] = {
-		XMFLOAT3(-1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, 1.0f, -1.0f),
-		XMFLOAT3(1.0f, 1.0f, -1.0f),
-		XMFLOAT3(1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, -1.0f, 1.0f),
-		XMFLOAT3(-1.0f, 1.0f, 1.0f),
-		XMFLOAT3(1.0f, 1.0f, 1.0f),
-		XMFLOAT3(1.0f, -1.0f, 1.0f),
+	data_e.mtx_wvp.push_back(XMFLOAT4X4());
+	XMStoreFloat4x4(
+		&data_e.mtx_wvp[data_e.mtx_wvp.get_size()-1], XMMatrixIdentity()
+	);
+	XMFLOAT4 _bbox[] = {
+		XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
+		XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f),
+		XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f),
+		XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f),
+		XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f),
+		XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f),
+		XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f),
+		XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f),
 	};
-	ph_par.colliders.bb.push_back(_t, 8);
-}
-void Physics::exe_ob_pick(uint32_t const _i_task) {
-	TaskObPick _z = *(TaskObPick*)task[_i_task];
-	ResultObPick _w;
-	_w.code = TASK_OB_PICK;
-	_w.hnd_ob = exe_ob(_z.x, _z.y);
-	result.push_back((uint8_t*)&_w, sizeof(_w));
+	data_e.bbox_local.push_back(_bbox, 8);
+	data_e.bbox_scr.push_back(_bbox, 8);
+	data_e.occluder.push_back(false);
+	data_e.mesh_hnd.push_back(_task.mesh_hnd);
+	data_e.tex_hnd.push_back(_task.tex_hnd);
+	data_e.mesh.create(_task.mesh_hnd);
+	data_e.tex.create(_task.tex_hnd);
+	insert_result(
+		ResultCreateOb{TASK_CREATE_OB, data_e.no.wstaw(data_e.loc.get_size()-1)}
+	);
 	task.erase(_i_task);
 }
-void Physics::exe_ob_pos(uint32_t const _i_task) {
-	TaskObPos _z = *(TaskObPos*)task[_i_task];
-	ph_par.colliders.pos[ph_par.no[_z.el]] = _z.pos;
-	task.erase(_i_task);
-}
-void Physics::exe_ob_v(uint32_t const _i_task) {
-	TaksObV _z = *(TaksObV*)task[_i_task];
-	ph_par.colliders.v[ph_par.no[_z.el]] = _z.v;
-	task.erase(_i_task);
-}
-void Physics::exe_phys_defrag(uint32_t const _i_task) {
-	task.erase(_i_task);
-}
-void Physics::exe_tasks() {
-	if(task.get_col_size() > 1) {
-		uint32_t* _mapa = 0;
-		task.sort_comp(_mapa);
-		task.sort_exe(_mapa);
-		task.erase_dupl_comp(_mapa, FunHasz<uint8_t>(), FunHasz2<uint8_t>());
-		task.sort_exe(_mapa);
-		free(_mapa);
+void Physics::detect_coll(uint32_t const _i_task) {
+	// collision detection here
+	for(uint32_t _i = 0; _i < data_e.t_coll.get_size(); ++_i) {
+		data_e.t_coll[_i] = 1.0f;
 	}
 
-	for(uint32_t _i = 0; _i < task.get_col_size(); ++_i) {
-		if(task.get_row(_i) == task.empty) continue;
-
-		switch(((Task*)task[_i])->code) {
-		case TASK_OB_POS: exe_ob_pos(_i); break;
-		case TASK_OB_V: exe_ob_v(_i); break;
-		case TASK_OB_PICK: exe_ob_pick(_i); break;
-		case TASK_OB_CREATE: exe_ob_create(_i); break;
-		case TASK_PHYS_DEFRAG: exe_phys_defrag(_i); break;
-		}
-	}
+	task.erase(_i_task);
 }
 // -------------------------------------------------------
 

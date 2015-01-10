@@ -2,6 +2,7 @@
 #include <global.h>
 #include <debugs.h>
 #include <logic.h>
+#include <DXGIDebug.h>
 // -------------------------------------------------------
 HINSTANCE uchAp;
 // -------------------------------------------------------
@@ -56,6 +57,7 @@ void PetlaWiad() {
 // -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
+	//IDXGIDebug::ReportLiveObjects();
 
 	uchAp = uchAplikacji;
 
@@ -133,17 +135,13 @@ int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR lin
 // W procesie tworzenia klatki najpierw usuwać obiekty, potem wykonywać na nich operacje (tak że gdy wykonywane są na usuniętych, to te wykonają odpowiednią czynność związaną z usunięciem danego obiektu), a dopiero potem dodawać nowe obiekty.
 // Tworzyć tekstury w jednej tablicy tekstur a nie każdą osobno.
 // Wektory: Za każdym razem kiedy jest zmiana, trzeba jawnie aktualizować nagłówek obszaru pamięci. Wykombinować jak nie aktualizować tego jawnie.
-
-// ZasobyGraf: ustawić wszystkie możliwe metody na inline.
+// Usunąć pobieranie wielkości bufora prosto z karty graficznej przy aktualizacji bufora. Transfer GPU -> CPU jest wolny. Niech rozmiar będzie trzymany po stronie CPU również.
 // Fizyka: zmienić miejsce pobierania rozmiaru obszaru klienta okna, tak aby pobierany był rzadziej.
-// Przy wybieraniu obiektu sprawdzać obszary, które zajmuje promień wyboru.
-// Zrobić defragmentację w jednym, jasnym miejscu.
-// Zrobić tekst.
-// Usunąć pobieranie wielkości bufora prosto z karty graficznej przy aktualizacji bufora. Transfer GPU -> CPU jest wolny. Niech rozmiar będzie trzymana po stronie CPU również.
-// Przerobić na jedną komendę DrawIndexed.
+// ZasobyGraf: ustawić wszystkie możliwe metody na inline.
+
 // Przetestować Wek2::wstaw_kon(Wek2) czy działa dobrze.
-// Renderować najpierw BB obiekt-u/ów, aktualizując w ten sposób bufor głębi (nie rysować wyniku, wynikiem jest zaktualizowany bufor głębi). Potem podłączyć ten bufor do PS i tam wykonać test głębi.
-// Normalne rysowanie działa. Dokończyć / sprawdzić wyk_zasl_mapa_tworz.
+// Ukladac co jakis czas (np. 60 klatek) obiekty wedlug rozmieszczenia w drzewie kolizji, lub ukladac co klatke czesc obiektow wedlug drzewa, w kolejnej klatce kolejna czesc obiektow, itd.. Pomoze to zachowac lokalnosc obiektow przy wykrywaniu kolizji. ALE ROWNIEZ SORTOWANIE WEDLUG MESH/TEX PRZED WYRYSOWANIEM.
+
 
 
 

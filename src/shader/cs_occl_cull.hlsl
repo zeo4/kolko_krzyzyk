@@ -1,11 +1,5 @@
 Texture2D<float> ds : register(t0);
 Buffer<float3> bbox : register(c0);
-
-//struct f4x4 {
-//	float4x4		mtx;
-//};
-//StructuredBuffer<f4x4> wvp : register(u2);
-
 RWBuffer<bool> is_occluder : register(u0);
 cbuffer scr_size : register(b0) {
 	uint		width;
@@ -45,6 +39,15 @@ void main(uint3 _gr : SV_GroupID) {
 	else _mip = _mip_y;
 
 	// depth test
+	for(uint _x = _left_i; _x <= _right_i; ++_x) {
+		for(uint _y = _top_i; _y <= _bottom_i; ++_y) {
+			if(_z < ds.mips[_mip][uint2(_x, _y)]) {
+				is_occluder[_gr.x] = true;
+				return;
+			}
+		}
+	}
+	is_occluder[_gr.x] = false;
 }
 
 //struct BufferStruct { uint4 color; };

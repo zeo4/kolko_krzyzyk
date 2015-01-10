@@ -37,21 +37,49 @@ void GraphDev::create_dev_ctx_chain() {
 	_chain_desc.OutputWindow = uch_okno;
 	_chain_desc.Windowed = true;
 	_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	HRESULT w = D3D11CreateDeviceAndSwapChain(
-		0, D3D_DRIVER_TYPE_HARDWARE, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 0, 0,
+	HRESULT _r = D3D11CreateDeviceAndSwapChain(
+		0, D3D_DRIVER_TYPE_HARDWARE, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_DEBUG, 0, 0,
 		D3D11_SDK_VERSION, &_chain_desc, &chain, &dev, 0, &devctx
 	);
-	if(w != S_OK) logi.pisz("", "nie stworzono karty devctx chain");
+	if(_r != S_OK) logi.pisz("", "nie stworzono karty devctx chain");
+
+	_r = dev->QueryInterface(__uuidof(ID3D11Debug), (void**)&debug);
+	if(_r != S_OK) logi.pisz("", "failed to create debug interface");
+	_r = debug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&debug_info);
+	if(_r != S_OK) logi.pisz("", "failed to create debug info queue");
+	_r = debug_info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
+	if(_r != S_OK) logi.pisz("", "failed to set debug break on corruption level");
+	_r = debug_info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
+	if(_r != S_OK) logi.pisz("", "failed to set debug break on error level");
+
+	//D3D11_MESSAGE_ID _msg_hide[] = {
+	//	D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+	//};
+	//D3D11_INFO_QUEUE_FILTER _msg_filter;
+	//memset(&_msg_filter, 0, sizeof(_msg_filter));
+	//_msg_filter.DenyList.NumIDs = 1;
+	//_msg_filter.DenyList.pIDList = _msg_hide;
+	//debug_info->AddStorageFilterEntries(&_msg_filter);
+
+	_r = DXGIGetDebugInterface1(0, __uuidof(g_analysis), reinterpret_cast<void**>(&g_analysis));
+	if(_r != S_OK) logi.pisz("", "failed to create graphics analysis interface");
 }
 void GraphDev::destroy_dev_ctx_chain() {
 	dev->Release();
 	chain->Release();
 	devctx->Release();
+	debug_info->Release();
+	//HRESULT _r = debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//if(_r != S_OK) logi.pisz("", "failed to set report live device objects details level");
+	debug->Release();
 }
 GraphDev::ScrSize GraphDev::scr_size = {640, 480};
 ID3D11Device* GraphDev::dev = 0;
 IDXGISwapChain* GraphDev::chain = 0;
 ID3D11DeviceContext* GraphDev::devctx = 0;
+ID3D11Debug* GraphDev::debug = 0;
+ID3D11InfoQueue* GraphDev::debug_info = 0;
+IDXGraphicsAnalysis* GraphDev::g_analysis = 0;
 // -------------------------------------------------------
 GraphR::ObGroup::ObGroup()
 	: wvp_tposed(new XMFLOAT4X4[1]),
@@ -59,22 +87,48 @@ GraphR::ObGroup::ObGroup()
 	wvp_srv(0),
 	bbox_buf(0),
 	bbox_srv(0),
-	is_occluder_buf(0),
-	is_occluder_uav(0),
+	occluder_buf(0),
+	occluder_uav(0),
 	vert_buf(0),
+	vert_uav(0),
 	coord_tex_buf(0),
-	ind_buf(0) {}
+	ind_buf(0),
+	test_rect_occl_buf(0),
+	test_rect_occl_uav(0),
+	test_rect_occl_srv(0),
+	test1_buf(0), 
+	test1_uav(0), 
+	test1_srv(0),
+	test2_buf(0),
+	test2_srv(0),
+	test2_uav(0),
+	test_staging_buf(0),
+	test_staging_uav(0),
+	test_staging_srv(0) {}
 GraphR::ObGroup::~ObGroup() {
 	delete[] wvp_tposed;
-	wvp_buf->Release();
-	wvp_srv->Release();
-	bbox_buf->Release();
-	bbox_srv->Release();
-	is_occluder_buf->Release();
-	is_occluder_uav->Release();
-	vert_buf->Release();
-	coord_tex_buf->Release();
-	ind_buf->Release();
+	if(wvp_buf != 0) wvp_buf->Release();
+	if(wvp_srv != 0) wvp_srv->Release();
+	if(bbox_buf != 0) bbox_buf->Release();
+	if(bbox_srv != 0) bbox_srv->Release();
+	if(occluder_buf != 0) occluder_buf->Release();
+	if(occluder_uav != 0) occluder_uav->Release();
+	if(vert_buf != 0) vert_buf->Release();
+	if(vert_uav != 0) vert_uav->Release();
+	if(coord_tex_buf != 0) coord_tex_buf->Release();
+	if(ind_buf != 0) ind_buf->Release();
+	if(test_rect_occl_buf != 0) test_rect_occl_buf->Release();
+	if(test_rect_occl_uav != 0) test_rect_occl_uav->Release();
+	if(test_rect_occl_srv != 0) test_rect_occl_srv->Release();
+	if(test1_buf != 0) test1_buf->Release();
+	if(test1_uav != 0) test1_uav->Release();
+	if(test1_srv != 0) test1_srv->Release();
+	if(test2_buf != 0) test2_buf->Release();
+	if(test2_uav != 0) test2_uav->Release();
+	if(test2_srv != 0) test2_srv->Release();
+	if(test_staging_buf != 0) test_staging_buf->Release();
+	if(test_staging_uav != 0) test_staging_uav->Release();
+	if(test_staging_srv != 0) test_staging_srv->Release();
 }
 void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _mtx_wvp, uint32_t const _size) {
 	if(_mtx_wvp == 0 || _size == 0) return;
@@ -117,7 +171,7 @@ void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _mtx_wvp, uint32_t const
 
 	devctx->UpdateSubresource(wvp_buf, 0, 0, wvp_tposed, 0, 0);
 }
-void GraphR::ObGroup::update_bbox(XMFLOAT3 const*const _bbox, uint32_t const _size) {
+void GraphR::ObGroup::update_bbox(float const*const _bbox, uint32_t const _size) {
 	if(_bbox == 0 || _size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
@@ -125,24 +179,24 @@ void GraphR::ObGroup::update_bbox(XMFLOAT3 const*const _bbox, uint32_t const _si
 	else bbox_buf->GetDesc(&_buf_desc);
 	
 	// resize buffer
-	if(_size * sizeof(XMFLOAT3) > _buf_desc.ByteWidth) {
+	if(_size * sizeof(float) > _buf_desc.ByteWidth) {
 		// buf
-		_buf_desc.ByteWidth = sizeof(XMFLOAT3) * _size;
+		_buf_desc.ByteWidth = sizeof(float) * _size;
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
 		_buf_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
 		if(bbox_buf != 0) bbox_buf->Release();
 		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &bbox_buf);
-		if(_r != S_OK) logi.pisz("", "failed to create bounding box buffer");
+		if(_r != S_OK) logi.pisz("", "failed to create bbox_buf");
 
 		// srv
-		if(bbox_srv != 0) bbox_srv->Release();
 		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
-		_srv_desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		_srv_desc.Format = DXGI_FORMAT_R32_FLOAT;
 		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		_srv_desc.Buffer.FirstElement = 0;
 		_srv_desc.Buffer.NumElements = _size;
+		if(bbox_srv != 0) bbox_srv->Release();
 		_r = dev->CreateShaderResourceView(bbox_buf, &_srv_desc, &bbox_srv);
 		if(_r != S_OK) logi.pisz("", "failed to create bbox_srv");
 	}
@@ -191,8 +245,8 @@ void GraphR::ObGroup::update_is_occluder(bool const*const _is_occluder, uint32_t
 	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
-	if(is_occluder_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
-	else is_occluder_buf->GetDesc(&_buf_desc);
+	if(occluder_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else occluder_buf->GetDesc(&_buf_desc);
 
 	if(_size * sizeof(bool) > _buf_desc.ByteWidth) {
 		// buf
@@ -201,32 +255,32 @@ void GraphR::ObGroup::update_is_occluder(bool const*const _is_occluder, uint32_t
 		_buf_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
-		if(is_occluder_buf != 0) is_occluder_buf->Release();
-		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &is_occluder_buf);
+		if(occluder_buf != 0) occluder_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &occluder_buf);
 		if(_r != S_OK) logi.pisz("", "failed to create is occluder buf");
 
 		// srv
-		if(is_occluder_srv != 0) is_occluder_srv->Release();
+		if(occluder_srv != 0) occluder_srv->Release();
 		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
 		_srv_desc.Format = DXGI_FORMAT_R8_UINT;
 		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		_srv_desc.Buffer.FirstElement = 0;
 		_srv_desc.Buffer.NumElements = _size;
-		_r = dev->CreateShaderResourceView(is_occluder_buf, &_srv_desc, &is_occluder_srv);
+		_r = dev->CreateShaderResourceView(occluder_buf, &_srv_desc, &occluder_srv);
 		if(_r != S_OK) logi.pisz("", "failed to create is occluder srv");
 
 		// uav
-		if(is_occluder_uav != 0) is_occluder_uav->Release();
+		if(occluder_uav != 0) occluder_uav->Release();
 		D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
 		_uav_desc.Format = DXGI_FORMAT_R8_UINT;
 		_uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		_uav_desc.Buffer.FirstElement = 0;
 		_uav_desc.Buffer.NumElements = _size;
 		_uav_desc.Buffer.Flags = 0;
-		_r = dev->CreateUnorderedAccessView(is_occluder_buf, &_uav_desc, &is_occluder_uav);
+		_r = dev->CreateUnorderedAccessView(occluder_buf, &_uav_desc, &occluder_uav);
 		if(_r != S_OK) logi.pisz("", "failed to create is occluder uav");
 	}
-	devctx->UpdateSubresource(is_occluder_buf, 0, 0, _is_occluder, 0, 0);
+	devctx->UpdateSubresource(occluder_buf, 0, 0, _is_occluder, 0, 0);
 }
 void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _size) {
 	if(_vert == 0 || _size == 0) return;
@@ -236,6 +290,7 @@ void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _si
 	else vert_buf->GetDesc(&_buf_desc);
 	
 	if(_size * sizeof(XMFLOAT3) > _buf_desc.ByteWidth) {
+		// buf
 		_buf_desc.ByteWidth = sizeof(XMFLOAT3) * _size;
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
 		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -270,12 +325,148 @@ void GraphR::ObGroup::bind_vert(uint32_t const _nr_szad) const {
 		devctx->IASetVertexBuffers(0, 3, _buf, _strides, _offsets);
 		break;
 	}
-	case VS_TEST: {
+	case TEST_VS_RECT_OCCL: {
 		uint32_t _strides[] = {sizeof(XMFLOAT3)};
 		uint32_t _offsets[] = {0};
 		devctx->IASetVertexBuffers(0, 1, &vert_buf, _strides, _offsets);
 	}
 	}
+}
+void GraphR::ObGroup::test_update_rect_occl(float const*const _data, uint32_t const _size) {
+	if(_size == 0) return;
+
+	D3D11_BUFFER_DESC _buf_desc;
+	if(test_rect_occl_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else test_rect_occl_buf->GetDesc(&_buf_desc);
+
+	if(_size * 4 * sizeof(XMFLOAT4) > _buf_desc.ByteWidth) {
+		// buf
+		_buf_desc.ByteWidth = _size * 4 * sizeof(XMFLOAT4);
+		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
+		_buf_desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+		_buf_desc.CPUAccessFlags = 0;
+		_buf_desc.MiscFlags = 0;
+		if(test_rect_occl_buf != 0) test_rect_occl_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &test_rect_occl_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create test_rect_occl_buf");
+
+		// uav
+		if(test_rect_occl_uav != 0) test_rect_occl_uav->Release();
+		D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
+		_uav_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		_uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		_uav_desc.Buffer.FirstElement = 0;
+		_uav_desc.Buffer.NumElements = _size * 4;
+		_uav_desc.Buffer.Flags = 0;
+		_r = dev->CreateUnorderedAccessView(test_rect_occl_buf, &_uav_desc, &test_rect_occl_uav);
+		if(_r != S_OK) logi.pisz("", "failed to create test_rect_occl_uav");
+
+		// srv
+		if(test_rect_occl_srv != 0) test_rect_occl_srv->Release();
+		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
+		_srv_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		_srv_desc.Buffer.FirstElement = 0;
+		_srv_desc.Buffer.NumElements = _size * 4;
+		_r = dev->CreateShaderResourceView(test_rect_occl_buf, &_srv_desc, &test_rect_occl_srv);
+		if(_r != S_OK) logi.pisz("", "failed to create test_rect_occl_srv");
+	}
+	if(_data != 0) devctx->UpdateSubresource(test_rect_occl_buf, 0, 0, _data, 0, 0);
+}
+void GraphR::ObGroup::test_update(float const*const _data1, uint32_t const _size, float const*const _data2) {
+	if(_size == 0) return;
+
+	D3D11_BUFFER_DESC _buf_desc;
+	if(test1_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else test1_buf->GetDesc(&_buf_desc);
+
+	if(_size * sizeof(float) > _buf_desc.ByteWidth) {
+		// buf
+		_buf_desc.ByteWidth = _size * sizeof(float);
+		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
+		_buf_desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+		_buf_desc.CPUAccessFlags = 0;
+		_buf_desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		_buf_desc.StructureByteStride = sizeof(float);
+		if(test1_buf != 0) test1_buf->Release();
+		if(test2_buf != 0) test2_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &test1_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create test_buf");
+		_r = dev->CreateBuffer(&_buf_desc, 0, &test2_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create test_buf");
+
+		// uav
+		D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
+		_uav_desc.Format = DXGI_FORMAT_UNKNOWN;
+		_uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		_uav_desc.Buffer.FirstElement = 1;
+		_uav_desc.Buffer.NumElements = _size - 1;
+		_uav_desc.Buffer.Flags = 0;
+		if(test1_uav != 0) test1_uav->Release();
+		if(test2_uav != 0) test2_uav->Release();
+		_r = dev->CreateUnorderedAccessView(test1_buf, &_uav_desc, &test1_uav);
+		if(_r != S_OK) logi.pisz("", "failed to create test_uav");
+		_r = dev->CreateUnorderedAccessView(test2_buf, &_uav_desc, &test2_uav);
+		if(_r != S_OK) logi.pisz("", "failed to create test_uav");
+
+		// srv
+		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
+		_srv_desc.Format = DXGI_FORMAT_UNKNOWN;
+		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		_srv_desc.Buffer.FirstElement = 0;
+		_srv_desc.Buffer.NumElements = _size;
+		if(test1_srv != 0) test1_srv->Release();
+		if(test2_srv != 0) test2_srv->Release();
+		_r = dev->CreateShaderResourceView(test1_buf, &_srv_desc, &test1_srv);
+		if(_r != S_OK) logi.pisz("", "failed to create test_srv");
+		_r = dev->CreateShaderResourceView(test2_buf, &_srv_desc, &test2_srv);
+		if(_r != S_OK) logi.pisz("", "failed to create test_srv");
+	}
+	if(_data1 != 0) devctx->UpdateSubresource(test1_buf, 0, 0, _data1, 0, 0);
+	if(_data2 != 0) devctx->UpdateSubresource(test2_buf, 0, 0, _data2, 0, 0);
+}
+void GraphR::ObGroup::test_update_staging(float const*const _data, uint32_t const _size) {
+	if(_size == 0) return;
+
+	D3D11_BUFFER_DESC _buf_desc;
+	if(test_staging_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else test_staging_buf->GetDesc(&_buf_desc);
+
+	if(_size * sizeof(float) > _buf_desc.ByteWidth) {
+		// buf
+		_buf_desc.ByteWidth = _size * sizeof(float);
+		_buf_desc.Usage = D3D11_USAGE_STAGING;
+		//_buf_desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+		_buf_desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+		//_buf_desc.CPUAccessFlags = 0;
+		//_buf_desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		//_buf_desc.StructureByteStride = sizeof(float);
+		if(test_staging_buf != 0) test_staging_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &test_staging_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create test_buf");
+
+		//// uav
+		//D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
+		//_uav_desc.Format = DXGI_FORMAT_R32_FLOAT;
+		//_uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		//_uav_desc.Buffer.FirstElement = 0;
+		//_uav_desc.Buffer.NumElements = _size;
+		//_uav_desc.Buffer.Flags = 0;
+		//if(test_staging_uav != 0) test_staging_uav->Release();
+		//_r = dev->CreateUnorderedAccessView(test_staging_buf, &_uav_desc, &test_staging_uav);
+		//if(_r != S_OK) logi.pisz("", "failed to create test_uav");
+
+		//// srv
+		//D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
+		//_srv_desc.Format = DXGI_FORMAT_R32_FLOAT;
+		//_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		//_srv_desc.Buffer.FirstElement = 0;
+		//_srv_desc.Buffer.NumElements = _size;
+		//if(test_staging_srv != 0) test_staging_srv->Release();
+		//_r = dev->CreateShaderResourceView(test_staging_buf, &_srv_desc, &test_staging_srv);
+		//if(_r != S_OK) logi.pisz("", "failed to create test_srv");
+	}
+	if(_data != 0) devctx->UpdateSubresource(test_staging_buf, 0, 0, _data, 0, 0);
 }
 // -------------------------------------------------------
 GraphR::GraphR()
@@ -284,8 +475,7 @@ GraphR::GraphR()
 	ds_dsv(0),
 	ds_srv(0),
 	back_buf_rtv(0),
-	ss(0),
-	buf_per_frame(0) {}
+	ss(0) {}
 GraphR::~GraphR() {
 	for(uint32_t _i = 0; _i < vs.get_size(); ++_i) {
 		vs[_i]->Release();
@@ -302,10 +492,6 @@ GraphR::~GraphR() {
 	for(uint32_t _i = 0; _i < in_lay.get_size(); ++_i) {
 		in_lay[_i]->Release();
 	}
-	buf_per_frame->Release();
-}
-void GraphR::bind_per_frame() const {
-	devctx->VSSetConstantBuffers(0, 1, &buf_per_frame);
 }
 void GraphR::bind_prim_topol() const {
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -329,12 +515,12 @@ void GraphR::create_back_buf() {
 void GraphR::create_buf_struct() {
 	//struct BufferStruct { UINT color[4]; };
 	//D3D11_BUFFER_DESC sbDesc;
+	//sbDesc.ByteWidth = sizeof(BufferStruct) * THREAD_GRID_SIZE_X * THREAD_GRID_SIZE_Y;
+	//sbDesc.Usage = D3D11_USAGE_DEFAULT;
 	//sbDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 	//sbDesc.CPUAccessFlags = 0;
 	//sbDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	//sbDesc.StructureByteStride = sizeof(BufferStruct);
-	//sbDesc.ByteWidth = sizeof(BufferStruct) * THREAD_GRID_SIZE_X * THREAD_GRID_SIZE_Y;
-	//sbDesc.Usage = D3D11_USAGE_DEFAULT;
 	////InitData.pSysMem = NULL;
 	//HRESULT hr = dev->CreateBuffer(&sbDesc, NULL, &buf_struct);
 
@@ -415,7 +601,7 @@ void GraphR::create_in_lay() {
 	HRESULT _r;
 	vector<byte> _shad_bytes;
 	{
-		// IN_F4
+		// IN_F3
 		D3D11_INPUT_ELEMENT_DESC _desc[] = {
 			{"VERT_COORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
@@ -423,11 +609,11 @@ void GraphR::create_in_lay() {
 		_shad_bytes.clear();
 		_shad_bytes = read_bytes("shader\\vs_test.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
-		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F4]);
+		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F3]);
 		if(_r != S_OK) logi.pisz("", "input layout not created");
 	}
 	{
-		// IN_F4F2
+		// IN_F3F2
 		D3D11_INPUT_ELEMENT_DESC _desc[] = {
 			{"VERT_COORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"TEX_COORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -436,11 +622,11 @@ void GraphR::create_in_lay() {
 		_shad_bytes.clear();
 		_shad_bytes = read_bytes("shader\\vs_pass_on.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
-		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F4F2]);
+		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F3F2]);
 		if(_r != S_OK) logi.pisz("", "input layout not created");
 	}
 	{
-		// IN_F4F44
+		// IN_F3F44
 		D3D11_INPUT_ELEMENT_DESC _desc[] = {
 			{"VERT_COORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"WVP", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1},
@@ -452,11 +638,11 @@ void GraphR::create_in_lay() {
 		_shad_bytes.clear();
 		_shad_bytes = read_bytes("shader\\vs_tform.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
-		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F4F44]);
+		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F3F44]);
 		if(_r != S_OK) logi.pisz("", "input layout not created");
 	}
 	{
-		// IN_F4F2F44
+		// IN_F3F2F44
 		D3D11_INPUT_ELEMENT_DESC _desc[] = {
 			{"VERT_COORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"TEX_COORD", 0, DXGI_FORMAT_R32G32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -469,7 +655,7 @@ void GraphR::create_in_lay() {
 		_shad_bytes.clear();
 		_shad_bytes = read_bytes("shader\\vs_tform_tex.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
-		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F4F2F44]);
+		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F3F2F44]);
 		if(_r != S_OK) logi.pisz("", "input structure not created");
 	}
 }
@@ -492,6 +678,12 @@ void GraphR::create_cs() {
 	vector<byte> _shad_bytes = read_bytes("shader\\cs_occl_cull.cso");
 	HRESULT _r = dev->CreateComputeShader(&_shad_bytes[0], _shad_bytes.size(), 0, &cs[CS_OCCL_CULL]);
 	if(_r != S_OK) logi.pisz("", "compute shader not created");
+
+	// TEST_CS_RECT_OCCL
+	cs.push_back(0);
+	_shad_bytes = read_bytes("shader\\test_cs_rect_occl.cso");
+	_r = dev->CreateComputeShader(&_shad_bytes[0], _shad_bytes.size(), 0, &cs[TEST_CS_RECT_OCCL]);
+	if(_r != S_OK) logi.pisz("", "compute shader not created");
 }
 void GraphR::create_ps() {
 	// PS_SAMPLE_TEX
@@ -507,11 +699,11 @@ void GraphR::create_ps() {
 	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[PS_WRITE_DEPTH]);
 	if(_r != S_OK) logi.pisz("", "pixel shader not created");
 
-	// PS_TEST
+	// TEST_PS_RECT_OCCL
 	_shad_bytes.clear();
-	_shad_bytes = read_bytes("shader\\ps_test.cso");
+	_shad_bytes = read_bytes("shader\\test_ps_rect_occl.cso");
 	ps.push_back(0);
-	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[PS_TEST]);
+	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[TEST_PS_RECT_OCCL]);
 	if(_r != S_OK) logi.pisz("", "pixel shader not created");
 }
 void GraphR::create_vs() {
@@ -539,11 +731,11 @@ void GraphR::create_vs() {
 	_r = dev->CreateVertexShader(&_shad_bytes[0], _shad_bytes.size(), 0, &vs[VS_TFORM_TEX]);
 	if(_r != S_OK) logi.pisz("", "vertex shader not created");
 
-	// VS_TEST
+	// TEST_VS_RECT_OCCL
 	vs.push_back(0);
 	_shad_bytes.clear();
-	_shad_bytes = read_bytes("shader\\vs_test.cso");
-	_r = dev->CreateVertexShader(&_shad_bytes[0], _shad_bytes.size(), 0, &vs[VS_TEST]);
+	_shad_bytes = read_bytes("shader\\test_vs_rect_occl.cso");
+	_r = dev->CreateVertexShader(&_shad_bytes[0], _shad_bytes.size(), 0, &vs[TEST_VS_RECT_OCCL]);
 	if(_r != S_OK) logi.pisz("", "vertex shader not created");
 }
 void GraphR::create_viewport() {
@@ -718,11 +910,11 @@ void Textures::destroy(uint32_t const _hnd) {
 char const*const Textures::get_path(uint32_t const _hnd) const {
 	switch(_hnd) {
 	case TEX_TRI:
-		return "tekstury/kursor.jpg";
+		return "texture/cursor.jpg";
 	case TEX_RECT:
-		return "tekstury/kwadrat.jpg";
+		return "texture/rectangle.jpg";
 	case TEX_DIAMENT:
-		return "tekstury/diament.jpg";
+		return "texture/diament.jpg";
 	}
 }
 void Textures::sort_comp(uint32_t*& _map) {
@@ -735,26 +927,23 @@ void Textures::sort_comp(uint32_t*& _map) {
 	}
 }
 // -------------------------------------------------------
-GraphP::~GraphP() {
+DataEngine::Data::~Data() {
 	no.destroy();
-	ob.mesh_hnd.destroy();
-	ob.tex_hnd.destroy();
-	ob.mesh_hnd.destroy();
-	ob.tex_hnd.destroy();
+	loc.destroy();
+	v.destroy();
+	mtx_world.destroy();
+	mtx_wvp.destroy();
+	bbox_local.destroy();
+	bbox_scr.destroy();
+	occluder.destroy();
+	mesh_hnd.destroy();
+	tex_hnd.destroy();
 }
-GraphP GraphPar::g_par;
-// -------------------------------------------------------
-PhysP::~PhysP() {
-	no.destroy();
-	colliders.pos.destroy();
-	colliders.v.destroy();
-	colliders.mtx_world.destroy();
-}
-PhysP PhysPar::ph_par;
+DataEngine::Data DataEngine::data_e;
 // -------------------------------------------------------
 Cam::Cam()
-	: quat(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)),
-	pos(XMFLOAT3(0.0f, 0.0f, -0.5f)),
+	: q(XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)),
+	loc(XMFLOAT3(0.0f, 0.0f, -0.5f)),
 	fov(90),
 	near_z(0.5f),
 	far_z(100.0f) {}

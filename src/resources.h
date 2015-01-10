@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <windows.h>
+#include <global.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <vec.h>
@@ -9,27 +9,35 @@
 #include <string>
 using namespace DirectX;
 // -------------------------------------------------------
+interface DECLSPEC_UUID("9f251514-9d4d-4902-9d60-18988ab7d4b5") DECLSPEC_NOVTABLE
+IDXGraphicsAnalysis : public IUnknown
+{
+    STDMETHOD_(void, BeginCapture)() PURE;
+    STDMETHOD_(void, EndCapture)() PURE;
+};
+// -------------------------------------------------------
 vector<byte> read_bytes(string);
 // -------------------------------------------------------
 enum InLayNo {
-	IN_F4,
-	IN_F4F2,
-	IN_F4F44,
-	IN_F4F2F44,
+	IN_F3,
+	IN_F3F2,
+	IN_F3F44,
+	IN_F3F2F44,
 };
 enum CSNo {
 	CS_OCCL_CULL,
+	TEST_CS_RECT_OCCL,
 };
 enum VSNo {
 	VS_PASS_ON,
 	VS_TFORM,
 	VS_TFORM_TEX,
-	VS_TEST,
+	TEST_VS_RECT_OCCL,
 };
 enum PSNo {
 	PS_SAMPLE_TEX,
 	PS_WRITE_DEPTH,
-	PS_TEST,
+	TEST_PS_RECT_OCCL,
 };
 // -------------------------------------------------------
 class GraphDev {
@@ -45,6 +53,9 @@ protected:
 	static ID3D11Device*			dev;
 	static IDXGISwapChain*			chain;
 	static ID3D11DeviceContext*		devctx;
+	static ID3D11Debug*				debug;
+	static ID3D11InfoQueue*			debug_info;
+	static IDXGraphicsAnalysis*		g_analysis;
 };
 // -------------------------------------------------------
 struct GraphR : public GraphDev {
@@ -53,7 +64,7 @@ struct GraphR : public GraphDev {
 										~ObGroup();
 		void							update_wvp(XMFLOAT4X4 const*const,
 											uint32_t const);
-		void							update_bbox(XMFLOAT3 const*const, uint32_t const);
+		void							update_bbox(float const*const, uint32_t const);
 		void							update_is_occluder(bool const*const,
 											uint32_t const);
 		void							update_vert(XMFLOAT3 const*const, uint32_t const);
@@ -66,12 +77,31 @@ struct GraphR : public GraphDev {
 		ID3D11ShaderResourceView*		wvp_srv;
 		ID3D11Buffer*					bbox_buf;
 		ID3D11ShaderResourceView*		bbox_srv;
-		ID3D11Buffer*					is_occluder_buf;
-		ID3D11ShaderResourceView*		is_occluder_srv;
-		ID3D11UnorderedAccessView*		is_occluder_uav;
+		ID3D11Buffer*					occluder_buf;
+		ID3D11UnorderedAccessView*		occluder_uav;
+		ID3D11ShaderResourceView*		occluder_srv;
 		ID3D11Buffer*					vert_buf;
+		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;
 		ID3D11Buffer*					ind_buf;
+		void							test_update_rect_occl(float const*const,
+											uint32_t const);
+		void							test_update(float const*const, uint32_t const,
+											float const*const);
+		void							test_update_staging(float const*const,
+											uint32_t const);
+		ID3D11Buffer*					test_rect_occl_buf;
+		ID3D11UnorderedAccessView*		test_rect_occl_uav;
+		ID3D11ShaderResourceView*		test_rect_occl_srv;
+		ID3D11Buffer*					test1_buf;
+		ID3D11UnorderedAccessView*		test1_uav;
+		ID3D11ShaderResourceView*		test1_srv;
+		ID3D11Buffer*					test2_buf;
+		ID3D11UnorderedAccessView*		test2_uav;
+		ID3D11ShaderResourceView*		test2_srv;
+		ID3D11Buffer*					test_staging_buf;
+		ID3D11UnorderedAccessView*		test_staging_uav;
+		ID3D11ShaderResourceView*		test_staging_srv;
 	};
 										GraphR();
 										~GraphR();
@@ -88,10 +118,8 @@ struct GraphR : public GraphDev {
 	void								bind_ss() const;
 	void								bind_viewport() const;
 	void								bind_prim_topol() const;
-	void								bind_per_frame() const;
 	ID3D11Buffer*						buf_struct;
 	ID3D11Buffer*						scr_size_buf;
-	ID3D11Buffer*						buf_per_frame;
 	ID3D11RenderTargetView*				back_buf_rtv;
 	ID3D11Texture2D*					ds_tex2;
 	ID3D11DepthStencilView*				ds_dsv;
@@ -206,46 +234,32 @@ void Textures::sort_exe(uint32_t const*const _map) {
 	view.sort_exe(_map);
 }
 // -------------------------------------------------------
-struct GraphP {
-	struct ObGroup {
+struct DataEngine {
+	struct Data {
+							~Data();
+		UchPula				no;
+		Vec<XMFLOAT3>		loc;
+		Vec<XMFLOAT3>		v;
+		Vec<XMFLOAT4X4>		mtx_world;
+		Vec<XMFLOAT4X4>		mtx_wvp;
+		Vec2<XMFLOAT4>		bbox_local;
+		Vec2<XMFLOAT4>		bbox_scr;
+		Vec<float>			t_coll;
+		Vec<bool>			occluder;
 		Vec<uint32_t>		mesh_hnd;
 		Vec<uint32_t>		tex_hnd;
 		Meshes				mesh;
 		Textures			tex;
-		Vec<XMFLOAT4X4>		mtx_world;
-		Vec<XMFLOAT4X4>		mtx_wvp;
-		Vec2<XMFLOAT3>		bbox;
-		Vec<bool>			is_occluder;
 	};
-							~GraphP();
-	UchPula					no;
-	ObGroup					ob;
-};
-struct GraphPar {
-	static GraphP		g_par;
-};
-// -------------------------------------------------------
-struct PhysP {
-	struct Group {
-		Vec<XMFLOAT3>		pos;
-		Vec<XMFLOAT3>		v;
-		Vec<XMFLOAT4X4>		mtx_world;
-		Vec2<XMFLOAT3>		bb;
-	};
-				~PhysP();
-	UchPula		no;
-	Group		colliders;
-};
-struct PhysPar {
-	static PhysP		ph_par;
+	static Data				data_e;
 };
 // -------------------------------------------------------
 struct Cam {
 					Cam();
 	XMFLOAT4X4		mtx_view;
 	XMFLOAT4X4		mtx_proj;
-	XMFLOAT4		quat;
-	XMFLOAT3		pos;
+	XMFLOAT4		q;
+	XMFLOAT3		loc;
 	XMFLOAT3		v;
 	float			fov;
 	float			near_z;
@@ -255,11 +269,11 @@ struct Camera {
 	static Cam		cam;
 };
 // -------------------------------------------------------
-struct GameData {
+struct DataGame {
 	uint32_t		hnd_picked;
 };
 // -------------------------------------------------------
-struct InputData {
+struct DataInput {
 	bool		flg_mouse;
 };
 // -------------------------------------------------------

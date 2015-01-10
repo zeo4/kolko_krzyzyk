@@ -6,23 +6,25 @@
 #include <resources.h>
 #include <tasks.h>
 // -------------------------------------------------------
-class Physics : protected Tasks, protected Camera, protected GraphPar, protected PhysPar {
+class Physics : protected Tasks, protected Camera, protected DataEngine {
 public:
-	void			exe_tasks();
+	void			do_tasks();
 protected:
-	void			exe_ob_pos(uint32_t const);
-	void			exe_ob_v(uint32_t const);
-	void			exe_ob_pick(uint32_t const);
-	void			exe_ob_create(uint32_t const);
-	void			exe_phys_defrag(uint32_t const);
-	void			comp_ray_click(XMVECTOR&, XMVECTOR&,
+	void			pick_ob(uint32_t const);
+	void			compute_ray_click(XMVECTOR&, XMVECTOR&,
 						uint32_t const&, uint32_t const&) const;
-	float			comp_ray_ob(XMVECTOR const&, XMVECTOR const&,
+	float			compute_ray_ob(XMVECTOR const&, XMVECTOR const&,
 						uint32_t const&) const;
-	float			comp_ray_tri(XMVECTOR const&, XMVECTOR const&,
+	float			compute_ray_tri(XMVECTOR const&, XMVECTOR const&,
 						CXMVECTOR const&, CXMVECTOR const&,
 						CXMVECTOR const&) const;
-	uint32_t		exe_ob(uint32_t const&, uint32_t const&) const;
+	void			set_loc_ob(uint32_t const);
+	void			set_v_ob(uint32_t const);
+	void			set_rot_cam(uint32_t const);
+	void			set_loc_cam(uint32_t const);
+	void			set_v_cam(uint32_t const);
+	void			create_ob(uint32_t const);
+	void			detect_coll(uint32_t const);
 };
 // -------------------------------------------------------
 

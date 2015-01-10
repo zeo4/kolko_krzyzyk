@@ -8,17 +8,18 @@
 // -------------------------------------------------------
 class World : protected GraphRes, protected Tasks {
 public:
-							World();
-							~World();
-	void					exe_tasks();
+					World();
+					~World();
+	void			do_tasks();
 protected:
-	void					exe_ob_pos(uint32_t const);
-	void					exe_ob_v(uint32_t const);
-	void					exe_cam_v(uint32_t const);
-	void					exe_cam_rot(uint32_t const);
-	void					exe_ob_create(uint32_t const);
-	Physics*				phys;
-	Graphics*				graph;
+	void			set_loc_ob(uint32_t const);
+	void			set_v_ob(uint32_t const);
+	void			set_rot_cam(uint32_t const);
+	void			set_loc_cam(uint32_t const);
+	void			set_v_cam(uint32_t const);
+	void			create_ob(uint32_t const);
+	Physics*		phys;
+	Graphics*		graph;
 public:
 	//void					dodaj(IObiekt* const);
 	//void					wezObPromien(IObiekt** const, Obiekt3w const* const) const;
