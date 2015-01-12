@@ -12,9 +12,7 @@ protected:
 	void		update_pos_ob(uint32_t const);
 	void		cull_occl(uint32_t const);
 	void		draw(uint32_t const);
-	void		test_compute_rect_occl();
-	void		test_draw_rect_occl();
-	void		test();
+	//void		test_vsga();
 
 	void		do_cam_update_pos(uint32_t const);
 	void		draw_previous();

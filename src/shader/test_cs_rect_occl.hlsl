@@ -1,12 +1,15 @@
 struct A {float val;};
 
-Buffer<float> bbox : register(c0);
-RWStructuredBuffer<A> test1 : register(u2);
-RWStructuredBuffer<A> test2 : register(u0);
-RWBuffer<float> rect : register (u1);
+//Buffer<float> bbox : register(c0);
+RWStructuredBuffer<A> test1 : register(u0);
+RWStructuredBuffer<A> test2 : register(u1);
+RWBuffer<float> rect : register (u2);
 
 [numthreads(1, 1, 1)]
 void main(uint3 _gr : SV_GroupID) {
+	float a = test1[0].val;
+	a = test2[0].val +a-a;
+	rect[0] = a;
 	//uint _bbox_offset = _gr.x * 8;
 	//uint _rect_offset = _gr.x * 16;
 
@@ -23,18 +26,6 @@ void main(uint3 _gr : SV_GroupID) {
 	//	else if(bbox[_bbox_offset + _i].y > _top_f) _top_f = bbox[_bbox_offset + _i].y;
 	//	if(bbox[_bbox_offset + _i].z < _near_f) _near_f = bbox[_bbox_offset + _i].z;
 	//}
-	float a = test1[1].val + bbox[0]-bbox[0];
-	//float b = test1[_gr.x + 1];
-	//float c = test1[_gr.x + 2];
-	a = test2[1].val +a-a;
-	//b = test2[_gr.x + 1] +b-b;
-	//c = test2[_gr.x + 2] +c-c;
-	rect[0] = a;
-	//rect[_gr.x + 1] = b;
-	//rect[_gr.x + 2] = c;
-	//test1[_gr.x] = +a-a;
-	//test1[_gr.x + 1] = +b-b;
-	//test1[_gr.x + 2] = +c-c;
 }
 
 

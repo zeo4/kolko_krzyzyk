@@ -1,112 +1,10 @@
 #pragma once
-#pragma comment (lib, "gdi32.lib")
-#pragma comment (lib, "user32.lib")
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dx11.lib")
-#include <windows.h>
-#include <DirectXMath.h>
-#include <d3d11.h>
-#include <d3dx11.h>
-using namespace DirectX;
-//#include <global.h>
-//#include <debugs.h>
-//#include <logic.h>
+#include <global.h>
+#include <debugs.h>
+#include <logic.h>
 //#include <DXGIDebug.h>
 // -------------------------------------------------------
 HINSTANCE uchAp;
-HWND uch_okno;
-float color;
-// -------------------------------------------------------
-void test() {
-	IDXGISwapChain* _chain;
-	ID3D11Device* _dev;
-	ID3D11DeviceContext* _devctx;
-	ID3D11RenderTargetView* _rtv;
-	ID3D11Texture2D* _back_buf;
-	ID3D10Blob* _vs_buf;
-	ID3D10Blob* _ps_buf;
-	ID3D11VertexShader* _vs;
-	ID3D11PixelShader* _ps;
-	ID3D11InputLayout* _in_lay;
-	ID3D11Buffer* _vert_buf;
-
-	DXGI_MODE_DESC _desc;
-	ZeroMemory(&_desc, sizeof(DXGI_MODE_DESC));
-	_desc.Width = 640;
-	_desc.Height = 480;
-	_desc.RefreshRate.Numerator = 60;
-	_desc.RefreshRate.Denominator = 1;
-	_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	_desc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	_desc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	DXGI_SWAP_CHAIN_DESC _chain_desc;
-	ZeroMemory(&_chain_desc, sizeof(DXGI_SWAP_CHAIN_DESC));
-	_chain_desc.BufferDesc = _desc;
-	_chain_desc.SampleDesc.Count = 1;
-	_chain_desc.SampleDesc.Quality = 0;
-	_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	_chain_desc.BufferCount = 1;
-	_chain_desc.OutputWindow = uch_okno;
-	_chain_desc.Windowed = TRUE; 
-	_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	HRESULT _r = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL, D3D11_SDK_VERSION, &_chain_desc, &_chain, &_dev, NULL, &_devctx);
-	_r = _chain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&_back_buf);
-	_r = _dev->CreateRenderTargetView(_back_buf, NULL, &_rtv);
-	_back_buf->Release();
-	_devctx->OMSetRenderTargets(1, &_rtv, NULL);
-	_r = D3DX11CompileFromFile("shader\\effects.fx", 0, 0, "VS", "vs_4_0", 0, 0, 0, &_vs_buf, 0, 0);
-	_r = D3DX11CompileFromFile("shader\\effects.fx", 0, 0, "PS", "ps_4_0", 0, 0, 0, &_ps_buf, 0, 0);
-	_r = _dev->CreateVertexShader(_vs_buf->GetBufferPointer(), _vs_buf->GetBufferSize(), NULL, &_vs);
-	_r = _dev->CreatePixelShader(_ps_buf->GetBufferPointer(), _ps_buf->GetBufferSize(), NULL, &_ps);
-	_devctx->VSSetShader(_vs, 0, 0);
-	_devctx->PSSetShader(_ps, 0, 0);
-	XMFLOAT3 _v[] = {
-		XMFLOAT3(-1.0f, -1.0f, 4.0f),
-		XMFLOAT3(-1.0f, 1.0f, 4.0f),
-		XMFLOAT3(1.0f, 1.0f, 4.0f),
-	};
-	D3D11_BUFFER_DESC _vert_buf_desc;
-	ZeroMemory(&_vert_buf_desc, sizeof(_vert_buf_desc));
-	_vert_buf_desc.Usage = D3D11_USAGE_DEFAULT;
-	_vert_buf_desc.ByteWidth = sizeof(XMFLOAT3) * 3;
-	_vert_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	_vert_buf_desc.CPUAccessFlags = 0;
-	_vert_buf_desc.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA _vert_init_data; 
-	ZeroMemory(&_vert_init_data, sizeof(_vert_init_data));
-	_vert_init_data.pSysMem = _v;
-	_r = _dev->CreateBuffer(&_vert_buf_desc, &_vert_init_data, &_vert_buf);
-	uint32_t _stride = sizeof(XMFLOAT3);
-	uint32_t _offset = 0;
-	_devctx->IASetVertexBuffers(0, 1, &_vert_buf, &_stride, &_offset);
-	D3D11_INPUT_ELEMENT_DESC _lay[] = {
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
-	_dev->CreateInputLayout(_lay, 1, _vs_buf->GetBufferPointer(), _vs_buf->GetBufferSize(), &_in_lay);
-	_devctx->IASetInputLayout(_in_lay);
-	_devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	D3D11_VIEWPORT _viewport;
-	ZeroMemory(&_viewport, sizeof(D3D11_VIEWPORT));
-	_viewport.TopLeftX = 0;
-	_viewport.TopLeftY = 0;
-	_viewport.Width = 640;
-	_viewport.Height = 480;
-	_devctx->RSSetViewports(1, &_viewport);
-	float _color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	_devctx->ClearRenderTargetView(_rtv, _color);
-	_devctx->Draw(3, 0);
-	_chain->Present(0, 0);
-	_rtv->Release();
-	_vs_buf->Release();
-	_ps_buf->Release();
-	_vs->Release();
-	_ps->Release();
-	_in_lay->Release();
-	_vert_buf->Release();
-	_dev->Release();
-	_devctx->Release();
-	_chain->Release();
-}
 // -------------------------------------------------------
 LRESULT CALLBACK ProcOknoGl(HWND _uch_okno, UINT wiad, WPARAM paramW, LPARAM paramL) {
 	// indywidualna obsługa wiadomości
@@ -134,8 +32,8 @@ void PetlaWiad() {
 	// struktura wiadomości
 	MSG wiad;
 
-	//Logika logika;
-	//logika.init_scene();
+	Logika logika;
+	logika.init_scene();
 
 	while(1){
 		// gdy wiadomość w kolejce
@@ -144,7 +42,7 @@ void PetlaWiad() {
 			if(wiad.message == WM_QUIT) {
 				break;
 			}
-			//logika.handle_input(wiad);
+			logika.handle_input(wiad);
 			// przerób na wiadomość tekstową
 			TranslateMessage(&wiad);
 			// ślij wiadomość
@@ -152,8 +50,7 @@ void PetlaWiad() {
 		// gdy brak wiadomości w kolejce
 		}else{
 			// rysuj scenę
-			test();
-			//logika.exe();
+			logika.exe();
 		}
 	}
 }

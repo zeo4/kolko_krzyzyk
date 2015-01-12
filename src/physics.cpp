@@ -144,37 +144,37 @@ void Physics::set_v_cam(uint32_t const _i_task) {
 	task.erase(_i_task);
 }
 void Physics::create_ob(uint32_t const _i_task) {
-	//TaskCreateOb _task = *(TaskCreateOb*)task[_i_task];
-	//data_e.loc.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
-	//data_e.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	//data_e.mtx_world.push_back(XMFLOAT4X4());
-	//XMStoreFloat4x4(
-	//	&data_e.mtx_world[data_e.mtx_world.get_size()-1], XMMatrixIdentity()
-	//);
-	//data_e.mtx_wvp.push_back(XMFLOAT4X4());
-	//XMStoreFloat4x4(
-	//	&data_e.mtx_wvp[data_e.mtx_wvp.get_size()-1], XMMatrixIdentity()
-	//);
-	//XMFLOAT4 _bbox[] = {
-	//	XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
-	//	XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f),
-	//	XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f),
-	//	XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f),
-	//	XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f),
-	//	XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f),
-	//	XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f),
-	//	XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f),
-	//};
-	//data_e.bbox_local.push_back(_bbox, 8);
-	//data_e.bbox_scr.push_back(_bbox, 8);
-	//data_e.occluder.push_back(false);
-	//data_e.mesh_hnd.push_back(_task.mesh_hnd);
-	//data_e.tex_hnd.push_back(_task.tex_hnd);
-	//data_e.mesh.create(_task.mesh_hnd);
-	//data_e.tex.create(_task.tex_hnd);
-	//insert_result(
-	//	ResultCreateOb{TASK_CREATE_OB, data_e.no.wstaw(data_e.loc.get_size()-1)}
-	//);
+	TaskCreateOb _task = *(TaskCreateOb*)task[_i_task];
+	data_e.loc.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
+	data_e.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	data_e.mtx_world.push_back(XMFLOAT4X4());
+	XMStoreFloat4x4(
+		&data_e.mtx_world[data_e.mtx_world.get_size()-1], XMMatrixIdentity()
+	);
+	data_e.mtx_wvp.push_back(XMFLOAT4X4());
+	XMStoreFloat4x4(
+		&data_e.mtx_wvp[data_e.mtx_wvp.get_size()-1], XMMatrixIdentity()
+	);
+	XMFLOAT4 _bbox[] = {
+		XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
+		XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f),
+		XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f),
+		XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f),
+		XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f),
+		XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f),
+		XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f),
+		XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f),
+	};
+	data_e.bbox_local.push_back(_bbox, 8);
+	data_e.bbox_scr.push_back(_bbox, 8);
+	data_e.occluder.push_back(false);
+	data_e.mesh_hnd.push_back(_task.mesh_hnd);
+	data_e.tex_hnd.push_back(_task.tex_hnd);
+	data_e.mesh.create(_task.mesh_hnd);
+	data_e.tex.create(_task.tex_hnd);
+	insert_result(
+		ResultCreateOb{TASK_CREATE_OB, data_e.no.wstaw(data_e.loc.get_size()-1)}
+	);
 	task.erase(_i_task);
 }
 void Physics::detect_coll(uint32_t const _i_task) {

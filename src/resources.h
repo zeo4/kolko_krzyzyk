@@ -84,29 +84,13 @@ struct GraphR : public GraphDev {
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;
 		ID3D11Buffer*					ind_buf;
-		void							test_update_rect_occl(float const*const,
-											uint32_t const);
-		void							test_update(float const*const, uint32_t const,
-											float const*const);
-		void							test_update_staging(float const*const,
-											uint32_t const);
-		ID3D11Buffer*					test_rect_occl_buf;
-		ID3D11UnorderedAccessView*		test_rect_occl_uav;
-		ID3D11ShaderResourceView*		test_rect_occl_srv;
-		ID3D11Buffer*					test1_buf;
-		ID3D11UnorderedAccessView*		test1_uav;
-		ID3D11ShaderResourceView*		test1_srv;
-		ID3D11Buffer*					test2_buf;
-		ID3D11UnorderedAccessView*		test2_uav;
-		ID3D11ShaderResourceView*		test2_srv;
-		ID3D11Buffer*					test_staging_buf;
-		ID3D11UnorderedAccessView*		test_staging_uav;
-		ID3D11ShaderResourceView*		test_staging_srv;
+		//void							test_vsga_update(float const*const, uint32_t const,
+		//									float const*const);
 	};
 										GraphR();
 										~GraphR();
 	void								create_ds();
-	void								create_back_buf();
+	void								create_rtv();
 	void								create_buf_struct();
 	void								create_scr_size();
 	void								create_viewport();
@@ -120,7 +104,7 @@ struct GraphR : public GraphDev {
 	void								bind_prim_topol() const;
 	ID3D11Buffer*						buf_struct;
 	ID3D11Buffer*						scr_size_buf;
-	ID3D11RenderTargetView*				back_buf_rtv;
+	ID3D11RenderTargetView*				rtv;
 	ID3D11Texture2D*					ds_tex2;
 	ID3D11DepthStencilView*				ds_dsv;
 	ID3D11ShaderResourceView*			ds_srv;
