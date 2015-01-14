@@ -25,58 +25,76 @@ void Graphics::do_tasks() {
 	}
 }
 void Graphics::update_pos_ob(uint32_t const _i_task) {
-	//XMMATRIX _mtx_temp;
+	XMMATRIX _mtx_temp;
 
-	//// cam
-	//XMMATRIX _mtx_view = XMMatrixLookAtLH (
-	//	XMLoadFloat3(&cam.loc),
-	//	XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMLoadFloat4(&cam.q)) + XMLoadFloat3(&cam.loc),
-	//	XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMLoadFloat4(&cam.q))
-	//);
-	//XMMATRIX _mtx_proj = XMMatrixPerspectiveFovLH(
-	//	cam.fov * 3.14f/180, float(scr_size.width)/scr_size.height, cam.near_z, cam.far_z
-	//);
+	// cam
+	XMMATRIX _mtx_view = XMMatrixLookAtLH (
+		XMLoadFloat3(&cam.loc),
+		XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMLoadFloat4(&cam.q)) + XMLoadFloat3(&cam.loc),
+		XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMLoadFloat4(&cam.q))
+	);
+	XMMATRIX _mtx_proj = XMMatrixPerspectiveFovLH(
+		cam.fov * 3.14f/180, float(scr_size.width)/scr_size.height, cam.near_z, cam.far_z
+	);
 
-	//// ob
-	//for(uint32_t _i = 0; _i < data_e.mtx_world.get_size(); ++_i) {
-	//	// loc
-	//	XMStoreFloat3(&data_e.loc[_i],
-	//		XMLoadFloat3(&data_e.loc[_i]) + XMLoadFloat3(&data_e.v[_i])
-	//	);
+	// ob
+	for(uint32_t _i = 0; _i < data_e.mtx_world.get_size(); ++_i) {
+		// loc
+		XMStoreFloat3(&data_e.loc[_i],
+			XMLoadFloat3(&data_e.loc[_i]) + XMLoadFloat3(&data_e.v[_i])
+		);
 
-	//	// world
-	//	data_e.mtx_world[_i]._41 = data_e.loc[_i].x;
-	//	data_e.mtx_world[_i]._42 = data_e.loc[_i].y;
-	//	data_e.mtx_world[_i]._43 = data_e.loc[_i].z;
+		// world
+		data_e.mtx_world[_i]._41 = data_e.loc[_i].x;
+		data_e.mtx_world[_i]._42 = data_e.loc[_i].y;
+		data_e.mtx_world[_i]._43 = data_e.loc[_i].z;
 
-	//	// wvp
-	//	_mtx_temp = XMLoadFloat4x4(&data_e.mtx_world[_i]) * _mtx_view * _mtx_proj;
-	//	XMStoreFloat4x4(&data_e.mtx_wvp[_i], _mtx_temp);
+		// wvp
+		_mtx_temp = XMLoadFloat4x4(&data_e.mtx_world[_i]) * _mtx_view * _mtx_proj;
+		XMStoreFloat4x4(&data_e.mtx_wvp[_i], _mtx_temp);
 
-	//	// screen space bbox
-	//	for(uint32_t _j = 0; _j < 8; ++_j) {
-	//		XMStoreFloat4(&data_e.bbox_scr[_i][_j], XMVector3TransformCoord(XMLoadFloat4(&data_e.bbox_local[_i][_j]), _mtx_temp));
-	//	}
-	//}
+		// screen space bbox
+		for(uint32_t _j = 0; _j < 8; ++_j) {
+			XMStoreFloat3(&data_e.bbox_scr[_i][_j], XMVector3TransformCoord(XMLoadFloat3(&data_e.bbox_local[_i][_j]), _mtx_temp));
+		}
+	}
 
-	//res.ob.update_wvp(&data_e.mtx_wvp[0], data_e.mtx_wvp.get_size());
-	////res.ob.update_bbox(data_e.bbox_scr[0], data_e.bbox_scr.get_size());
+	res.ob.update_wvp(&data_e.mtx_wvp[0], data_e.mtx_wvp.get_size());
+	res.ob.update_bbox(data_e.bbox_scr[0], data_e.bbox_scr.get_size());
+	res.ob.update_so(data_e.bbox_scr.get_size() * 2);
 
 	task.erase(_i_task);
 }
 void Graphics::cull_occl(uint32_t const _i_task) {
-	// occlusion test
-
-	//memset(&data_e.occluder[0], 0, data_e.occluder.get_size());
-	//res.ob.update_is_occluder(&data_e.occluder[0], data_e.occluder.get_size());
+	// render occlusion representation to texture
+	uint32_t _strides[] = {sizeof(XMFLOAT3)};
+	uint32_t _offsets[] = {0};
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	devctx->IASetVertexBuffers(0, 1, &res.ob.bbox_buf, _strides, _offsets);
+	devctx->IASetInputLayout(res.in_lay[IN_F3]);
+	devctx->VSSetShader(res.vs[VS_PASS_F3], 0, 0);
+	devctx->GSSetShader(res.gs[GS_CREATE_FRONT_RECT], 0, 0);
+	devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
+	devctx->PSSetShader(0, 0, 0);
+	//devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
+	//devctx->OMSetRenderTargets(0, 0, res.ds_dsv);
+	devctx->Draw(2, 0);
+	chain->Present(0, 0);
 
 	//uint32_t _init_counts = 0;
-	//devctx->CSSetShader(res.cs[CS_OCCL_CULL], 0, 0);
-	//devctx->CSSetShaderResources(0, 1, &res.ds_srv);
+	//devctx->CSSetShader(res.cs[CS_CREATE_OCCL_REP], 0, 0);
 	//devctx->CSSetShaderResources(0, 1, &res.ob.bbox_srv);
+	//devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//devctx->CSSetShaderResources(0, 1, &res.ds_srv);
 	//devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.occluder_uav, &_init_counts);
 	//devctx->CSSetConstantBuffers(0, 1, &res.scr_size_buf);
-	//devctx->Dispatch(data_e.bbox_scr.get_col_size(), 1, 1);
+	//devctx->Dispatch(data_e.occluder.get_size(), 1, 1);
+	//chain->Present(0, 0);
+
+	// occlusion test
+
+	// update outstanding resources
+	//res.ob.update_occluder(0, data_e.occluder.get_size());
 
 	//// test of occlusion test
 	//devctx->IASetInputLayout(res.in_lay[IN_F4]);
@@ -95,68 +113,6 @@ void Graphics::draw(uint32_t const _i_task) {
 
 	task.erase(_i_task);
 }
-
-//void Graphics::test_vsga() {
-//	vector<float> _data1, _data2, _data_bbox;
-//	vector<XMFLOAT4> _data_f4;
-//	++_val;
-//	for(uint32_t _i = 0; _i < data_e.bbox_scr.get_col_size(); ++_i) {
-//		_data1.push_back(_val);
-//		_data2.push_back(_val);
-//		_data_bbox.push_back(321.0f);
-//		//_data_f4.push_back(XMFLOAT4(_i + 0.1f, _i + 0.2f, _i + 0.3f, _i + 0.4f));
-//	}
-//	//res.ob.update_bbox(data_e.bbox_scr[0], data_e.bbox_scr.get_col_size());
-//	//res.ob.update_bbox(&_data_bbox[0], _data1.size());
-//	res.ob.test_update(0, _data1.size(), 0);
-//	//if(g_analysis != 0) g_analysis->BeginCapture();
-//	devctx->UpdateSubresource(res.ob.test1_buf, 0, 0, &_data1[0], 0, 0);
-//	chain->Present(0, 0);
-//	devctx->UpdateSubresource(res.ob.test2_buf, 0, 0, &_data1[0], 0, 0);
-//	//devctx->Dispatch(1,1,1);
-//	res.ob.test_update_rect_occl(0, _data1.size());
-//	//res.ob.test_update_staging(0, _data1.size());
-//
-//	// compute rectangle vertices
-//	uint32_t _init_counts = 0;
-//	ID3D11ShaderResourceView* _ptr_srv = 0;
-//	ID3D11UnorderedAccessView* _ptr_uav = 0;
-//	//devctx->CSSetShaderResources(0, 1, &_ptr_srv);
-//	devctx->CSSetUnorderedAccessViews(0, 1, &_ptr_uav, &_init_counts);
-//	devctx->CSSetUnorderedAccessViews(1, 1, &_ptr_uav, &_init_counts);
-//	devctx->CSSetShader(res.cs[TEST_CS_RECT_OCCL], 0, 0);
-//	//devctx->CSSetShaderResources(0, 1, &res.ob.test1_srv);
-//	devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.test1_uav, &_init_counts);
-//	devctx->CSSetUnorderedAccessViews(1, 1, &res.ob.test2_uav, &_init_counts);
-//	//devctx->Dispatch(data_e.bbox_scr.get_col_size(), 1, 1);
-//	//devctx->Dispatch(data_e.bbox_scr.get_col_size(), 1, 1);
-//	devctx->Dispatch(1, 1, 1);
-//	chain->Present(0, 0);
-//
-//	//if(g_analysis != 0) g_analysis->BeginCapture();
-//	//vector<float> _data;
-//	//for(uint32_t _i = 0; _i < 3; ++_i) {
-//	//	_data.push_back(_i+1);
-//	//}
-//	//res.ob.test_update(&_data[0], 3, &_data[0]);
-//	devctx->OMSetRenderTargetsAndUnorderedAccessViews(1, &res.rtv, res.ds_dsv, 1, 1, &res.ob.test2_uav, &_init_counts);
-//	devctx->VSSetShader(res.vs[TEST_VS_RECT_OCCL], 0, 0);
-//	devctx->PSSetShader(res.ps[TEST_PS_RECT_OCCL], 0, 0);
-//	XMFLOAT3 _v[] = {
-//		XMFLOAT3(-0.5f, -0.5f, 0.0f),
-//		XMFLOAT3(-0.5f, 0.5f, 0.0f),
-//		XMFLOAT3(0.5f, 0.5f, 0.0f),
-//	};
-//	res.ob.update_vert(_v, 3);
-//	res.ob.bind_vert(TEST_VS_RECT_OCCL);
-//	devctx->IASetInputLayout(res.in_lay[IN_F3]);
-//	float _color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-//	devctx->ClearRenderTargetView(res.rtv, _color);
-//	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0.0f);
-//	devctx->Draw(3, 0);
-//	chain->Present(0, 0);
-//}
-//float Graphics::_val = 0;
 
 void Graphics::do_cam_update_pos(uint32_t const _i_task) {
 	XMVECTOR _v = XMVectorSet(cam.v.x, 0.0f, cam.v.z, 0.0f);

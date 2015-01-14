@@ -155,18 +155,12 @@ void Physics::create_ob(uint32_t const _i_task) {
 	XMStoreFloat4x4(
 		&data_e.mtx_wvp[data_e.mtx_wvp.get_size()-1], XMMatrixIdentity()
 	);
-	XMFLOAT4 _bbox[] = {
-		XMFLOAT4(-1.0f, -1.0f, -1.0f, 0.0f),
-		XMFLOAT4(-1.0f, 1.0f, -1.0f, 0.0f),
-		XMFLOAT4(1.0f, 1.0f, -1.0f, 0.0f),
-		XMFLOAT4(1.0f, -1.0f, -1.0f, 0.0f),
-		XMFLOAT4(-1.0f, -1.0f, 1.0f, 0.0f),
-		XMFLOAT4(-1.0f, 1.0f, 1.0f, 0.0f),
-		XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f),
-		XMFLOAT4(1.0f, -1.0f, 1.0f, 0.0f),
+	XMFLOAT3 _bbox[] = {
+		XMFLOAT3(-1.0f, -1.0f, -1.0f),
+		XMFLOAT3(1.0f, 1.0f, 1.0f),
 	};
-	data_e.bbox_local.push_back(_bbox, 8);
-	data_e.bbox_scr.push_back(_bbox, 8);
+	data_e.bbox_local.push_back(_bbox, 2);
+	data_e.bbox_scr.push_back(_bbox, 2);
 	data_e.occluder.push_back(false);
 	data_e.mesh_hnd.push_back(_task.mesh_hnd);
 	data_e.tex_hnd.push_back(_task.tex_hnd);

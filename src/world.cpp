@@ -8,17 +8,18 @@ World::World()
 	: phys(new Physics),
 	graph(new Graphics) {
 	res.create_dev_ctx_chain();
-	res.create_ds();
-	res.create_rtv();
 	res.create_scr_size();
-	res.create_cs();
-	res.create_vs();
-	res.create_ps();
-	res.create_in_lay();
+	res.create_rtv();
+	res.create_ds();
 	res.create_viewport();
+	res.create_cs();
+	res.create_in_lay();
+	res.create_vs();
+	res.create_gs();
+	res.create_ps();
 	res.create_ss();
-	res.bind_prim_topol();
 	res.bind_viewport();
+	res.bind_prim_topol();
 	res.bind_ss();
 }
 World::~World() {

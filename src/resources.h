@@ -25,14 +25,18 @@ enum InLayNo {
 	IN_F3F2F44,
 };
 enum CSNo {
-	CS_OCCL_CULL,
+	CS_CULL_OCCL,
 	TEST_CS_RECT_OCCL,
 };
 enum VSNo {
+	VS_PASS_F3,
 	VS_PASS_ON,
 	VS_TFORM,
 	VS_TFORM_TEX,
 	TEST_VS_RECT_OCCL,
+};
+enum GSNo {
+	GS_CREATE_FRONT_RECT,
 };
 enum PSNo {
 	PS_SAMPLE_TEX,
@@ -64,13 +68,14 @@ struct GraphR : public GraphDev {
 										~ObGroup();
 		void							update_wvp(XMFLOAT4X4 const*const,
 											uint32_t const);
-		void							update_bbox(float const*const, uint32_t const);
-		void							update_is_occluder(bool const*const,
+		void							update_bbox(XMFLOAT3 const*const, uint32_t const);
+		void							update_occluder(bool const*const,
 											uint32_t const);
 		void							update_vert(XMFLOAT3 const*const, uint32_t const);
 		void							update_coord_tex(XMFLOAT2 const*const,
 											uint32_t const);
 		void							update_ind(DWORD const*const, uint32_t const);
+		void							update_so(uint32_t const);
 		void							bind_vert(uint32_t const) const;
 		XMFLOAT4X4*						wvp_tposed;
 		ID3D11Buffer*					wvp_buf;
@@ -84,36 +89,35 @@ struct GraphR : public GraphDev {
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;
 		ID3D11Buffer*					ind_buf;
-		//void							test_vsga_update(float const*const, uint32_t const,
-		//									float const*const);
+		ID3D11Buffer*					so_buf;
 	};
 										GraphR();
 										~GraphR();
-	void								create_ds();
-	void								create_rtv();
-	void								create_buf_struct();
 	void								create_scr_size();
+	void								create_rtv();
+	void								create_ds();
 	void								create_viewport();
-	void								create_ss();
-	void								create_in_lay();
 	void								create_cs();
-	void								create_ps();
+	void								create_in_lay();
 	void								create_vs();
-	void								bind_ss() const;
+	void								create_gs();
+	void								create_ps();
+	void								create_ss();
 	void								bind_viewport() const;
 	void								bind_prim_topol() const;
-	ID3D11Buffer*						buf_struct;
+	void								bind_ss() const;
 	ID3D11Buffer*						scr_size_buf;
 	ID3D11RenderTargetView*				rtv;
 	ID3D11Texture2D*					ds_tex2;
 	ID3D11DepthStencilView*				ds_dsv;
 	ID3D11ShaderResourceView*			ds_srv;
+	D3D11_VIEWPORT						viewport;
 	Vec<ID3D11ComputeShader*>			cs;
+	Vec<ID3D11InputLayout*>				in_lay;
 	Vec<ID3D11VertexShader*>			vs;
+	Vec<ID3D11GeometryShader*>			gs;
 	Vec<ID3D11PixelShader*>				ps;
 	ID3D11SamplerState*					ss;
-	D3D11_VIEWPORT						viewport;
-	Vec<ID3D11InputLayout*>				in_lay;
 	ObGroup								ob;
 	ObGroup								test;
 };
@@ -226,8 +230,8 @@ struct DataEngine {
 		Vec<XMFLOAT3>		v;
 		Vec<XMFLOAT4X4>		mtx_world;
 		Vec<XMFLOAT4X4>		mtx_wvp;
-		Vec2<XMFLOAT4>		bbox_local;
-		Vec2<XMFLOAT4>		bbox_scr;
+		Vec2<XMFLOAT3>		bbox_local;
+		Vec2<XMFLOAT3>		bbox_scr;
 		Vec<float>			t_coll;
 		Vec<bool>			occluder;
 		Vec<uint32_t>		mesh_hnd;
