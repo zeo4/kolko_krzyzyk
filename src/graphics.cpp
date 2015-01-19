@@ -27,17 +27,26 @@ void Graphics::do_tasks() {
 void Graphics::update_pos_ob(uint32_t const _i_task) {
 	XMMATRIX _mtx_temp;
 
-	// cam
+	// camera
+
+	// loc
+	XMVECTOR _v_world = XMVectorSet(cam.v.x, 0.0f, cam.v.z, 0.0f);
+	_v_world = XMVector3Rotate(_v_world, XMLoadFloat4(&cam.q));
+	_v_world = XMVectorSetY(_v_world, cam.v.y);
+	XMStoreFloat3(&cam.loc, XMLoadFloat3(&cam.loc) + _v_world);
+
+	// matrices
 	XMMATRIX _mtx_view = XMMatrixLookAtLH (
 		XMLoadFloat3(&cam.loc),
 		XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMLoadFloat4(&cam.q)) + XMLoadFloat3(&cam.loc),
 		XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMLoadFloat4(&cam.q))
 	);
 	XMMATRIX _mtx_proj = XMMatrixPerspectiveFovLH(
-		cam.fov * 3.14f/180, float(scr_size.width)/scr_size.height, cam.near_z, cam.far_z
+		cam.fov * 3.14f/180, float(scr_size.width) / scr_size.height, cam.near_z, cam.far_z
 	);
 
-	// ob
+	// objects
+
 	for(uint32_t _i = 0; _i < data_e.mtx_world.get_size(); ++_i) {
 		// loc
 		XMStoreFloat3(&data_e.loc[_i],
@@ -61,50 +70,72 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 
 	res.ob.update_wvp(&data_e.mtx_wvp[0], data_e.mtx_wvp.get_size());
 	res.ob.update_bbox(data_e.bbox_scr[0], data_e.bbox_scr.get_size());
-	res.ob.update_so(data_e.bbox_scr.get_size() * 2);
+	//res.ob.update_so(data_e.bbox_scr.get_size() * 2);
+	res.ob.update_so(data_e.bbox_scr.get_size());
 
 	task.erase(_i_task);
 }
 void Graphics::cull_occl(uint32_t const _i_task) {
-	// render occlusion representation to texture
+	devctx->IASetInputLayout(res.in_lay[IN_F3]);
 	uint32_t _strides[] = {sizeof(XMFLOAT3)};
 	uint32_t _offsets[] = {0};
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	devctx->IASetVertexBuffers(0, 1, &res.ob.bbox_buf, _strides, _offsets);
-	devctx->IASetInputLayout(res.in_lay[IN_F3]);
 	devctx->VSSetShader(res.vs[VS_PASS_F3], 0, 0);
-	devctx->GSSetShader(res.gs[GS_CREATE_FRONT_RECT], 0, 0);
-	devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
-	devctx->PSSetShader(0, 0, 0);
-	//devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
-	//devctx->OMSetRenderTargets(0, 0, res.ds_dsv);
+	devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
+	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	devctx->ClearRenderTargetView(res.rtv, _color);
+	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+
+	// render bbox
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DWORD _ind[] = {
+		0, 1, 2,
+		0, 2, 3,
+		0, 3, 7,
+		0, 7, 4,
+		0, 4, 5,
+		0, 5, 1,
+		1, 5, 6,
+		1, 6, 2,
+		2, 6, 7,
+		2, 7, 3,
+		4, 7, 6,
+		4, 6, 5,
+	};
+	res.ob.update_ind(_ind, 36);
+	devctx->IASetIndexBuffer(res.ob.ind_buf, DXGI_FORMAT_R32_UINT, 0);
+	devctx->GSSetShader(0, 0, 0);
+	devctx->DrawIndexed(36, 0, 0);
+
+	// render rect frame
+	//devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
+	XMFLOAT3 _vert[] = {
+		data_e.bbox_scr[0][0],
+		data_e.bbox_scr[0][0],
+	};
+	for(uint32_t _i = 1; _i < 8; ++_i) {
+		if(data_e.bbox_scr[0][_i].x < _vert[0].x)
+			_vert[0].x = data_e.bbox_scr[0][_i].x;
+		else if(data_e.bbox_scr[0][_i].x > _vert[1].x)
+			_vert[1].x = data_e.bbox_scr[0][_i].x;
+		if(data_e.bbox_scr[0][_i].y < _vert[0].y)
+			_vert[0].y = data_e.bbox_scr[0][_i].y;
+		else if(data_e.bbox_scr[0][_i].y > _vert[1].y)
+			_vert[1].y = data_e.bbox_scr[0][_i].y;
+		if(data_e.bbox_scr[0][_i].z < _vert[0].z)
+			_vert[0].z = data_e.bbox_scr[0][_i].z;
+		else if(data_e.bbox_scr[0][_i].z > _vert[1].z)
+			_vert[1].z = data_e.bbox_scr[0][_i].z;
+	}
+	res.ob.update_vert(_vert, 2);
+	devctx->IASetVertexBuffers(0, 1, &res.ob.vert_buf, _strides, _offsets);
+	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	devctx->GSSetShader(res.gs[GS_GEN_OCCL_RECT_FRAME], 0, 0);
 	devctx->Draw(2, 0);
+
 	chain->Present(0, 0);
-
-	//uint32_t _init_counts = 0;
-	//devctx->CSSetShader(res.cs[CS_CREATE_OCCL_REP], 0, 0);
-	//devctx->CSSetShaderResources(0, 1, &res.ob.bbox_srv);
-	//devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//devctx->CSSetShaderResources(0, 1, &res.ds_srv);
-	//devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.occluder_uav, &_init_counts);
-	//devctx->CSSetConstantBuffers(0, 1, &res.scr_size_buf);
-	//devctx->Dispatch(data_e.occluder.get_size(), 1, 1);
-	//chain->Present(0, 0);
-
-	// occlusion test
-
-	// update outstanding resources
-	//res.ob.update_occluder(0, data_e.occluder.get_size());
-
-	//// test of occlusion test
-	//devctx->IASetInputLayout(res.in_lay[IN_F4]);
-	//devctx->VSSetShader(res.vs[VS_TEST], 0, 0);
-	//devctx->VSSetShaderResources(0, 1, &res.ob.occluder_srv);
-	//devctx->PSSetShader(0, 0, 0);
-	//res.ob.bind_vert(VS_TEST);
-	//XMFLOAT3 _vert[] = {XMFLOAT3(), XMFLOAT3(), XMFLOAT3()};
-	//res.ob.update_vert(_vert, 3);
-	//devctx->Draw(3, 0);
 
 	task.erase(_i_task);
 }
@@ -114,19 +145,6 @@ void Graphics::draw(uint32_t const _i_task) {
 	task.erase(_i_task);
 }
 
-void Graphics::do_cam_update_pos(uint32_t const _i_task) {
-	XMVECTOR _v = XMVectorSet(cam.v.x, 0.0f, cam.v.z, 0.0f);
-	XMVECTOR _dl_v = XMVector3LengthEst(_v);
-	if(XMVectorGetX(_dl_v) != 0.0f) {
-		_v = XMVector3Rotate(_v, XMLoadFloat4(&cam.q));
-		_v = XMVectorSetY(_v, 0.0f);
-		XMVECTOR _v_modul = XMVectorAbs(_v);
-		_v = _v / (XMVectorGetX(_v_modul) + XMVectorGetZ(_v_modul)) * _dl_v;
-	}
-	_v = XMVectorSetY(_v, cam.v.y);
-	XMStoreFloat3(&cam.loc, XMLoadFloat3(&cam.loc) + _v);
-	task.erase(_i_task);
-}
 void Graphics::draw_previous() {
 	//if(g_analysis != 0) g_analysis->BeginCapture();
 

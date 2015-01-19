@@ -36,7 +36,7 @@ enum VSNo {
 	TEST_VS_RECT_OCCL,
 };
 enum GSNo {
-	GS_CREATE_FRONT_RECT,
+	GS_GEN_OCCL_RECT_FRAME,
 };
 enum PSNo {
 	PS_SAMPLE_TEX,
@@ -195,23 +195,24 @@ uint32_t Meshes::get_vert_size() const {
 }
 // -------------------------------------------------------
 class Textures : protected GraphDev {
-	typedef ID3D11ShaderResourceView* TeksWid_;
+	typedef ID3D11ShaderResourceView* TexView_;
 public:
 								~Textures();
 	inline uint32_t				get_size() const;
-	inline TeksWid_ const&		get(uint32_t const);
+	inline TexView_ const&		get(uint32_t const);
 	void						sort_comp(uint32_t*&);
 	inline void					sort_exe(uint32_t const*const);
 	void						defrag(uint32_t const);
 	void						create(uint32_t const);
-	char const*const			get_path(uint32_t const) const;
+	wchar_t const*const			get_path(uint32_t const) const;
 	void						destroy(uint32_t const);
 protected:
 	VecSparse<uint32_t>			no;
 	VecSparse<uint32_t>			ref;
-	Vec<TeksWid_>				view;
+	Vec<ID3D11Texture2D*>		tex;
+	Vec<TexView_>				view;
 };
-Textures::TeksWid_ const& Textures::get(uint32_t const _uch) {
+Textures::TexView_ const& Textures::get(uint32_t const _uch) {
 	return view[no[_uch]];
 }
 uint32_t Textures::get_size() const {

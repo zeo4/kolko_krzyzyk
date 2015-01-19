@@ -196,7 +196,7 @@ void GraphR::ObGroup::update_ind(DWORD const*const _data, uint32_t const _size) 
 	else ind_buf->GetDesc(&_buf_desc);
 	
 	if(_size * sizeof(DWORD) > _buf_desc.ByteWidth) {
-		_buf_desc.ByteWidth = sizeof(DWORD) * _size;
+		_buf_desc.ByteWidth = _size * sizeof(DWORD);
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
 		_buf_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		_buf_desc.CPUAccessFlags = 0;
@@ -275,11 +275,11 @@ void GraphR::ObGroup::update_so(uint32_t const _size) {
 	if(so_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
 	else so_buf->GetDesc(&_buf_desc);
 
-	if(_size * sizeof(XMFLOAT3) > _buf_desc.ByteWidth) {
+	if(_size * sizeof(XMFLOAT4) > _buf_desc.ByteWidth) {
 		// buf
-		_buf_desc.ByteWidth = _size * sizeof(XMFLOAT3);
+		_buf_desc.ByteWidth = _size * sizeof(XMFLOAT4);
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
-		_buf_desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
+		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
 		if(so_buf != 0) so_buf->Release();
@@ -552,15 +552,15 @@ void GraphR::create_gs() {
 	vector<byte> _shad_bytes;
 	HRESULT _r;
 
-	// GS_CREATE_FRONT_RECT
+	// GS_GEN_OCCL_RECT_FRAME
 	{
 		D3D11_SO_DECLARATION_ENTRY _so_lay[] = {
-			{0, "SV_Position", 0, 0, 3, 0},
+			{0, "SV_Position", 0, 0, 4, 0},
 		};
 		uint32_t a = sizeof(_so_lay);
-		_shad_bytes = read_bytes("shader\\gs_create_front_rect.cso");
+		_shad_bytes = read_bytes("shader\\gs_gen_occl_rect_frame.cso");
 		gs.push_back(0);
-		_r = dev->CreateGeometryShaderWithStreamOutput(&_shad_bytes[0], _shad_bytes.size(), _so_lay, 1, 0, 0, 0, 0, &gs[GS_CREATE_FRONT_RECT]);
+		_r = dev->CreateGeometryShaderWithStreamOutput(&_shad_bytes[0], _shad_bytes.size(), _so_lay, 1, 0, 0, 0, 0, &gs[GS_GEN_OCCL_RECT_FRAME]);
 		if(_r != S_OK) logi.pisz("", "failed to create geometry shader");
 	}
 }
@@ -739,8 +739,27 @@ void Textures::create(uint32_t const _hnd) {
 		no[_hnd] = view.get_size();
 		ref[_hnd] = 1;
 	}
+
+	D3D11_TEXTURE2D_DESC _desc;
+	_desc.Width = 100;
+	_desc.Height = 100;
+	_desc.MipLevels = 1;
+	_desc.ArraySize = 1;
+	_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	_desc.SampleDesc.Count = 1;
+	_desc.SampleDesc.Quality = 0;
+	_desc.Usage = D3D11_USAGE_DEFAULT;
+	_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	_desc.CPUAccessFlags = 0;
+	_desc.MiscFlags = 0;
+
+	tex.push_back(0);
+	HRESULT _r = dev->CreateTexture2D(&_desc, 0, &tex[tex.get_size()-1]);
+	if(_r != S_OK) logi.pisz("", "failed to create a texture");
+	
 	view.push_back(0);
-	D3DX11CreateShaderResourceViewFromFile(dev, get_path(_hnd), 0, 0, &view[view.get_size()-1], 0);
+	CreateWICTextureFromFile(dev, get_path(_hnd), (ID3D11Resource**)&tex[tex.get_size()-1], (ID3D11ShaderResourceView**)&view[view.get_size()-1], 0);
+	//D3DX11CreateShaderResourceViewFromFile(dev, get_path(_hnd), 0, 0, &view[view.get_size()-1], 0);
 }
 void Textures::defrag(uint32_t const _size) {
 	uint32_t* _map = 0;
@@ -761,14 +780,14 @@ void Textures::destroy(uint32_t const _hnd) {
 	no[_hnd] = no.empty;
 	ref[_hnd] = 0;
 }
-char const*const Textures::get_path(uint32_t const _hnd) const {
+wchar_t const*const Textures::get_path(uint32_t const _hnd) const {
 	switch(_hnd) {
 	case TEX_TRI:
-		return "texture/cursor.jpg";
+		return L"texture/cursor.jpg";
 	case TEX_RECT:
-		return "texture/rectangle.jpg";
+		return L"texture/rectangle.jpg";
 	case TEX_DIAMENT:
-		return "texture/diament.jpg";
+		return L"texture/diament.jpg";
 	}
 }
 void Textures::sort_comp(uint32_t*& _map) {

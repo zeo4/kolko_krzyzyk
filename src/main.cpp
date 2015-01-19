@@ -57,7 +57,6 @@ void PetlaWiad() {
 // -------------------------------------------------------
 int WINAPI WinMain(HINSTANCE uchAplikacji, HINSTANCE uchPoprzAplikacji, PSTR liniaKomend, int opcjaWysw) {
 	// test
-	//IDXGIDebug::ReportLiveObjects();
 
 	uchAp = uchAplikacji;
 
