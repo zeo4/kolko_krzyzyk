@@ -1,10 +1,6 @@
-Buffer<float3> bbox : register(c0);
-Texture2D<float> ds : register(t0);
-RWBuffer<bool> occluder : register(u0);
-cbuffer scr_size : register(b0) {
-	uint		width;
-	uint		height;
-}
+Buffer<float4> bbox : register(c0);
+Buffer<float4> wvp : register(c1);
+RWBuffer<float4> rect : register(u0);
 
 [numthreads(1, 1, 1)]
 void main(uint3 _gr : SV_GroupID) {

@@ -25,8 +25,6 @@ void Graphics::do_tasks() {
 	}
 }
 void Graphics::update_pos_ob(uint32_t const _i_task) {
-	XMMATRIX _mtx_temp;
-
 	// camera
 
 	// loc
@@ -47,97 +45,89 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 
 	// objects
 
-	for(uint32_t _i = 0; _i < data_e.mtx_world.get_size(); ++_i) {
+	for(uint32_t _i = 0; _i < data_e.world.get_size(); ++_i) {
 		// loc
 		XMStoreFloat3(&data_e.loc[_i],
 			XMLoadFloat3(&data_e.loc[_i]) + XMLoadFloat3(&data_e.v[_i])
 		);
 
 		// world
-		data_e.mtx_world[_i]._41 = data_e.loc[_i].x;
-		data_e.mtx_world[_i]._42 = data_e.loc[_i].y;
-		data_e.mtx_world[_i]._43 = data_e.loc[_i].z;
+		data_e.world[_i]._41 = data_e.loc[_i].x;
+		data_e.world[_i]._42 = data_e.loc[_i].y;
+		data_e.world[_i]._43 = data_e.loc[_i].z;
 
 		// wvp
-		_mtx_temp = XMLoadFloat4x4(&data_e.mtx_world[_i]) * _mtx_view * _mtx_proj;
-		XMStoreFloat4x4(&data_e.mtx_wvp[_i], _mtx_temp);
-
-		// screen space bbox
-		for(uint32_t _j = 0; _j < 8; ++_j) {
-			XMStoreFloat3(&data_e.bbox_scr[_i][_j], XMVector3TransformCoord(XMLoadFloat3(&data_e.bbox_local[_i][_j]), _mtx_temp));
-		}
+		XMStoreFloat4x4(
+			&data_e.wvp[_i],
+			XMLoadFloat4x4(&data_e.world[_i]) * _mtx_view * _mtx_proj
+		);
 	}
+	res.ob.update_wvp(&data_e.wvp[0], data_e.wvp.get_size());
 
-	res.ob.update_wvp(&data_e.mtx_wvp[0], data_e.mtx_wvp.get_size());
-	res.ob.update_bbox(data_e.bbox_scr[0], data_e.bbox_scr.get_size());
+	void* _data[] = {data_e.mesh.bbox[0], data_e.mesh.bbox_idx[0]};
+	uint32_t _size[] = {data_e.mesh.bbox.get_size(), data_e.mesh.bbox_idx.get_size()};
+	res.ob.update_bbox(_data, _size);
 	//res.ob.update_so(data_e.bbox_scr.get_size() * 2);
-	res.ob.update_so(data_e.bbox_scr.get_size());
+	//res.ob.update_so(data_e.mesh.bbox.get_size());
 
 	task.erase(_i_task);
 }
 void Graphics::cull_occl(uint32_t const _i_task) {
-	devctx->IASetInputLayout(res.in_lay[IN_F3]);
-	uint32_t _strides[] = {sizeof(XMFLOAT3)};
-	uint32_t _offsets[] = {0};
-	devctx->IASetVertexBuffers(0, 1, &res.ob.bbox_buf, _strides, _offsets);
-	devctx->VSSetShader(res.vs[VS_PASS_F3], 0, 0);
+	devctx->IASetInputLayout(res.in_lay[IN_F3F44]);
+	uint32_t _strides[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT4X4)};
+	uint32_t _offsets[] = {0, 0};
+	devctx->VSSetShader(res.vs[VS_TFORM_F3F44], 0, 0);
 	devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
 	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	devctx->ClearRenderTargetView(res.rtv, _color);
 	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
 
-	// render bbox
+	// render bbox-es
+	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
+	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
+	devctx->IASetIndexBuffer(res.ob.bbox_idx_buf, DXGI_FORMAT_R32_UINT, 0);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	DWORD _ind[] = {
-		0, 1, 2,
-		0, 2, 3,
-		0, 3, 7,
-		0, 7, 4,
-		0, 4, 5,
-		0, 5, 1,
-		1, 5, 6,
-		1, 6, 2,
-		2, 6, 7,
-		2, 7, 3,
-		4, 7, 6,
-		4, 6, 5,
-	};
-	res.ob.update_ind(_ind, 36);
-	devctx->IASetIndexBuffer(res.ob.ind_buf, DXGI_FORMAT_R32_UINT, 0);
 	devctx->GSSetShader(0, 0, 0);
-	devctx->DrawIndexed(36, 0, 0);
+	uint32_t _inst_cnt = get_gr_cnt(0);
+	devctx->DrawIndexedInstanced(
+		data_e.mesh.bbox_idx.get_row(0).second,
+		_inst_cnt,
+		data_e.mesh.bbox_idx.get_row(0).first,
+		data_e.mesh.bbox.get_row(0).first,
+		0
+	);
 
-	// render rect frame
+	// create front rectangles
+	res.ob.update_rect_front(0, data_e.wvp.get_size());
+	uint32_t _init_counts = -1;
+	devctx->CSSetShaderResources(0, 1, &res.ob.bbox_srv);
+	devctx->CSSetShaderResources(1, 1, &res.ob.wvp_srv);
+	devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.rect_front_uav, &_init_counts);
+	devctx->CSSetShader(res.cs[CS_RECT_FRONT], 0, 0);
+	devctx->Dispatch(data_e.wvp.get_size(), 1, 1);
+
+	// render rect frames
 	//devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
-	XMFLOAT3 _vert[] = {
-		data_e.bbox_scr[0][0],
-		data_e.bbox_scr[0][0],
-	};
-	for(uint32_t _i = 1; _i < 8; ++_i) {
-		if(data_e.bbox_scr[0][_i].x < _vert[0].x)
-			_vert[0].x = data_e.bbox_scr[0][_i].x;
-		else if(data_e.bbox_scr[0][_i].x > _vert[1].x)
-			_vert[1].x = data_e.bbox_scr[0][_i].x;
-		if(data_e.bbox_scr[0][_i].y < _vert[0].y)
-			_vert[0].y = data_e.bbox_scr[0][_i].y;
-		else if(data_e.bbox_scr[0][_i].y > _vert[1].y)
-			_vert[1].y = data_e.bbox_scr[0][_i].y;
-		if(data_e.bbox_scr[0][_i].z < _vert[0].z)
-			_vert[0].z = data_e.bbox_scr[0][_i].z;
-		else if(data_e.bbox_scr[0][_i].z > _vert[1].z)
-			_vert[1].z = data_e.bbox_scr[0][_i].z;
-	}
-	res.ob.update_vert(_vert, 2);
+	Vec2<XMFLOAT3> _vert;
+	res.ob.update_vert(_vert[0], _vert.get_size());
 	devctx->IASetVertexBuffers(0, 1, &res.ob.vert_buf, _strides, _offsets);
 	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	devctx->GSSetShader(res.gs[GS_GEN_OCCL_RECT_FRAME], 0, 0);
-	devctx->Draw(2, 0);
+	//devctx->Draw(_vert.get_size(), 0);
 
 	chain->Present(0, 0);
 
 	task.erase(_i_task);
+}
+uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
+	uint32_t _cnt = 1;
+	for(uint32_t _i = _hnd_idx + 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
+		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i])
+			++_cnt;
+	}
+	return _cnt;
 }
 void Graphics::draw(uint32_t const _i_task) {
 	//draw_previous();
@@ -166,31 +156,31 @@ void Graphics::draw_previous() {
 	//res.chain->Present(0, 0);
 }
 void Graphics::draw_ob(Vec<uint32_t>const& _hnd_mesh, Vec<uint32_t>const& _hnd_tex, Meshes*const _mesh, Textures*const _tex) const {
-	//uint32_t _i, _il_kopie = 1, _il_wyrys = 0;
-	//for(_i = 1; _i < _hnd_mesh.get_size(); ++_i) {
-	//	if(_hnd_mesh[_i-1] == _hnd_mesh[_i] && _hnd_tex[_i-1] == _hnd_tex[_i]) {
-	//		++_il_kopie;
-	//	} else {
-	//		if(_tex != 0) devctx->PSSetShaderResources(0, 1, &_tex->get(_hnd_tex[_i-1]));
-	//		devctx->DrawIndexedInstanced(
-	//			_mesh->get_ind_row(_hnd_mesh[_i-1]).drug,
-	//			_il_kopie,
-	//			_mesh->get_ind_row(_hnd_mesh[_i-1]).pierw,
-	//			_mesh->get_vert_row(_hnd_mesh[_i-1]).pierw,
-	//			_il_wyrys
-	//		);
-	//		_il_kopie = 1;
-	//		_il_wyrys = _i;
-	//	}
-	//}
-	//if(_tex != 0) devctx->PSSetShaderResources(0, 1, &_tex->get(_hnd_tex[_i-1]));
-	//devctx->DrawIndexedInstanced(
-	//	_mesh->get_ind_row(_hnd_mesh[_i-1]).drug,
-	//	_il_kopie,
-	//	_mesh->get_ind_row(_hnd_mesh[_i-1]).pierw,
-	//	_mesh->get_vert_row(_hnd_mesh[_i-1]).pierw,
-	//	_il_wyrys
-	//);
+	uint32_t _i, _inst_cnt = 1, _drawed_cnt = 0;
+	for(_i = 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
+		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i]) {
+			++_inst_cnt;
+		} else {
+			if(_tex != 0) devctx->PSSetShaderResources(0, 1, &_tex->srv[_tex->no[data_e.tex_hnd[_i-1]]]);
+			devctx->DrawIndexedInstanced(
+				data_e.mesh.vert_idx.get_row(data_e.mesh_hnd[_i-1]).second,
+				_inst_cnt,
+				data_e.mesh.vert_idx.get_row(data_e.mesh_hnd[_i-1]).first,
+				data_e.mesh.vert.get_row(data_e.mesh_hnd[_i-1]).first,
+				_drawed_cnt
+			);
+			_inst_cnt = 1;
+			_drawed_cnt = _i;
+		}
+	}
+	devctx->PSSetShaderResources(0, 1, &data_e.tex.srv[data_e.tex.no[data_e.tex_hnd[_i-1]]]);
+	devctx->DrawIndexedInstanced(
+		data_e.mesh.vert_idx.get_row(data_e.mesh_hnd[_i-1]).second,
+		_inst_cnt,
+		data_e.mesh.vert_idx.get_row(data_e.mesh_hnd[_i-1]).first,
+		data_e.mesh.vert.get_row(data_e.mesh_hnd[_i-1]).first,
+		_drawed_cnt
+	);
 }
 void Graphics::do_ob_sort(uint32_t const _i_task) {
 	uint32_t* _map = 0;
@@ -207,10 +197,11 @@ void Graphics::do_ob_sort(uint32_t const _i_task) {
 	data_e.tex_hnd.sort_exe(_map);
 
 	// same modele / tekstury
-	data_e.mesh.sort_comp(_map);
-	data_e.mesh.sort_exe(_map);
-	data_e.tex.sort_comp(_map);
-	data_e.tex.sort_exe(_map);
+
+	//data_e.mesh.sort_comp(_map);
+	//data_e.mesh.sort_exe(_map);
+	//data_e.tex.sort_comp(_map);
+	//data_e.tex.sort_exe(_map);
 
 	task.erase(_i_task);
 }

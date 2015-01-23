@@ -82,33 +82,33 @@ ID3D11InfoQueue* GraphDev::debug_info = 0;
 IDXGraphicsAnalysis* GraphDev::g_analysis = 0;
 // -------------------------------------------------------
 GraphR::ObGroup::ObGroup()
-	: wvp_tposed(new XMFLOAT4X4[1]),
-	wvp_buf(0),
+	: wvp_buf(0),
 	wvp_srv(0),
 	bbox_buf(0),
 	bbox_srv(0),
-	occluder_buf(0),
-	occluder_uav(0),
+	bbox_idx_buf(0),
+	rect_front_buf(0),
+	rect_front_uav(0),
 	vert_buf(0),
 	vert_uav(0),
 	coord_tex_buf(0),
-	ind_buf(0),
+	idx_buf(0),
 	so_buf(0) {}
 GraphR::ObGroup::~ObGroup() {
-	delete[] wvp_tposed;
+	wvp_tposed.destroy();
 	if(wvp_buf != 0) wvp_buf->Release();
 	if(wvp_srv != 0) wvp_srv->Release();
 	if(bbox_buf != 0) bbox_buf->Release();
 	if(bbox_srv != 0) bbox_srv->Release();
-	if(occluder_buf != 0) occluder_buf->Release();
-	if(occluder_uav != 0) occluder_uav->Release();
+	if(rect_front_buf != 0) rect_front_buf->Release();
+	if(rect_front_uav != 0) rect_front_uav->Release();
 	if(vert_buf != 0) vert_buf->Release();
 	if(vert_uav != 0) vert_uav->Release();
 	if(coord_tex_buf != 0) coord_tex_buf->Release();
-	if(ind_buf != 0) ind_buf->Release();
+	if(idx_buf != 0) idx_buf->Release();
 	if(so_buf != 0) so_buf->Release();
 }
-void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _mtx_wvp, uint32_t const _size) {
+void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _data, uint32_t const _size) {
 	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
@@ -117,10 +117,6 @@ void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _mtx_wvp, uint32_t const
 	
 	// resize buffer
 	if(_size * sizeof(XMFLOAT4X4) > _buf_desc.ByteWidth) {
-		// transposed mtx
-		delete[] wvp_tposed;
-		wvp_tposed = new XMFLOAT4X4[_size];
-
 		// buf
 		_buf_desc.ByteWidth = sizeof(XMFLOAT4X4) * _size;
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -129,45 +125,61 @@ void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _mtx_wvp, uint32_t const
 		_buf_desc.MiscFlags = 0;
 		if(wvp_buf != 0) wvp_buf->Release();
 		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &wvp_buf);
-		if(_r != S_OK) logi.pisz("", "failed to create world buf");
+		if(_r != S_OK) logi.pisz("", "failed to create wvp buf");
 
 		// srv
-		if(wvp_srv != 0) wvp_srv->Release();
 		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
 		_srv_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		_srv_desc.Buffer.FirstElement = 0;
 		_srv_desc.Buffer.NumElements = _size * 4;
+		if(wvp_srv != 0) wvp_srv->Release();
 		_r = dev->CreateShaderResourceView(wvp_buf, &_srv_desc, &wvp_srv);
-		if(_r != S_OK) logi.pisz("", "failed to create world srv");
+		if(_r != S_OK) logi.pisz("", "failed to create wvp srv");
 	}
-	if(_mtx_wvp == 0) return;
+	if(_data == 0) return;
 
+	XMFLOAT4X4 _mtx_temp = XMFLOAT4X4();
 	for(uint32_t _i = 0; _i < _size; ++_i) {
-		XMStoreFloat4x4(&wvp_tposed[_i], XMMatrixTranspose(XMLoadFloat4x4(&_mtx_wvp[_i])));
+		wvp_tposed.push_back(_mtx_temp);
+		XMStoreFloat4x4(&wvp_tposed[_i], XMMatrixTranspose(XMLoadFloat4x4(&_data[_i])));
 	}
-	devctx->UpdateSubresource(wvp_buf, 0, 0, wvp_tposed, 0, 0);
+	devctx->UpdateSubresource(wvp_buf, 0, 0, &wvp_tposed[0], 0, 0);
 }
-void GraphR::ObGroup::update_bbox(XMFLOAT3 const*const _bbox, uint32_t const _size) {
-	if(_size == 0) return;
-
+void GraphR::ObGroup::update_bbox(void*const*const _data, uint32_t const*const _size) {
+	if(_size[0] == 0 || _size[1] == 0) return;
 	D3D11_BUFFER_DESC _buf_desc;
+
+	// vertices
 	if(bbox_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
 	else bbox_buf->GetDesc(&_buf_desc);
-	
-	// resize buffer
-	if(_size * sizeof(XMFLOAT3) > _buf_desc.ByteWidth) {
+	if(_size[0] * sizeof(XMFLOAT3) > _buf_desc.ByteWidth) {
 		// buf
-		_buf_desc.ByteWidth = _size * sizeof(XMFLOAT3);
+		_buf_desc.ByteWidth = _size[0] * sizeof(XMFLOAT3);
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
-		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_UNORDERED_ACCESS;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
 		if(bbox_buf != 0) bbox_buf->Release();
 		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &bbox_buf);
 		if(_r != S_OK) logi.pisz("", "failed to create bbox_buf");
 	}
-	if(_bbox != 0) devctx->UpdateSubresource(bbox_buf, 0, 0, _bbox, 0, 0);
+	if((XMFLOAT3*)_data[0] != 0) devctx->UpdateSubresource(bbox_buf, 0, 0, _data[0], 0, 0);
+
+	// indices
+	if(bbox_idx_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else bbox_buf->GetDesc(&_buf_desc);
+	if(_size[1] * sizeof(DWORD) > _buf_desc.ByteWidth) {
+		_buf_desc.ByteWidth = _size[1] * sizeof(DWORD);
+		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
+		_buf_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		_buf_desc.CPUAccessFlags = 0;
+		_buf_desc.MiscFlags = 0;
+		if(bbox_idx_buf != 0) bbox_idx_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &bbox_idx_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create index buffer");
+	}
+	if((DWORD*)_data[1] != 0) devctx->UpdateSubresource(bbox_idx_buf, 0, 0, _data[1], 0, 0);
 }
 void GraphR::ObGroup::update_coord_tex(XMFLOAT2 const*const _coord_tex, uint32_t const _size) {
 	if(_coord_tex == 0 || _size == 0) return;
@@ -188,12 +200,12 @@ void GraphR::ObGroup::update_coord_tex(XMFLOAT2 const*const _coord_tex, uint32_t
 	}
 	devctx->UpdateSubresource(coord_tex_buf, 0, 0, _coord_tex, 0, 0);
 }
-void GraphR::ObGroup::update_ind(DWORD const*const _data, uint32_t const _size) {
+void GraphR::ObGroup::update_idx(DWORD const*const _data, uint32_t const _size) {
 	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
-	if(ind_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
-	else ind_buf->GetDesc(&_buf_desc);
+	if(idx_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else idx_buf->GetDesc(&_buf_desc);
 	
 	if(_size * sizeof(DWORD) > _buf_desc.ByteWidth) {
 		_buf_desc.ByteWidth = _size * sizeof(DWORD);
@@ -201,52 +213,41 @@ void GraphR::ObGroup::update_ind(DWORD const*const _data, uint32_t const _size) 
 		_buf_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
-		if(ind_buf != 0) ind_buf->Release();
-		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &ind_buf);
+		if(idx_buf != 0) idx_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &idx_buf);
 		if(_r != S_OK) logi.pisz("", "failed to create index buffer");
 	}
-	if(_data != 0) devctx->UpdateSubresource(ind_buf, 0, 0, _data, 0, 0);
+	if(_data != 0) devctx->UpdateSubresource(idx_buf, 0, 0, _data, 0, 0);
 }
-void GraphR::ObGroup::update_occluder(bool const*const _data, uint32_t const _size) {
+void GraphR::ObGroup::update_rect_front(XMFLOAT4 const*const _data, uint32_t const _size) {
 	if(_size == 0) return;
 
 	D3D11_BUFFER_DESC _buf_desc;
-	if(occluder_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
-	else occluder_buf->GetDesc(&_buf_desc);
-
-	if(_size * sizeof(bool) > _buf_desc.ByteWidth) {
+	if(rect_front_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else rect_front_buf->GetDesc(&_buf_desc);
+	if(_size * sizeof(XMFLOAT4) > _buf_desc.ByteWidth) {
 		// buf
-		_buf_desc.ByteWidth = _size * sizeof(bool);
+		_buf_desc.ByteWidth = _size * sizeof(XMFLOAT4);
 		_buf_desc.Usage = D3D11_USAGE_DEFAULT;
-		_buf_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_UNORDERED_ACCESS;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
-		if(occluder_buf != 0) occluder_buf->Release();
-		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &occluder_buf);
-		if(_r != S_OK) logi.pisz("", "failed to create occluder buf");
+		if(rect_front_buf != 0) rect_front_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &rect_front_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create rect_front_buf");
 
 		// uav
-		if(occluder_uav != 0) occluder_uav->Release();
 		D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
-		_uav_desc.Format = DXGI_FORMAT_R8_UINT;
+		_uav_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		_uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		_uav_desc.Buffer.FirstElement = 0;
 		_uav_desc.Buffer.NumElements = _size;
 		_uav_desc.Buffer.Flags = 0;
-		_r = dev->CreateUnorderedAccessView(occluder_buf, &_uav_desc, &occluder_uav);
-		if(_r != S_OK) logi.pisz("", "failed to create occluder uav");
-
-		// srv
-		if(occluder_srv != 0) occluder_srv->Release();
-		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
-		_srv_desc.Format = DXGI_FORMAT_R8_UINT;
-		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-		_srv_desc.Buffer.FirstElement = 0;
-		_srv_desc.Buffer.NumElements = _size;
-		_r = dev->CreateShaderResourceView(occluder_buf, &_srv_desc, &occluder_srv);
-		if(_r != S_OK) logi.pisz("", "failed to create occluder srv");
+		if(rect_front_uav != 0) rect_front_uav->Release();
+		_r = dev->CreateUnorderedAccessView(rect_front_buf, &_uav_desc, &rect_front_uav);
+		if(_r != S_OK) logi.pisz("", "failed to create rect_front_uav");
 	}
-	if(_data != 0) devctx->UpdateSubresource(occluder_buf, 0, 0, _data, 0, 0);
+	if(_data != 0) devctx->UpdateSubresource(rect_front_buf, 0, 0, _data, 0, 0);
 }
 void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _size) {
 	if(_size == 0) return;
@@ -429,16 +430,10 @@ void GraphR::create_cs() {
 	vector<byte> _shad_bytes;
 	HRESULT _r;
 
-	// CS_CULL_OCCL
+	// CS_RECT_FRONT
 	cs.push_back(0);
-	_shad_bytes = read_bytes("shader\\cs_cull_occl.cso");
-	_r = dev->CreateComputeShader(&_shad_bytes[0], _shad_bytes.size(), 0, &cs[CS_CULL_OCCL]);
-	if(_r != S_OK) logi.pisz("", "failed to create compute shader");
-
-	// TEST_CS_RECT_OCCL
-	cs.push_back(0);
-	_shad_bytes = read_bytes("shader\\test_cs_rect_occl.cso");
-	_r = dev->CreateComputeShader(&_shad_bytes[0], _shad_bytes.size(), 0, &cs[TEST_CS_RECT_OCCL]);
+	_shad_bytes = read_bytes("shader\\cs_rect_front.cso");
+	_r = dev->CreateComputeShader(&_shad_bytes[0], _shad_bytes.size(), 0, &cs[CS_RECT_FRONT]);
 	if(_r != S_OK) logi.pisz("", "failed to create compute shader");
 }
 void GraphR::create_in_lay() {
@@ -480,7 +475,7 @@ void GraphR::create_in_lay() {
 		};
 		in_lay.push_back(0);
 		_shad_bytes.clear();
-		_shad_bytes = read_bytes("shader\\vs_tform.cso");
+		_shad_bytes = read_bytes("shader\\vs_tform_f3f44.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
 		_r = dev->CreateInputLayout(_desc, ARRAYSIZE(_desc), &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_F3F44]);
 		if(_r != S_OK) logi.pisz("", "input layout not created");
@@ -507,13 +502,13 @@ void GraphR::create_vs() {
 	vector<byte> _shad_bytes;
 	HRESULT _r;
 
-	// VS_PASS_F3
+	// VS_TFORM_F3F44
 	vs.push_back(0);
-	_shad_bytes = read_bytes("shader\\vs_pass_f3.cso");
+	_shad_bytes = read_bytes("shader\\vs_tform_f3f44.cso");
 	_r = dev->CreateVertexShader(
 		&_shad_bytes[0],
 		_shad_bytes.size(),
-		0, &vs[VS_PASS_F3]
+		0, &vs[VS_TFORM_F3F44]
 	);
 	if(_r != S_OK) logi.pisz("", "failed to create vertex shader");
 
@@ -605,209 +600,83 @@ GraphR GraphRes::res;
 // -------------------------------------------------------
 Meshes::~Meshes() {
 	no.destroy();
-	ref.destroy();
+	ref_cnt.destroy();
+	bbox.destroy();
+	bbox_idx.destroy();
 	vert.destroy();
-	coord_tex.destroy();
-	ind.destroy();
+	tex_coord.destroy();
+	vert_idx.destroy();
 }
-void Meshes::create(uint32_t const _hnd) {
-	if(no[_hnd] != no.empty) {
-		++ref[_hnd];
-		return;
-	} else {
-		no[_hnd] = vert.get_col_size();
-		ref[_hnd] = 1;
-	}
-	if(_hnd == MESH_TRI) {
-		XMFLOAT3 _vert[] = {
-			XMFLOAT3(0.0f, -0.2f, 0.0f),
-			XMFLOAT3(0.0f, 0.0f, 0.0f),
-			XMFLOAT3(0.2f, -0.0f, 0.0f),
-		};
-		XMFLOAT2 _teks[] = {
-			XMFLOAT2(0.0f, 1.0f),
-			XMFLOAT2(0.0f, 0.0f),
-			XMFLOAT2(1.0f, 0.0f),
-		};
-		DWORD _ind[] = {0, 1, 2};
-		vert.push_back(_vert, 3);
-		coord_tex.push_back(_teks, 3);
-		ind.push_back(_ind, 3);
-	} else if(_hnd == MESH_RECT) {
-		XMFLOAT3 _vert[] = {
-			XMFLOAT3(+0.5f, -0.5f, +0.0f),
-			XMFLOAT3(-0.5f, -0.5f, +0.0f),
-			XMFLOAT3(-0.5f, +0.5f, +0.0f),
-			XMFLOAT3(+0.5f, +0.5f, +0.0f),
-		};
-		XMFLOAT2 _teks[] = {
-			XMFLOAT2(+1.0f, +0.0f),
-			XMFLOAT2(+1.0f, +1.0f),
-			XMFLOAT2(+0.0f, +1.0f),
-			XMFLOAT2(+0.0f, +0.0f),
-		};
-		DWORD _ind[] = {
-			0, 1, 2,
-			0, 2, 3
-		};
-		vert.push_back(_vert, 4);
-		coord_tex.push_back(_teks, 4);
-		ind.push_back(_ind, 6);
-	} else if(_hnd == MESH_DIAMENT) {
-		XMFLOAT3 _vert[] = {
-			XMFLOAT3(-0.25f, +0.0f, -0.25f),
-			XMFLOAT3(+0.25f, +0.0f, -0.25f),
-			XMFLOAT3(+0.25f, +0.0f, +0.25f),
-			XMFLOAT3(-0.25f, +0.0f, +0.25f),
-			XMFLOAT3(+0.0f, +0.5f, +0.0f),
-			XMFLOAT3(+0.0f, -0.5f, +0.0f),
-		};
-		XMFLOAT2 _teks[] = {
-			XMFLOAT2(+0.0f, +0.5f),
-			XMFLOAT2(+0.5f, +0.5f),
-			XMFLOAT2(+1.0f, +0.5f),
-			XMFLOAT2(+1.0f, +1.0f),
-			XMFLOAT2(+0.5f, +0.0f),
-			XMFLOAT2(+0.5f, +1.0f),
-		};
-		DWORD _ind[] = {
-			0, 4, 1,
-			1, 5, 0,
-			1, 4, 2,
-			2, 5, 1,
-			2, 4, 3,
-			3, 5, 2,
-			3, 4, 0,
-			0, 5, 3,
-		};
-		vert.push_back(_vert, 6);
-		coord_tex.push_back(_teks, 6);
-		ind.push_back(_ind, 24);
-	}
-}
-void Meshes::defrag(uint32_t const _size) {
-	uint32_t* _mapa1 = 0,* _mapa2 = 0;
-	vert.defrag_comp(_mapa1, _mapa2, _size);
-	vert.defrag_exe(_mapa1, _mapa2);
-	coord_tex.defrag_exe(_mapa1, _mapa2);
-	ind.defrag_exe(_mapa1, _mapa2);
-	no.update(_mapa1);
-	ref.update(_mapa1);
-}
-void Meshes::destroy(uint32_t const _hnd) {
-	if(no[_hnd] == no.empty) {
-		return;
-	} else if(ref[_hnd] > 1) {
-		--ref[_hnd];
+void Meshes::insert(uint32_t const _id, void*const*const _data, uint32_t const*const _size) {
+	if(no[_id] != no.empty) {
+		++ref_cnt[_id];
 		return;
 	}
-	vert.erase(no[_hnd]);
-	coord_tex.erase(no[_hnd]);
-	ind.erase(no[_hnd]);
-	no[_hnd] = no.empty;
-	ref[_hnd] = 0;
+	no[_id] = vert.get_col_size();
+	ref_cnt[_id] = 1;
+	bbox.push_back((XMFLOAT3*)_data[0], _size[0]);
+	bbox_idx.push_back((DWORD*)_data[1], _size[1]);
+	vert.push_back((XMFLOAT3*)_data[2], _size[2]);
+	tex_coord.push_back((XMFLOAT2*)_data[3], _size[3]);
+	vert_idx.push_back((DWORD*)_data[4], _size[4]);
 }
-void Meshes::sort_comp(uint32_t*& _map) {
-	free(_map);
-	_map = (uint32_t*)malloc(vert.get_col_size() * 4);
-	uint32_t _ind = 0;
-	for(uint32_t _i = 0; _i < no.get_cap(); ++_i) {
-		if(no[_i] == no.empty) continue;
-		_map[no[_i]] = _ind++;
+void Meshes::erase(uint32_t const _id) {
+	if(no[_id] == no.empty)
+		return;
+	else if(ref_cnt[_id] > 1) {
+		--ref_cnt[_id];
+		return;
 	}
-}
-void Meshes::sort_exe(uint32_t const*const _map) {
-	no.update(_map);
-	vert.sort_exe(_map);
-	coord_tex.sort_exe(_map);
-	ind.sort_exe(_map);
+	bbox.erase(no[_id]);
+	bbox_idx.erase(no[_id]);
+	vert.erase(no[_id]);
+	tex_coord.erase(no[_id]);
+	vert_idx.erase(no[_id]);
+	no[_id] = no.empty;
+	ref_cnt[_id] = 0;
 }
 // -------------------------------------------------------
 Textures::~Textures() {
 	no.destroy();
-	ref.destroy();
-	for(uint32_t _i = 0; _i < view.get_size(); ++_i) {
-		view[_i]->Release();
+	ref_cnt.destroy();
+	for(uint32_t _i = 0; _i < tex.get_size(); ++_i) {
+		if(tex[_i] != tex.empty) {
+			tex[_i]->Release();
+			srv[_i]->Release();
+		}
 	}
-	view.destroy();
+	tex.destroy();
+	srv.destroy();
 }
-void Textures::create(uint32_t const _hnd) {
-	if(no[_hnd] != no.empty) {
-		++ref[_hnd];
-		return;
-	} else {
-		no[_hnd] = view.get_size();
-		ref[_hnd] = 1;
-	}
-
-	D3D11_TEXTURE2D_DESC _desc;
-	_desc.Width = 100;
-	_desc.Height = 100;
-	_desc.MipLevels = 1;
-	_desc.ArraySize = 1;
-	_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	_desc.SampleDesc.Count = 1;
-	_desc.SampleDesc.Quality = 0;
-	_desc.Usage = D3D11_USAGE_DEFAULT;
-	_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	_desc.CPUAccessFlags = 0;
-	_desc.MiscFlags = 0;
-
-	tex.push_back(0);
-	HRESULT _r = dev->CreateTexture2D(&_desc, 0, &tex[tex.get_size()-1]);
-	if(_r != S_OK) logi.pisz("", "failed to create a texture");
-	
-	view.push_back(0);
-	CreateWICTextureFromFile(dev, get_path(_hnd), (ID3D11Resource**)&tex[tex.get_size()-1], (ID3D11ShaderResourceView**)&view[view.get_size()-1], 0);
-	//D3DX11CreateShaderResourceViewFromFile(dev, get_path(_hnd), 0, 0, &view[view.get_size()-1], 0);
-}
-void Textures::defrag(uint32_t const _size) {
-	uint32_t* _map = 0;
-	view.defrag_comp(_map, _size);
-	view.defrag_exe(_map);
-	no.update(_map);
-	ref.update(_map);
-}
-void Textures::destroy(uint32_t const _hnd) {
-	if(no[_hnd] == no.empty) {
-		return;
-	} else if(ref[_hnd] > 1) {
-		--ref[_hnd];
+void Textures::insert(uint32_t const _id, void*const*const _data) {
+	if(no[_id] != no.empty) {
+		++ref_cnt[_id];
 		return;
 	}
-	view[no[_hnd]]->Release();
-	view.erase(no[_hnd]);
-	no[_hnd] = no.empty;
-	ref[_hnd] = 0;
+	no[_id] = srv.get_size();
+	ref_cnt[_id] = 1;
+	tex.push_back((ID3D11Texture2D*)_data[0]);
+	srv.push_back((ID3D11ShaderResourceView*)_data[1]);
 }
-wchar_t const*const Textures::get_path(uint32_t const _hnd) const {
-	switch(_hnd) {
-	case TEX_TRI:
-		return L"texture/cursor.jpg";
-	case TEX_RECT:
-		return L"texture/rectangle.jpg";
-	case TEX_DIAMENT:
-		return L"texture/diament.jpg";
+void Textures::erase(uint32_t const _id) {
+	if(no[_id] == no.empty)
+		return;
+	else if(ref_cnt[_id] > 1) {
+		--ref_cnt[_id];
+		return;
 	}
-}
-void Textures::sort_comp(uint32_t*& _map) {
-	free(_map);
-	_map = (uint32_t*)malloc(view.get_size() * 4);
-	uint32_t _ind = 0;
-	for(uint32_t _i = 0; _i < no.get_cap(); ++_i) {
-		if(no[_i] == no.empty) continue;
-		_map[no[_i]] = _ind++;
-	}
+	tex.erase(no[_id]);
+	srv.erase(no[_id]);
+	no[_id] = no.empty;
+	ref_cnt[_id] = 0;
 }
 // -------------------------------------------------------
 DataEngine::Data::~Data() {
 	no.destroy();
 	loc.destroy();
 	v.destroy();
-	mtx_world.destroy();
-	mtx_wvp.destroy();
-	bbox_local.destroy();
-	bbox_scr.destroy();
+	world.destroy();
+	wvp.destroy();
 	occluder.destroy();
 	mesh_hnd.destroy();
 	tex_hnd.destroy();

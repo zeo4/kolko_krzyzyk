@@ -423,12 +423,12 @@ template<class A, class B = A>
 struct Pair {
 	inline bool		operator==(Pair const&) const;
 	inline bool		operator!=(Pair const&) const;
-	A				pierw;
-	B				drug;
+	A				first;
+	B				second;
 };
 template<class A, class B>
 bool Pair<A,B>::operator==(Pair const& _pair) const {
-	return (pierw == _pair.pierw && drug == _pair.drug);
+	return (first == _pair.first && second == _pair.second);
 }
 template<class A, class B>
 bool Pair<A,B>::operator!=(Pair const& _pair) const {
@@ -437,7 +437,7 @@ bool Pair<A,B>::operator!=(Pair const& _pair) const {
 // -------------------------------------------------------
 template<class A, class B>
 std::ostream& operator<<(std::ostream& _stream, Pair<A,B> const& _pair) {
-	_stream << "{" << _pair.pierw << ", " << _pair.drug << "}";
+	_stream << "{" << _pair.first << ", " << _pair.second << "}";
 	return _stream;
 }
 // -------------------------------------------------------
@@ -477,7 +477,7 @@ protected:
 };
 template<class T>
 T*const& Vec2<T>::operator[](uint32_t const& _no) const {
-	return &el[rows[_no].pierw];
+	return &el[rows[_no].first];
 }
 template<class T>
 void Vec2<T>::update(uint32_t const*const _map) {
@@ -501,7 +501,7 @@ void Vec2<T>::defrag_comp(uint32_t*& _rows_map, uint32_t*& _el_map, uint32_t con
 		_ind < rows.get_size() && _licz > 0;
 		++_ind) {
 		if(rows[_ind] == rows.empty) continue;
-		_il_el += rows[_ind].drug;
+		_il_el += rows[_ind].second;
 		--_licz;
 	}
 
@@ -520,7 +520,7 @@ void Vec2<T>::comp_range(uint32_t& _hasz_min, uint32_t& _hasz_max, H _comp_hasz)
 	uint32_t _hasz;
 	for(uint32_t _i = 0; _i < rows.get_size(); ++_i) {
 		if(rows[_i] == empty) continue;
-		_hasz = _comp_hasz(el[rows[_i].pierw]);
+		_hasz = _comp_hasz(el[rows[_i].first]);
 		if(_hasz < _hasz_min) _hasz_min = _hasz;
 		if(_hasz > _hasz_max) _hasz_max = _hasz;
 	}
@@ -547,7 +547,7 @@ void Vec2<T>::sort_comp(uint32_t*& _rows_map, H _comp_hasz) const {
 	for(_i = 0; _i < rows.get_size(); ++_i) {
 		if(rows[_i] == empty) _t1[_i] = 0x80000000;
 		else {
-			_t1[_i] = _comp_hasz(el[rows[_i].pierw]) - _hasz_min; // tablica hasze wierszy
+			_t1[_i] = _comp_hasz(el[rows[_i].first]) - _hasz_min; // tablica hasze wierszy
 			++_t2[_t1[_i]]; // tablica powtórzenia haszy
 		}
 	}
@@ -624,10 +624,10 @@ void Vec2<T>::sort_exe(uint32_t const*const _rows_map) {
 	wyp_pam(_el_map, 0x80000000, el.get_size());
 	uint32_t _i, _j, _ind = 0;
 	for(_i = 0; _i < rows.get_size(); ++_i) {
-		for(_j = rows[_i].pierw; _j < rows[_i].pierw + rows[_i].drug; ++_j) {
+		for(_j = rows[_i].first; _j < rows[_i].first + rows[_i].second; ++_j) {
 			_el_map[_j] = _ind++;
 		}
-		rows[_i].pierw = _ind - rows[_i].drug;
+		rows[_i].first = _ind - rows[_i].second;
 	}
 
 	el.sort_exe(_el_map);
@@ -635,7 +635,7 @@ void Vec2<T>::sort_exe(uint32_t const*const _rows_map) {
 template<class T>
 void Vec2<T>::erase(uint32_t const& _no, uint32_t _size) {
 	for(uint32_t _i = 0; _i < _size; ++_i) {
-		el.erase(rows[_no+_i].pierw, rows[_no+_i].drug);
+		el.erase(rows[_no+_i].first, rows[_no+_i].second);
 		rows.erase(_no+_i);
 	}
 }
@@ -677,16 +677,16 @@ void Vec2<T>::erase_dupl_comp(uint32_t*& _map, H1 _comp_hasz1, H2 _comp_hasz2) c
 		_map[_i] = 0x80000000;
 		++_i;
 	}
-	_hasz_poprz1 = _comp_hasz1(el[rows[_i].pierw]);
-	_hasz_poprz2 = _comp_hasz2(el[rows[_i].pierw]);
+	_hasz_poprz1 = _comp_hasz1(el[rows[_i].first]);
+	_hasz_poprz2 = _comp_hasz2(el[rows[_i].first]);
 	_map[_i] = _ind++;
 	for(++_i; _i < rows.get_size(); ++_i) {
 		if(rows[_i] == empty) {
 			_map[_i] = 0x80000000;
 			continue;
 		}
-		_hasz_nast1 = _comp_hasz1(el[rows[_i].pierw]);
-		_hasz_nast2 = _comp_hasz2(el[rows[_i].pierw]);
+		_hasz_nast1 = _comp_hasz1(el[rows[_i].first]);
+		_hasz_nast2 = _comp_hasz2(el[rows[_i].first]);
 		if(_hasz_poprz1 == _hasz_nast1) {
 			if(_hasz_poprz2 == _hasz_nast2) {
 				_map[_i] = 0x80000000;
@@ -705,7 +705,7 @@ template<class T>
 void Vec2<T>::pop_back(uint32_t _size) {
 	if(_size > rows.get_size()) _size = rows.get_size();
 	for(uint32_t _i = 0; _i < _size; ++_i) {
-		el.pop_back(rows[rows.get_size()-1].drug);
+		el.pop_back(rows[rows.get_size()-1].second);
 		rows.pop_back();
 	}
 }

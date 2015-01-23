@@ -36,10 +36,10 @@ void Physics::pick_ob(uint32_t const _i_task) {
 	for(uint32_t _hnd_ob = 0; _hnd_ob < data_e.no.wez_poj(); ++_hnd_ob) {
 		if(data_e.no.sprawdz_pusty(_hnd_ob)) continue;
 		_loc1 = XMVector3TransformCoord(_loc, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.mtx_world[data_e.no[_hnd_ob]])
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.world[data_e.no[_hnd_ob]])
 		));
 		_dir1 = XMVector3TransformNormal(_dir, XMMatrixInverse(
-			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.mtx_world[data_e.no[_hnd_ob]])
+			&XMVectorSet(0,0,0,0), XMLoadFloat4x4(&data_e.world[data_e.no[_hnd_ob]])
 		));
 		_t1 = compute_ray_ob(_dir1, _dir1, data_e.no[_hnd_ob]);
 		if(_t1 < _t) {
@@ -70,10 +70,10 @@ float Physics::compute_ray_ob(XMVECTOR const& _pocz, XMVECTOR const& _kier, uint
 	XMVECTOR _w0, _w1, _w2;
 	uint32_t const _uch_mod = data_e.mesh_hnd[_nr_ob];
 	float _t = 1000.0f, _t1;
-	for(uint32_t _i = 0; _i < data_e.mesh.get_ind_row(_uch_mod).drug; _i += 3) {
-		_w0 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i]);
-		_w1 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i+1]);
-		_w2 = XMLoadFloat3(data_e.mesh.get_vert(_uch_mod) + data_e.mesh.get_ind(_uch_mod)[_i+2]);
+	for(uint32_t _i = 0; _i < data_e.mesh.vert_idx.get_row(_uch_mod).second; _i += 3) {
+		_w0 = XMLoadFloat3(data_e.mesh.vert[_uch_mod] + data_e.mesh.vert_idx[_uch_mod][_i]);
+		_w1 = XMLoadFloat3(data_e.mesh.vert[_uch_mod] + data_e.mesh.vert_idx[_uch_mod][_i+1]);
+		_w2 = XMLoadFloat3(data_e.mesh.vert[_uch_mod] + data_e.mesh.vert_idx[_uch_mod][_i+2]);
 		_t1 = compute_ray_tri(_pocz, _kier, _w0, _w1, _w2);
 		if(_t1 < _t) _t = _t1;
 	}
@@ -147,35 +147,243 @@ void Physics::create_ob(uint32_t const _i_task) {
 	TaskCreateOb _task = *(TaskCreateOb*)task[_i_task];
 	data_e.loc.push_back(XMFLOAT3(0.0f, 0.0f, 0.5f));
 	data_e.v.push_back(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	data_e.mtx_world.push_back(XMFLOAT4X4());
+	data_e.world.push_back(XMFLOAT4X4());
 	XMStoreFloat4x4(
-		&data_e.mtx_world[data_e.mtx_world.get_size()-1], XMMatrixIdentity()
+		&data_e.world[data_e.world.get_size()-1], XMMatrixIdentity()
 	);
-	data_e.mtx_wvp.push_back(XMFLOAT4X4());
+	data_e.wvp.push_back(XMFLOAT4X4());
 	XMStoreFloat4x4(
-		&data_e.mtx_wvp[data_e.mtx_wvp.get_size()-1], XMMatrixIdentity()
+		&data_e.wvp[data_e.wvp.get_size()-1], XMMatrixIdentity()
 	);
-	XMFLOAT3 _bbox[] = {
-		XMFLOAT3(-1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, 1.0f, -1.0f),
-		XMFLOAT3(1.0f, 1.0f, -1.0f),
-		XMFLOAT3(1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, -1.0f, 1.0f),
-		XMFLOAT3(-1.0f, 1.0f, 1.0f),
-		XMFLOAT3(1.0f, 1.0f, 1.0f),
-		XMFLOAT3(1.0f, -1.0f, 1.0f),
-	};
-	data_e.bbox_local.push_back(_bbox, 8);
-	data_e.bbox_scr.push_back(_bbox, 8);
 	data_e.occluder.push_back(false);
-	data_e.mesh_hnd.push_back(_task.mesh_hnd);
-	data_e.tex_hnd.push_back(_task.tex_hnd);
-	data_e.mesh.create(_task.mesh_hnd);
-	data_e.tex.create(_task.tex_hnd);
+	create_mesh(_task.mesh_hnd);
+	create_tex(_task.tex_hnd);
+	
 	insert_result(
 		ResultCreateOb{TASK_CREATE_OB, data_e.no.wstaw(data_e.loc.get_size()-1)}
 	);
 	task.erase(_i_task);
+}
+void Physics::create_mesh(uint32_t const _id) {
+	data_e.mesh_hnd.push_back(_id);
+
+	switch(_id) {
+	case MESH_TRI: {
+		XMFLOAT3 _bbox[] = {
+			XMFLOAT3(-1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, -1.0f, 1.0f),
+			XMFLOAT3(-1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		};
+		DWORD _bbox_idx [] = {
+			0, 1, 2,
+			0, 2, 3,
+			0, 3, 7,
+			0, 7, 4,
+			0, 4, 5,
+			0, 5, 1,
+			6, 2, 1,
+			6, 1, 5,
+			6, 5, 4,
+			6, 4, 7,
+			6, 7, 3,
+			6, 3, 2,
+		};
+		XMFLOAT3 _vert[] = {
+			XMFLOAT3(0.0f, -0.2f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT3(0.2f, -0.0f, 0.0f),
+		};
+		XMFLOAT2 _tex_coord[] = {
+			XMFLOAT2(0.0f, 1.0f),
+			XMFLOAT2(0.0f, 0.0f),
+			XMFLOAT2(1.0f, 0.0f),
+		};
+		DWORD _vert_idx[] = {0, 1, 2};
+		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 36, 3, 3, 3};
+		data_e.mesh.insert(_id, _data, _size);
+		break;
+	}
+	case MESH_RECT: {
+		XMFLOAT3 _bbox[] = {
+			XMFLOAT3(-1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, -1.0f, 1.0f),
+			XMFLOAT3(-1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		};
+		DWORD _bbox_idx [] = {
+			0, 1, 2,
+			0, 2, 3,
+			0, 3, 7,
+			0, 7, 4,
+			0, 4, 5,
+			0, 5, 1,
+			6, 2, 1,
+			6, 1, 5,
+			6, 5, 4,
+			6, 4, 7,
+			6, 7, 3,
+			6, 3, 2,
+		};
+		XMFLOAT3 _vert[] = {
+			XMFLOAT3(+0.5f, -0.5f, +0.0f),
+			XMFLOAT3(-0.5f, -0.5f, +0.0f),
+			XMFLOAT3(-0.5f, +0.5f, +0.0f),
+			XMFLOAT3(+0.5f, +0.5f, +0.0f),
+		};
+		XMFLOAT2 _tex_coord[] = {
+			XMFLOAT2(+1.0f, +0.0f),
+			XMFLOAT2(+1.0f, +1.0f),
+			XMFLOAT2(+0.0f, +1.0f),
+			XMFLOAT2(+0.0f, +0.0f),
+		};
+		DWORD _vert_idx[] = {
+			0, 1, 2,
+			0, 2, 3
+		};
+		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 36, 4, 4, 6};
+		data_e.mesh.insert(_id, _data, _size);
+		break;
+	}
+	case MESH_DIAMENT: {
+		XMFLOAT3 _bbox[] = {
+			XMFLOAT3(-1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, 1.0f, -1.0f),
+			XMFLOAT3(1.0f, -1.0f, -1.0f),
+			XMFLOAT3(-1.0f, -1.0f, 1.0f),
+			XMFLOAT3(-1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, 1.0f, 1.0f),
+			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		};
+		DWORD _bbox_idx [] = {
+			0, 1, 2,
+			0, 2, 3,
+			0, 3, 7,
+			0, 7, 4,
+			0, 4, 5,
+			0, 5, 1,
+			6, 2, 1,
+			6, 1, 5,
+			6, 5, 4,
+			6, 4, 7,
+			6, 7, 3,
+			6, 3, 2,
+		};
+		XMFLOAT3 _vert[] = {
+			XMFLOAT3(-0.25f, +0.0f, -0.25f),
+			XMFLOAT3(+0.25f, +0.0f, -0.25f),
+			XMFLOAT3(+0.25f, +0.0f, +0.25f),
+			XMFLOAT3(-0.25f, +0.0f, +0.25f),
+			XMFLOAT3(+0.0f, +0.5f, +0.0f),
+			XMFLOAT3(+0.0f, -0.5f, +0.0f),
+		};
+		XMFLOAT2 _tex_coord[] = {
+			XMFLOAT2(+0.0f, +0.5f),
+			XMFLOAT2(+0.5f, +0.5f),
+			XMFLOAT2(+1.0f, +0.5f),
+			XMFLOAT2(+1.0f, +1.0f),
+			XMFLOAT2(+0.5f, +0.0f),
+			XMFLOAT2(+0.5f, +1.0f),
+		};
+		DWORD _vert_idx[] = {
+			0, 4, 1,
+			1, 5, 0,
+			1, 4, 2,
+			2, 5, 1,
+			2, 4, 3,
+			3, 5, 2,
+			3, 4, 0,
+			0, 5, 3,
+		};
+		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 36, 6, 6, 24};
+		data_e.mesh.insert(_id, _data, _size);
+		break;
+	}
+	}
+}
+void Physics::create_tex(uint32_t const _id) {
+	data_e.tex_hnd.push_back(_id);
+
+	switch(_id) {
+	case TEX_TRI: {
+		D3D11_TEXTURE2D_DESC _desc;
+		_desc.Width = 100;
+		_desc.Height = 100;
+		_desc.MipLevels = 1;
+		_desc.ArraySize = 1;
+		_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		_desc.SampleDesc.Count = 1;
+		_desc.SampleDesc.Quality = 0;
+		_desc.Usage = D3D11_USAGE_DEFAULT;
+		_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		_desc.CPUAccessFlags = 0;
+		_desc.MiscFlags = 0;
+		ID3D11Texture2D* _tex;
+		HRESULT _r = dev->CreateTexture2D(&_desc, 0, &_tex);
+		if(_r != S_OK) logi.pisz("", "failed to create a texture");
+		ID3D11ShaderResourceView* _srv;
+		CreateWICTextureFromFile(dev, L"texture/cursor.jpg", (ID3D11Resource**)&_tex, (ID3D11ShaderResourceView**)&_srv, 0);
+		void* _data[] = {_tex, _srv};
+		data_e.tex.insert(_id, _data);
+		break;
+	}
+	case TEX_RECT: {
+		D3D11_TEXTURE2D_DESC _desc;
+		_desc.Width = 100;
+		_desc.Height = 100;
+		_desc.MipLevels = 1;
+		_desc.ArraySize = 1;
+		_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		_desc.SampleDesc.Count = 1;
+		_desc.SampleDesc.Quality = 0;
+		_desc.Usage = D3D11_USAGE_DEFAULT;
+		_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		_desc.CPUAccessFlags = 0;
+		_desc.MiscFlags = 0;
+		ID3D11Texture2D* _tex;
+		HRESULT _r = dev->CreateTexture2D(&_desc, 0, &_tex);
+		if(_r != S_OK) logi.pisz("", "failed to create a texture");
+		ID3D11ShaderResourceView* _srv;
+		CreateWICTextureFromFile(dev, L"texture/rectangle.jpg", (ID3D11Resource**)&_tex, (ID3D11ShaderResourceView**)&_srv, 0);
+		void* _data[] = {_tex, _srv};
+		data_e.tex.insert(_id, _data);
+		break;
+	}
+	case TEX_DIAMENT: {
+		D3D11_TEXTURE2D_DESC _desc;
+		_desc.Width = 100;
+		_desc.Height = 100;
+		_desc.MipLevels = 1;
+		_desc.ArraySize = 1;
+		_desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		_desc.SampleDesc.Count = 1;
+		_desc.SampleDesc.Quality = 0;
+		_desc.Usage = D3D11_USAGE_DEFAULT;
+		_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		_desc.CPUAccessFlags = 0;
+		_desc.MiscFlags = 0;
+		ID3D11Texture2D* _tex;
+		HRESULT _r = dev->CreateTexture2D(&_desc, 0, &_tex);
+		if(_r != S_OK) logi.pisz("", "failed to create a texture");
+		ID3D11ShaderResourceView* _srv;
+		CreateWICTextureFromFile(dev, L"texture/diament.jpg", (ID3D11Resource**)&_tex, (ID3D11ShaderResourceView**)&_srv, 0);
+		void* _data[] = {_tex, _srv};
+		data_e.tex.insert(_id, _data);
+		break;
+	}
+	}
 }
 void Physics::detect_coll(uint32_t const _i_task) {
 	// collision detection here

@@ -18,6 +18,16 @@ IDXGraphicsAnalysis : public IUnknown
 // -------------------------------------------------------
 vector<byte> read_bytes(string);
 // -------------------------------------------------------
+enum MeshNo{
+	MESH_TRI,
+	MESH_RECT,
+	MESH_DIAMENT,
+};
+enum TexNo{
+	TEX_TRI,
+	TEX_RECT,
+	TEX_DIAMENT,
+};
 enum InLayNo {
 	IN_F3,
 	IN_F3F2,
@@ -25,11 +35,10 @@ enum InLayNo {
 	IN_F3F2F44,
 };
 enum CSNo {
-	CS_CULL_OCCL,
-	TEST_CS_RECT_OCCL,
+	CS_RECT_FRONT,
 };
 enum VSNo {
-	VS_PASS_F3,
+	VS_TFORM_F3F44,
 	VS_PASS_ON,
 	VS_TFORM,
 	VS_TFORM_TEX,
@@ -68,27 +77,28 @@ struct GraphR : public GraphDev {
 										~ObGroup();
 		void							update_wvp(XMFLOAT4X4 const*const,
 											uint32_t const);
-		void							update_bbox(XMFLOAT3 const*const, uint32_t const);
-		void							update_occluder(bool const*const,
+		void							update_bbox(void*const*const,
+											uint32_t const*const);
+		void							update_rect_front(XMFLOAT4 const*const,
 											uint32_t const);
 		void							update_vert(XMFLOAT3 const*const, uint32_t const);
 		void							update_coord_tex(XMFLOAT2 const*const,
 											uint32_t const);
-		void							update_ind(DWORD const*const, uint32_t const);
+		void							update_idx(DWORD const*const, uint32_t const);
 		void							update_so(uint32_t const);
 		void							bind_vert(uint32_t const) const;
-		XMFLOAT4X4*						wvp_tposed;
+		Vec<XMFLOAT4X4>					wvp_tposed;
 		ID3D11Buffer*					wvp_buf;
 		ID3D11ShaderResourceView*		wvp_srv;
 		ID3D11Buffer*					bbox_buf;
 		ID3D11ShaderResourceView*		bbox_srv;
-		ID3D11Buffer*					occluder_buf;
-		ID3D11UnorderedAccessView*		occluder_uav;
-		ID3D11ShaderResourceView*		occluder_srv;
+		ID3D11Buffer*					bbox_idx_buf;
+		ID3D11Buffer*					rect_front_buf;
+		ID3D11UnorderedAccessView*		rect_front_uav;
 		ID3D11Buffer*					vert_buf;
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;
-		ID3D11Buffer*					ind_buf;
+		ID3D11Buffer*					idx_buf;
 		ID3D11Buffer*					so_buf;
 	};
 										GraphR();
@@ -126,102 +136,29 @@ struct GraphRes {
 };
 // -------------------------------------------------------
 class Meshes {
-	typedef Pair<uint32_t> Pair_;
 public:
-									~Meshes();
-	inline XMFLOAT3 const*const		get_vert() const;
-	inline XMFLOAT3 const*const		get_vert(uint32_t const);
-	inline uint32_t					get_vert_size() const;
-	inline Pair_ const				get_vert_row(uint32_t const);
-	inline XMFLOAT2 const*const		get_coord_tex() const;
-	inline XMFLOAT2 const*const		get_coord_tex(uint32_t const);
-	inline uint32_t					get_coord_tex_size() const;
-	inline Pair_ const				get_coord_tex_row(uint32_t const);
-	inline DWORD const*const		get_ind() const;
-	inline DWORD const*const		get_ind(uint32_t const);
-	inline uint32_t					get_ind_size() const;
-	inline Pair_ const				get_ind_row(uint32_t const);
-	inline uint32_t					get_mesh_size() const;
-	void							sort_comp(uint32_t*&);
-	void							sort_exe(uint32_t const*const);
-	void							defrag(uint32_t const);
-	void							create(uint32_t const);
-	void							destroy(uint32_t const);
-protected:
-	VecSparse<uint32_t>				no;
-	VecSparse<uint32_t>				ref;
-	Vec2<XMFLOAT3>					vert;
-	Vec2<XMFLOAT2>					coord_tex;
-	Vec2<DWORD>						ind;
+							~Meshes();
+	void					insert(uint32_t const, void*const*const, uint32_t const*const);
+	void					erase(uint32_t const);
+	VecSparse<uint32_t>		no;
+	VecSparse<uint32_t>		ref_cnt;
+	Vec2<XMFLOAT3>			bbox;
+	Vec2<DWORD>				bbox_idx;
+	Vec2<XMFLOAT3>			vert;
+	Vec2<XMFLOAT2>			tex_coord;
+	Vec2<DWORD>				vert_idx;
 };
-XMFLOAT2 const*const Meshes::get_coord_tex() const {
-	return coord_tex[0];
-}
-XMFLOAT2 const*const Meshes::get_coord_tex(uint32_t const _uch) {
-	return coord_tex[no[_uch]];
-}
-Meshes::Pair_ const Meshes::get_coord_tex_row(uint32_t const _uch) {
-	return coord_tex.get_row(no[_uch]);
-}
-uint32_t Meshes::get_coord_tex_size() const {
-	return coord_tex.get_size();
-}
-DWORD const*const Meshes::get_ind() const {
-	return ind[0];
-}
-DWORD const*const Meshes::get_ind(uint32_t const _uch) {
-	return ind[no[_uch]];
-}
-Meshes::Pair_ const Meshes::get_ind_row(uint32_t const _uch) {
-	return ind.get_row(no[_uch]);
-}
-uint32_t Meshes::get_ind_size() const {
-	return ind.get_size();
-}
-uint32_t Meshes::get_mesh_size() const {
-	return vert.get_col_size();
-}
-XMFLOAT3 const*const Meshes::get_vert() const {
-	return vert[0];
-}
-XMFLOAT3 const*const Meshes::get_vert(uint32_t const _uch) {
-	return vert[no[_uch]];
-}
-Meshes::Pair_ const Meshes::get_vert_row(uint32_t const _uch) {
-	return vert.get_row(no[_uch]);
-}
-uint32_t Meshes::get_vert_size() const {
-	return vert.get_size();
-}
 // -------------------------------------------------------
-class Textures : protected GraphDev {
-	typedef ID3D11ShaderResourceView* TexView_;
+class Textures {
 public:
-								~Textures();
-	inline uint32_t				get_size() const;
-	inline TexView_ const&		get(uint32_t const);
-	void						sort_comp(uint32_t*&);
-	inline void					sort_exe(uint32_t const*const);
-	void						defrag(uint32_t const);
-	void						create(uint32_t const);
-	wchar_t const*const			get_path(uint32_t const) const;
-	void						destroy(uint32_t const);
-protected:
-	VecSparse<uint32_t>			no;
-	VecSparse<uint32_t>			ref;
-	Vec<ID3D11Texture2D*>		tex;
-	Vec<TexView_>				view;
+										~Textures();
+	void								insert(uint32_t const, void*const*const);
+	void								erase(uint32_t const);
+	VecSparse<uint32_t>					no;
+	VecSparse<uint32_t>					ref_cnt;
+	Vec<ID3D11Texture2D*>				tex;
+	Vec<ID3D11ShaderResourceView*>		srv;
 };
-Textures::TexView_ const& Textures::get(uint32_t const _uch) {
-	return view[no[_uch]];
-}
-uint32_t Textures::get_size() const {
-	return view.get_size();
-}
-void Textures::sort_exe(uint32_t const*const _map) {
-	no.update(_map);
-	view.sort_exe(_map);
-}
 // -------------------------------------------------------
 struct DataEngine {
 	struct Data {
@@ -229,10 +166,8 @@ struct DataEngine {
 		UchPula				no;
 		Vec<XMFLOAT3>		loc;
 		Vec<XMFLOAT3>		v;
-		Vec<XMFLOAT4X4>		mtx_world;
-		Vec<XMFLOAT4X4>		mtx_wvp;
-		Vec2<XMFLOAT3>		bbox_local;
-		Vec2<XMFLOAT3>		bbox_scr;
+		Vec<XMFLOAT4X4>		world;
+		Vec<XMFLOAT4X4>		wvp;
 		Vec<float>			t_coll;
 		Vec<bool>			occluder;
 		Vec<uint32_t>		mesh_hnd;

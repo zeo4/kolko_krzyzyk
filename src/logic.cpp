@@ -47,14 +47,14 @@ void Logika::handle_input(MSG const& _wiad) {
 		_pkt.x = float(_pkt.x) - float(GraphDev::scr_size.width)/2;
 		_pkt.y = -float(_pkt.y) + float(GraphDev::scr_size.height)/2;
 		if(_pkt.x > 0) {
-			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(0.0f, 3.14f*1.5f/180, 0.0f)});
+			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(0.0f, 3.14f*1.0f/180, 0.0f)});
 		} else if(_pkt.x < 0) {
-			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(0.0f, -3.14f*1.5f/180, 0.0f)});
+			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(0.0f, -3.14f*1.0f/180, 0.0f)});
 		}
 		if(_pkt.y > 0) {
-			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(-3.14f*1.5f/180, 0.0f, 0.0f)});
+			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(-3.14f*1.0f/180, 0.0f, 0.0f)});
 		}else if(_pkt.y < 0) {
-			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(3.14f*1.5f/180, 0.0f, 0.0f)});
+			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(3.14f*1.0f/180, 0.0f, 0.0f)});
 		}
 		POINT _p = {GraphDev::scr_size.width/2, GraphDev::scr_size.height/2};
 		ClientToScreen(uch_okno, &_p);
@@ -82,37 +82,37 @@ void Logika::handle_input(MSG const& _wiad) {
 		}
 		if(data_game.hnd_picked != 0x80000000) {
 			switch(_wiad.wParam) {
-			case 0x57: // w
+			case VK_UP:
 				insert_task(TaskSetVOb{TASK_SET_V_OB, data_game.hnd_picked, XMFLOAT3(0.0f, 0.05f, 0.0f)});
 				break;
-			case 0x53: // s
+			case VK_DOWN:
 				insert_task(TaskSetVOb{TASK_SET_V_OB, data_game.hnd_picked, XMFLOAT3(0.0f, -0.05f, 0.0f)});
 				break;
-			case 0x41: // a
+			case VK_LEFT:
 				insert_task(TaskSetVOb{TASK_SET_V_OB, data_game.hnd_picked, XMFLOAT3(-0.05f, 0.0f, 0.0f)});
 				break;
-			case 0x44: // d
+			case VK_RIGHT:
 				insert_task(TaskSetVOb{TASK_SET_V_OB, data_game.hnd_picked, XMFLOAT3(0.05f, 0.0f, 0.0f)});
 				break;
 			}
 		} else {
 			switch(_wiad.wParam) {
-			case 0x57: // w
+			case VK_UP:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, 0.0f, 0.2f)});
 				break;
-			case 0x53: // s
+			case VK_DOWN:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, 0.0f, -0.2f)});
 				break;
-			case 0x41: // a
+			case VK_LEFT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(-0.2f, 0.0f, 0.0f)});
 				break;
-			case 0x44: // d
+			case VK_RIGHT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.2f, 0.0f, 0.0f)});
 				break;
-			case 0x52: // r
+			case VK_SHIFT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, 0.2f, 0.0f)});
 				break;
-			case 0x46: // f
+			case VK_END:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, -0.2f, 0.0f)});
 				break;
 			}
@@ -123,22 +123,22 @@ void Logika::handle_input(MSG const& _wiad) {
 		if(data_game.hnd_picked != 0x80000000) {
 		} else {
 			switch(_wiad.wParam) {
-			case 0x57: // w
+			case VK_UP:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(1.0f, 1.0f, 0.0f)});
 				break;
-			case 0x53: // s
+			case VK_DOWN:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(1.0f, 1.0f, 0.0f)});
 				break;
-			case 0x41: // a
+			case VK_LEFT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, 1.0f, 1.0f)});
 				break;
-			case 0x44: // d
+			case VK_RIGHT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(0.0f, 1.0f, 1.0f)});
 				break;
-			case 0x52: // r
+			case VK_SHIFT:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(1.0f, 0.0f, 1.0f)});
 				break;
-			case 0x46: // f
+			case VK_END:
 				insert_task(TaskSetVCam{TASK_SET_V_CAM, task.get_col_size(), XMFLOAT3(1.0f, 0.0f, 1.0f)});
 				break;
 			}

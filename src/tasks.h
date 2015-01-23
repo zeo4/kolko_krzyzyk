@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include <stdint.h>
 #include <vec.h>
+#include <resources.h>
 using namespace DirectX;
 // -------------------------------------------------------
 enum TaskCode {
@@ -19,16 +20,6 @@ enum TaskCode {
 	TASK_DRAW,
 	TASK_DEFRAGMENT_PHYS,
 	TASK_DEFRAGMENT_GRAPH,
-};
-enum MeshNo{
-	MESH_TRI,
-	MESH_RECT,
-	MESH_DIAMENT,
-};
-enum TexNo{
-	TEX_TRI,
-	TEX_RECT,
-	TEX_DIAMENT,
 };
 // -------------------------------------------------------
 struct Task {

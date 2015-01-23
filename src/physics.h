@@ -6,7 +6,7 @@
 #include <resources.h>
 #include <tasks.h>
 // -------------------------------------------------------
-class Physics : protected Tasks, protected Camera, protected DataEngine {
+class Physics : protected Tasks, protected Camera, protected DataEngine, protected GraphDev {
 public:
 	void			do_tasks();
 protected:
@@ -24,6 +24,8 @@ protected:
 	void			set_loc_cam(uint32_t const);
 	void			set_v_cam(uint32_t const);
 	void			create_ob(uint32_t const);
+	void			create_mesh(uint32_t const);
+	void			create_tex(uint32_t const);
 	void			detect_coll(uint32_t const);
 };
 // -------------------------------------------------------
