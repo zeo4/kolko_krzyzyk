@@ -169,15 +169,15 @@ void Physics::create_mesh(uint32_t const _id) {
 
 	switch(_id) {
 	case MESH_TRI: {
-		XMFLOAT3 _bbox[] = {
-			XMFLOAT3(-1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, -1.0f, 1.0f),
-			XMFLOAT3(-1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		XMFLOAT4 _bbox[] = {
+			XMFLOAT4(-0.5f, -0.5f, -0.5f, 1.0f),
+			XMFLOAT4(-0.5f, 0.5f, -0.5f, 1.0f),
+			XMFLOAT4(0.5f, 0.5f, -0.5f, 1.0f),
+			XMFLOAT4(0.5f, -0.5f, -0.5f, 1.0f),
+			XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
+			XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),
+			XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
+			XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
 		};
 		DWORD _bbox_idx [] = {
 			0, 1, 2,
@@ -210,15 +210,15 @@ void Physics::create_mesh(uint32_t const _id) {
 		break;
 	}
 	case MESH_RECT: {
-		XMFLOAT3 _bbox[] = {
-			XMFLOAT3(-1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, -1.0f, 1.0f),
-			XMFLOAT3(-1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		XMFLOAT4 _bbox[] = {
+			XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f),
+			XMFLOAT4(-1.0f, 1.0f, -1.0f, 1.0f),
+			XMFLOAT4(1.0f, 1.0f, -1.0f, 1.0f),
+			XMFLOAT4(1.0f, -1.0f, -1.0f, 1.0f),
+			XMFLOAT4(-1.0f, -1.0f, 1.0f, 1.0f),
+			XMFLOAT4(-1.0f, 1.0f, 1.0f, 1.0f),
+			XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+			XMFLOAT4(1.0f, -1.0f, 1.0f, 1.0f),
 		};
 		DWORD _bbox_idx [] = {
 			0, 1, 2,
@@ -256,15 +256,15 @@ void Physics::create_mesh(uint32_t const _id) {
 		break;
 	}
 	case MESH_DIAMENT: {
-		XMFLOAT3 _bbox[] = {
-			XMFLOAT3(-1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, 1.0f, -1.0f),
-			XMFLOAT3(1.0f, -1.0f, -1.0f),
-			XMFLOAT3(-1.0f, -1.0f, 1.0f),
-			XMFLOAT3(-1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, 1.0f, 1.0f),
-			XMFLOAT3(1.0f, -1.0f, 1.0f),
+		XMFLOAT4 _bbox[] = {
+			XMFLOAT4(-0.5f, -0.5f, -0.5f, 1.0f),
+			XMFLOAT4(-0.5f, 0.5f, -0.5f, 1.0f),
+			XMFLOAT4(0.5f, 0.5f, -0.5f, 1.0f),
+			XMFLOAT4(0.5f, -0.5f, -0.5f, 1.0f),
+			XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
+			XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),
+			XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
+			XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
 		};
 		DWORD _bbox_idx [] = {
 			0, 1, 2,

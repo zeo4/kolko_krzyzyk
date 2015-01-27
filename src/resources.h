@@ -29,16 +29,17 @@ enum TexNo{
 	TEX_DIAMENT,
 };
 enum InLayNo {
-	IN_F3,
+	IN_F4,
 	IN_F3F2,
-	IN_F3F44,
+	IN_F4F44,
 	IN_F3F2F44,
 };
 enum CSNo {
 	CS_RECT_FRONT,
 };
 enum VSNo {
-	VS_TFORM_F3F44,
+	VS_PASS_F4,
+	VS_TFORM_F4F44,
 	VS_PASS_ON,
 	VS_TFORM,
 	VS_TFORM_TEX,
@@ -78,10 +79,10 @@ struct GraphR : public GraphDev {
 		void							update_wvp(XMFLOAT4X4 const*const,
 											uint32_t const);
 		void							update_bbox(void*const*const,
-											uint32_t const*const);
+											uint32_t const);
 		void							update_rect_front(XMFLOAT4 const*const,
 											uint32_t const);
-		void							update_vert(XMFLOAT3 const*const, uint32_t const);
+		void							update_vert(XMFLOAT4 const*const, uint32_t const);
 		void							update_coord_tex(XMFLOAT2 const*const,
 											uint32_t const);
 		void							update_idx(DWORD const*const, uint32_t const);
@@ -142,7 +143,7 @@ public:
 	void					erase(uint32_t const);
 	VecSparse<uint32_t>		no;
 	VecSparse<uint32_t>		ref_cnt;
-	Vec2<XMFLOAT3>			bbox;
+	Vec2<XMFLOAT4>			bbox;
 	Vec2<DWORD>				bbox_idx;
 	Vec2<XMFLOAT3>			vert;
 	Vec2<XMFLOAT2>			tex_coord;

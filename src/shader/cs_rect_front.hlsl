@@ -4,60 +4,40 @@ RWBuffer<float4> rect : register(u0);
 
 [numthreads(1, 1, 1)]
 void main(uint3 _gr : SV_GroupID) {
-	//uint _bbox_no = _gr.x * 8;
+	uint _wvp_offset = _gr.x * 4;
+	uint _bbox_offset = _gr.x * 8;
 
-	//// compute bounding rectangle
-	//float _left_f = bbox[_bbox_no].x;
-	//float _right_f = _left_f;
-	//float _top_f = bbox[_bbox_no].y;
-	//float _bottom_f = _top_f;
-	//float _z = bbox[_bbox_no].z;
-	//for(uint _i = 1; _i < 8; ++_i) {
-	//	if(bbox[_bbox_no + _i].x < _left_f) _left_f = bbox[_bbox_no + _i].x;
-	//	else if(bbox[_bbox_no + _i].x > _right_f) _right_f = bbox[_bbox_no + _i].x;
-	//	if(bbox[_bbox_no + _i].y < _bottom_f) _bottom_f = bbox[_bbox_no + _i].y;
-	//	else if(bbox[_bbox_no + _i].y > _top_f) _top_f = bbox[_bbox_no + _i].y;
-	//	if(bbox[_bbox_no + _i].z < _z) _z = bbox[_bbox_no + _i].z;
-	//}
+	// build wvp
+	float4x4 _wvp = float4x4(
+		wvp[_wvp_offset].x, wvp[_wvp_offset + 1].x, wvp[_wvp_offset + 2].x, wvp[_wvp_offset + 3].x,
+		wvp[_wvp_offset].y, wvp[_wvp_offset + 1].y, wvp[_wvp_offset + 2].y, wvp[_wvp_offset + 3].y,
+		wvp[_wvp_offset].z, wvp[_wvp_offset + 1].z, wvp[_wvp_offset + 2].z, wvp[_wvp_offset + 3].z,
+		wvp[_wvp_offset].w, wvp[_wvp_offset + 1].w, wvp[_wvp_offset + 2].w, wvp[_wvp_offset + 3].w
+	);
 
-	//// bounding rectangle to pixels
-	//uint _left_i = (_left_f + 1) / 2 * width;
-	//uint _right_i = (_right_f + 1) / 2 * width;
-	//uint _top_i = (1 - _top_f) / 2 * height;
-	//uint _bottom_i = (1 - _bottom_f) / 2 * height;
-
-	//// compute mip level
-	////check what log2(int) returns;
-	//uint _mip;
-	//uint _mip_x = log2(_right_i - _left_i + 1);
-	//uint _mip_y = log2(_top_i - _bottom_i + 1);
-	//if(_mip_x > _mip_y) _mip = _mip_x;
-	//else _mip = _mip_y;
-
-	//// depth test
-	//for(uint _x = _left_i; _x <= _right_i; ++_x) {
-	//	for(uint _y = _top_i; _y <= _bottom_i; ++_y) {
-	//		if(_z < ds.mips[_mip][uint2(_x, _y)]) {
-	//			is_occluder[_gr.x] = true;
-	//			return;
-	//		}
-	//	}
-	//}
-	//is_occluder[_gr.x] = false;
+	// compute rectangle
+	float4 _a = bbox[_bbox_offset];
+	float4 _vert = mul(_a, _wvp);
+	float _left = _vert.x;
+	float _right = _left;
+	float _bottom = _vert.y;
+	float _top = _bottom;
+	float _near = _vert.z;
+	for(uint _i = 1; _i < 8; ++_i) {
+		_a = bbox[_bbox_offset + _i];
+		_vert = mul(_a, _wvp);
+		if(_vert.x < _left) _left = _vert.x;
+		else if(_vert.x > _right) _right = _vert.x;
+		if(_vert.y < _bottom) _bottom = _vert.y;
+		else if(_vert.y > _top) _top = _vert.y;
+		if(_vert.z < _near) _near = _vert.z;
+	}
+	rect[_gr.x * 4] = float4(_left, _top, 0.5f, 1.0f);
+	rect[_gr.x * 4 + 1] = float4(_right, _top, 0.5f, 1.0f);
+	rect[_gr.x * 4 + 2] = float4(_left, _bottom, 0.5f, 1.0f);
+	rect[_gr.x * 4 + 3] = float4(_right, _bottom, 0.5f, 1.0f);
 }
 
-//struct BufferStruct { uint4 color; };
-//RWStructuredBuffer<BufferStruct> g_OutBuff;
 
-//[numthreads(4, 4, 1)]
-//void main( uint3 threadIDInGroup : SV_GroupThreadID, uint3 groupID : SV_GroupID ) {
-//	float4 color = 255 * float4(
-//		(float)threadIDInGroup.x / THREAD_GROUP_SIZE_X,
-//		(float)threadIDInGroup.y / THREAD_GROUP_SIZE_Y,
-//		0, 1
-//	);
-//	int buffIndex = (groupID.y * THREAD_GROUP_SIZE_Y + threadIDInGroup.y) * THREAD_GROUPS_X * THREAD_GROUP_SIZE_X + (groupID.x * THREAD_GROUP_SIZE_X + threadIDInGroup.x);
-//	g_OutBuff[buffIndex].color = color;
-//}
 
 

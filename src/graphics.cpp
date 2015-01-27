@@ -42,6 +42,7 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 	XMMATRIX _mtx_proj = XMMatrixPerspectiveFovLH(
 		cam.fov * 3.14f/180, float(scr_size.width) / scr_size.height, cam.near_z, cam.far_z
 	);
+	XMStoreFloat4x4(&cam.mtx_proj, _mtx_proj);
 
 	// objects
 
@@ -65,30 +66,30 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 	res.ob.update_wvp(&data_e.wvp[0], data_e.wvp.get_size());
 
 	void* _data[] = {data_e.mesh.bbox[0], data_e.mesh.bbox_idx[0]};
-	uint32_t _size[] = {data_e.mesh.bbox.get_size(), data_e.mesh.bbox_idx.get_size()};
-	res.ob.update_bbox(_data, _size);
+	res.ob.update_bbox(_data, data_e.mesh.bbox.get_col_size());
 	//res.ob.update_so(data_e.bbox_scr.get_size() * 2);
 	//res.ob.update_so(data_e.mesh.bbox.get_size());
 
 	task.erase(_i_task);
 }
 void Graphics::cull_occl(uint32_t const _i_task) {
-	devctx->IASetInputLayout(res.in_lay[IN_F3F44]);
-	uint32_t _strides[] = {sizeof(XMFLOAT3), sizeof(XMFLOAT4X4)};
-	uint32_t _offsets[] = {0, 0};
-	devctx->VSSetShader(res.vs[VS_TFORM_F3F44], 0, 0);
 	devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
 	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	devctx->ClearRenderTargetView(res.rtv, _color);
 	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+	ID3D11UnorderedAccessView* _uav;
+	ID3D11ShaderResourceView* _srv;
 
 	// render bbox-es
+	devctx->IASetInputLayout(res.in_lay[IN_F4F44]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
+	uint32_t _strides[] = {sizeof(XMFLOAT4), sizeof(XMFLOAT4X4)};
+	uint32_t _offsets[] = {0, 0};
 	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
 	devctx->IASetIndexBuffer(res.ob.bbox_idx_buf, DXGI_FORMAT_R32_UINT, 0);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	devctx->GSSetShader(0, 0, 0);
+	devctx->VSSetShader(res.vs[VS_TFORM_F4F44], 0, 0);
 	uint32_t _inst_cnt = get_gr_cnt(0);
 	devctx->DrawIndexedInstanced(
 		data_e.mesh.bbox_idx.get_row(0).second,
@@ -97,6 +98,11 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 		data_e.mesh.bbox.get_row(0).first,
 		0
 	);
+	_buf[0] = 0;
+	_buf[1] = 0;
+	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
+	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	devctx->VSSetShader(0, 0, 0);
 
 	// create front rectangles
 	res.ob.update_rect_front(0, data_e.wvp.get_size());
@@ -105,17 +111,53 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 	devctx->CSSetShaderResources(1, 1, &res.ob.wvp_srv);
 	devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.rect_front_uav, &_init_counts);
 	devctx->CSSetShader(res.cs[CS_RECT_FRONT], 0, 0);
-	devctx->Dispatch(data_e.wvp.get_size(), 1, 1);
+	devctx->Dispatch(
+		data_e.wvp.get_size(),
+		1,
+		1
+	);
+	_srv = 0;
+	devctx->CSSetShaderResources(0, 1, &_srv);
+	devctx->CSSetShaderResources(1, 1, &_srv);
+	_uav = 0;
+	devctx->CSSetUnorderedAccessViews(0, 1, &_uav, 0);
+	devctx->CSSetShader(0, 0, 0);
 
 	// render rect frames
 	//devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
-	Vec2<XMFLOAT3> _vert;
-	res.ob.update_vert(_vert[0], _vert.get_size());
-	devctx->IASetVertexBuffers(0, 1, &res.ob.vert_buf, _strides, _offsets);
-	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	devctx->IASetInputLayout(res.in_lay[IN_F4]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	devctx->GSSetShader(res.gs[GS_GEN_OCCL_RECT_FRAME], 0, 0);
-	//devctx->Draw(_vert.get_size(), 0);
+	devctx->IASetVertexBuffers(0, 1, &res.ob.rect_front_buf, _strides, _offsets);
+	devctx->VSSetShader(res.vs[VS_PASS_F4], 0, 0);
+	devctx->DrawInstanced(
+		4,
+		_inst_cnt,
+		0,
+		0
+	);
+	devctx->IASetVertexBuffers(0, 1, _buf, _strides, _offsets);
+	devctx->VSSetShader(0, 0, 0);
+
+	// reference frame
+	XMFLOAT4 _vert[] = {
+		XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
+		XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),
+		XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
+		XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
+		XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
+	};
+	//for(uint32_t _i = 0; _i < 5; ++_i) {
+	//	XMStoreFloat4(&_vert[_i], XMVector4Transform(XMLoadFloat4(&_vert[_i]), XMLoadFloat4x4(&cam.mtx_proj)));
+	//}
+	res.ob.update_vert(_vert, 5);
+	devctx->IASetInputLayout(res.in_lay[IN_F4]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	_strides[0] = sizeof(XMFLOAT4);
+	devctx->IASetVertexBuffers(0, 1, &res.ob.vert_buf, _strides, _offsets);
+	devctx->VSSetShader(res.vs[VS_PASS_F4], 0, 0);
+	devctx->Draw(5, 0);
+	devctx->IASetVertexBuffers(0, 1, _buf, _strides, _offsets);
+	devctx->VSSetShader(0, 0, 0);
 
 	chain->Present(0, 0);
 
