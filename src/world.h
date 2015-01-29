@@ -18,6 +18,7 @@ protected:
 	void			set_loc_cam(uint32_t const);
 	void			set_v_cam(uint32_t const);
 	void			create_ob(uint32_t const);
+	void			cull_occl(uint32_t const);
 	Physics*		phys;
 	Graphics*		graph;
 public:

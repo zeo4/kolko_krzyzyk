@@ -12,6 +12,7 @@ protected:
 	void			update_pos_ob(uint32_t const);
 	void			cull_occl(uint32_t const);
 	uint32_t		get_gr_cnt(uint32_t) const;
+	void			debug_draw_rect_front(uint32_t const);
 	void			draw(uint32_t const);
 
 	void			do_cam_update_pos(uint32_t const);

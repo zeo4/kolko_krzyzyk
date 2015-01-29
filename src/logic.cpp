@@ -148,7 +148,7 @@ void Logika::handle_input(MSG const& _wiad) {
 	}
 }
 void Logika::init_scene() {
-	for(uint32_t _i = 0; _i < 1; ++_i)
+	for(uint32_t _i = 0; _i < 6; ++_i)
 		insert_task(TaskCreateOb{TASK_CREATE_OB, _i, MESH_DIAMENT, TEX_DIAMENT});
 
 	data_game.hnd_picked = 0x80000000;

@@ -29,6 +29,7 @@ enum TexNo{
 	TEX_DIAMENT,
 };
 enum InLayNo {
+	IN_VOID,
 	IN_F4,
 	IN_F3F2,
 	IN_F4F44,
@@ -38,8 +39,9 @@ enum CSNo {
 	CS_RECT_FRONT,
 };
 enum VSNo {
-	VS_PASS_F4,
-	VS_TFORM_F4F44,
+	VS_F4_PASS,
+	VS_VOID_DRAW_RECT_FRONT,
+	VS_F4F44_TFORM,
 	VS_PASS_ON,
 	VS_TFORM,
 	VS_TFORM_TEX,
@@ -96,6 +98,7 @@ struct GraphR : public GraphDev {
 		ID3D11Buffer*					bbox_idx_buf;
 		ID3D11Buffer*					rect_front_buf;
 		ID3D11UnorderedAccessView*		rect_front_uav;
+		ID3D11ShaderResourceView*		rect_front_srv;
 		ID3D11Buffer*					vert_buf;
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;

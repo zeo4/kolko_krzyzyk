@@ -20,6 +20,7 @@ void Graphics::do_tasks() {
 		switch(((Task*)task[_i])->code) {
 		case TASK_UPDATE_POS_OB: update_pos_ob(_i); break;
 		case TASK_CULL_OCCL: cull_occl(_i); break;
+		case TASK_DEBUG_DRAW_RECT_FRONT: debug_draw_rect_front(_i); break;
 		case TASK_DRAW: draw(_i); break;
 		}
 	}
@@ -89,7 +90,7 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 	uint32_t _offsets[] = {0, 0};
 	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
 	devctx->IASetIndexBuffer(res.ob.bbox_idx_buf, DXGI_FORMAT_R32_UINT, 0);
-	devctx->VSSetShader(res.vs[VS_TFORM_F4F44], 0, 0);
+	devctx->VSSetShader(res.vs[VS_F4F44_TFORM], 0, 0);
 	uint32_t _inst_cnt = get_gr_cnt(0);
 	devctx->DrawIndexedInstanced(
 		data_e.mesh.bbox_idx.get_row(0).second,
@@ -123,45 +124,24 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 	devctx->CSSetUnorderedAccessViews(0, 1, &_uav, 0);
 	devctx->CSSetShader(0, 0, 0);
 
-	// render rect frames
-	//devctx->SOSetTargets(1, &res.ob.so_buf, _offsets);
-	devctx->IASetInputLayout(res.in_lay[IN_F4]);
+	task.erase(_i_task);
+}
+void Graphics::debug_draw_rect_front(uint32_t const _task_id) {
+	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	devctx->IASetVertexBuffers(0, 1, &res.ob.rect_front_buf, _strides, _offsets);
-	devctx->VSSetShader(res.vs[VS_PASS_F4], 0, 0);
+	devctx->VSSetShaderResources(0, 1, &res.ob.rect_front_srv);
+	devctx->VSSetShader(res.vs[VS_VOID_DRAW_RECT_FRONT], 0, 0);
 	devctx->DrawInstanced(
-		4,
-		_inst_cnt,
+		5,
+		data_e.wvp.get_size(),
 		0,
 		0
 	);
-	devctx->IASetVertexBuffers(0, 1, _buf, _strides, _offsets);
+	ID3D11ShaderResourceView* _srv = 0;
+	devctx->VSSetShaderResources(0, 1, &_srv);
 	devctx->VSSetShader(0, 0, 0);
 
-	// reference frame
-	XMFLOAT4 _vert[] = {
-		XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
-		XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),
-		XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
-		XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
-		XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),
-	};
-	//for(uint32_t _i = 0; _i < 5; ++_i) {
-	//	XMStoreFloat4(&_vert[_i], XMVector4Transform(XMLoadFloat4(&_vert[_i]), XMLoadFloat4x4(&cam.mtx_proj)));
-	//}
-	res.ob.update_vert(_vert, 5);
-	devctx->IASetInputLayout(res.in_lay[IN_F4]);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	_strides[0] = sizeof(XMFLOAT4);
-	devctx->IASetVertexBuffers(0, 1, &res.ob.vert_buf, _strides, _offsets);
-	devctx->VSSetShader(res.vs[VS_PASS_F4], 0, 0);
-	devctx->Draw(5, 0);
-	devctx->IASetVertexBuffers(0, 1, _buf, _strides, _offsets);
-	devctx->VSSetShader(0, 0, 0);
-
-	chain->Present(0, 0);
-
-	task.erase(_i_task);
+	task.erase(_task_id);
 }
 uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
 	uint32_t _cnt = 1;
@@ -173,6 +153,8 @@ uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
 }
 void Graphics::draw(uint32_t const _i_task) {
 	//draw_previous();
+
+	chain->Present(0, 0);
 
 	task.erase(_i_task);
 }

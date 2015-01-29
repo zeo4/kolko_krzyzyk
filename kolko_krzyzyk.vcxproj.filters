@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="test">
+      <UniqueIdentifier>{b7f46f75-6149-4607-a378-8e80086d211e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{b28b2262-ea39-4f11-bd6a-50858dddad15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="container">
+      <UniqueIdentifier>{cb7e7a7a-c266-4f6d-b310-35f65d5d4d0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dx">
+      <UniqueIdentifier>{9f24740f-eaf0-4b37-b6ad-010619b3dee9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\debugs.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameObjects.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grid.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logic.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objectList.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resources.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tasks.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree8.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\typedefs.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\world.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\handles.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\operators.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers\vec.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\test_cases.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\test_structure.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DirectXTex\WICTextureLoader\WICTextureLoader.h">
+      <Filter>dx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\debugs.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameObjects.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\grid.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logic.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objectList.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\resources.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tasks.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree8.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\typedefs.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\containers\handles.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="src\containers\vec.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\test_cases.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DirectXTex\WICTextureLoader\WICTextureLoader.cpp">
+      <Filter>dx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\shader\ps_sample_tex.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\ps_write_depth.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_pass_on.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_tform.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_tform_tex.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\test_ps_rect_occl.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\test_vs_rect_occl.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\test_cs_rect_occl.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\gs_gen_occl_rect_frame.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\cs_rect_front.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_f4_pass.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_f4f44_tform.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_void_draw_rect_front.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
