@@ -144,18 +144,6 @@ void GraphR::ObGroup::update_wvp(XMFLOAT4X4 const*const _data, uint32_t const _s
 		XMStoreFloat4x4(&wvp_tposed[_i], XMMatrixTranspose(XMLoadFloat4x4(&_data[_i])));
 	}
 	devctx->UpdateSubresource(wvp_buf, 0, 0, &wvp_tposed[0], 0, 0);
-	//devctx->UpdateSubresource(wvp_buf, 0, 0, _data, 0, 0);
-
-	logi.pisz("", "===============================");
-	logi.pisz("", to_string(_data[0]._11) + " " + to_string(_data[0]._12) + " " + to_string(_data[0]._13) + " " + to_string(_data[0]._14));
-	logi.pisz("", to_string(_data[0]._21) + " " + to_string(_data[0]._22) + " " + to_string(_data[0]._23) + " " + to_string(_data[0]._24));
-	logi.pisz("", to_string(_data[0]._31) + " " + to_string(_data[0]._32) + " " + to_string(_data[0]._33) + " " + to_string(_data[0]._34));
-	logi.pisz("", to_string(_data[0]._41) + " " + to_string(_data[0]._42) + " " + to_string(_data[0]._43) + " " + to_string(_data[0]._44));
-	logi.pisz("", "-------------------------------");
-	logi.pisz("", to_string(wvp_tposed[0]._11) + " " + to_string(wvp_tposed[0]._12) + " " + to_string(wvp_tposed[0]._13) + " " + to_string(wvp_tposed[0]._14));
-	logi.pisz("", to_string(wvp_tposed[0]._21) + " " + to_string(wvp_tposed[0]._22) + " " + to_string(wvp_tposed[0]._23) + " " + to_string(wvp_tposed[0]._24));
-	logi.pisz("", to_string(wvp_tposed[0]._31) + " " + to_string(wvp_tposed[0]._32) + " " + to_string(wvp_tposed[0]._33) + " " + to_string(wvp_tposed[0]._34));
-	logi.pisz("", to_string(wvp_tposed[0]._41) + " " + to_string(wvp_tposed[0]._42) + " " + to_string(wvp_tposed[0]._43) + " " + to_string(wvp_tposed[0]._44));
 }
 void GraphR::ObGroup::update_bbox(void*const*const _data, uint32_t const _size) {
 	if(_size == 0) return;
@@ -628,11 +616,11 @@ void GraphR::create_ps() {
 	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[PS_SAMPLE_TEX]);
 	if(_r != S_OK) logi.pisz("", "failed to create pixel shader");
 
-	// PS_WRITE_DEPTH
+	// PS_DRAW_DEPTH
 	_shad_bytes.clear();
 	_shad_bytes = read_bytes("shader\\ps_write_depth.cso");
 	ps.push_back(0);
-	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[PS_WRITE_DEPTH]);
+	_r = dev->CreatePixelShader(&_shad_bytes[0], _shad_bytes.size(), 0, &ps[PS_DRAW_DEPTH]);
 	if(_r != S_OK) logi.pisz("", "failed to create pixel shader");
 
 	// TEST_PS_RECT_OCCL

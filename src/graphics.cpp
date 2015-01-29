@@ -20,7 +20,6 @@ void Graphics::do_tasks() {
 		switch(((Task*)task[_i])->code) {
 		case TASK_UPDATE_POS_OB: update_pos_ob(_i); break;
 		case TASK_CULL_OCCL: cull_occl(_i); break;
-		case TASK_DEBUG_DRAW_RECT_FRONT: debug_draw_rect_front(_i); break;
 		case TASK_DRAW: draw(_i); break;
 		}
 	}
@@ -74,36 +73,8 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 	task.erase(_i_task);
 }
 void Graphics::cull_occl(uint32_t const _i_task) {
-	devctx->PSSetShader(res.ps[PS_WRITE_DEPTH], 0, 0);
-	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	devctx->ClearRenderTargetView(res.rtv, _color);
-	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
-	ID3D11UnorderedAccessView* _uav;
-	ID3D11ShaderResourceView* _srv;
-
-	// render bbox-es
-	devctx->IASetInputLayout(res.in_lay[IN_F4F44]);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
-	uint32_t _strides[] = {sizeof(XMFLOAT4), sizeof(XMFLOAT4X4)};
-	uint32_t _offsets[] = {0, 0};
-	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
-	devctx->IASetIndexBuffer(res.ob.bbox_idx_buf, DXGI_FORMAT_R32_UINT, 0);
-	devctx->VSSetShader(res.vs[VS_F4F44_TFORM], 0, 0);
-	uint32_t _inst_cnt = get_gr_cnt(0);
-	devctx->DrawIndexedInstanced(
-		data_e.mesh.bbox_idx.get_row(0).second,
-		_inst_cnt,
-		data_e.mesh.bbox_idx.get_row(0).first,
-		data_e.mesh.bbox.get_row(0).first,
-		0
-	);
-	_buf[0] = 0;
-	_buf[1] = 0;
-	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
-	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
-	devctx->VSSetShader(0, 0, 0);
+	ID3D11UnorderedAccessView* _uav_null = 0;
+	ID3D11ShaderResourceView* _srv_null = 0;
 
 	// create front rectangles
 	res.ob.update_rect_front(0, data_e.wvp.get_size());
@@ -117,31 +88,12 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 		1,
 		1
 	);
-	_srv = 0;
-	devctx->CSSetShaderResources(0, 1, &_srv);
-	devctx->CSSetShaderResources(1, 1, &_srv);
-	_uav = 0;
-	devctx->CSSetUnorderedAccessViews(0, 1, &_uav, 0);
+	devctx->CSSetShaderResources(0, 1, &_srv_null);
+	devctx->CSSetShaderResources(1, 1, &_srv_null);
+	devctx->CSSetUnorderedAccessViews(0, 1, &_uav_null, 0);
 	devctx->CSSetShader(0, 0, 0);
 
 	task.erase(_i_task);
-}
-void Graphics::debug_draw_rect_front(uint32_t const _task_id) {
-	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	devctx->VSSetShaderResources(0, 1, &res.ob.rect_front_srv);
-	devctx->VSSetShader(res.vs[VS_VOID_DRAW_RECT_FRONT], 0, 0);
-	devctx->DrawInstanced(
-		5,
-		data_e.wvp.get_size(),
-		0,
-		0
-	);
-	ID3D11ShaderResourceView* _srv = 0;
-	devctx->VSSetShaderResources(0, 1, &_srv);
-	devctx->VSSetShader(0, 0, 0);
-
-	task.erase(_task_id);
 }
 uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
 	uint32_t _cnt = 1;
@@ -152,11 +104,60 @@ uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
 	return _cnt;
 }
 void Graphics::draw(uint32_t const _i_task) {
+	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	devctx->ClearRenderTargetView(res.rtv, _color);
+	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+	
+	debug_draw_bbox();
+	//debug_draw_rect_front();
 	//draw_previous();
 
 	chain->Present(0, 0);
 
 	task.erase(_i_task);
+}
+void Graphics::debug_draw_bbox() {
+	devctx->IASetInputLayout(res.in_lay[IN_F4F44]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
+	uint32_t _strides[] = {sizeof(XMFLOAT4), sizeof(XMFLOAT4X4)};
+	uint32_t _offsets[] = {0, 0};
+	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
+	devctx->IASetIndexBuffer(res.ob.bbox_idx_buf, DXGI_FORMAT_R32_UINT, 0);
+	devctx->VSSetShader(res.vs[VS_F4F44_TFORM], 0, 0);
+	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
+	uint32_t _inst_cnt = get_gr_cnt(0);
+	devctx->DrawIndexedInstanced(
+		data_e.mesh.bbox_idx.get_row(0).second,
+		_inst_cnt,
+		data_e.mesh.bbox_idx.get_row(0).first,
+		data_e.mesh.bbox.get_row(0).first,
+		0
+	);
+	_buf[0] = 0;
+	_buf[1] = 0;
+	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
+	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	devctx->VSSetShader(0, 0, 0);
+	devctx->PSSetShader(0, 0, 0);
+}
+void Graphics::debug_draw_rect_front() {
+	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	devctx->VSSetShaderResources(0, 1, &res.ob.rect_front_srv);
+	devctx->VSSetShader(res.vs[VS_VOID_DRAW_RECT_FRONT], 0, 0);
+	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
+	devctx->DrawInstanced(
+		5,
+		data_e.wvp.get_size(),
+		0,
+		0
+	);
+	ID3D11ShaderResourceView* _srv_null = 0;
+	devctx->VSSetShaderResources(0, 1, &_srv_null);
+	devctx->VSSetShader(0, 0, 0);
+	devctx->PSSetShader(0, 0, 0);
 }
 
 void Graphics::draw_previous() {

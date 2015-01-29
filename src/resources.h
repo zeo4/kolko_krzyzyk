@@ -52,7 +52,7 @@ enum GSNo {
 };
 enum PSNo {
 	PS_SAMPLE_TEX,
-	PS_WRITE_DEPTH,
+	PS_DRAW_DEPTH,
 	TEST_PS_RECT_OCCL,
 };
 // -------------------------------------------------------

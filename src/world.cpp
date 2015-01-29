@@ -47,7 +47,6 @@ void World::do_tasks() {
 		case TASK_SET_LOC_CAM: set_loc_cam(_i); break;
 		case TASK_SET_V_CAM: set_v_cam(_i); break;
 		case TASK_CREATE_OB: create_ob(_i); break;
-		case TASK_CULL_OCCL: cull_occl(_i); break;
 		}
 	}
 
@@ -87,9 +86,6 @@ void World::create_ob(uint32_t const _i_task) {
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
 	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
-}
-void World::cull_occl(uint32_t const _i_task) {
-	if(!flg_task[TASK_DEBUG_DRAW_RECT_FRONT]) insert_task(Task{TASK_DEBUG_DRAW_RECT_FRONT, 0});
 }
 // -------------------------------------------------------
 
