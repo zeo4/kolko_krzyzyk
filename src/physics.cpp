@@ -179,20 +179,6 @@ void Physics::create_mesh(uint32_t const _id) {
 			XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
 			XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
 		};
-		DWORD _bbox_idx [] = {
-			0, 1,
-			1, 2,
-			2, 3,
-			3, 0,
-			0, 4,
-			1, 5,
-			2, 6,
-			3, 7,
-			4, 5,
-			5, 6,
-			6, 7,
-			7, 4,
-		};
 		XMFLOAT3 _vert[] = {
 			XMFLOAT3(0.0f, -0.2f, 0.0f),
 			XMFLOAT3(0.0f, 0.0f, 0.0f),
@@ -204,8 +190,8 @@ void Physics::create_mesh(uint32_t const _id) {
 			XMFLOAT2(1.0f, 0.0f),
 		};
 		DWORD _vert_idx[] = {0, 1, 2};
-		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
-		uint32_t _size[] = {8, 24, 3, 3, 3};
+		void* _data[] = {_bbox, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 3, 3, 3};
 		data_e.mesh.insert(_id, _data, _size);
 		break;
 	}
@@ -219,20 +205,6 @@ void Physics::create_mesh(uint32_t const _id) {
 			XMFLOAT4(-1.0f, 1.0f, 1.0f, 1.0f),
 			XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 			XMFLOAT4(1.0f, -1.0f, 1.0f, 1.0f),
-		};
-		DWORD _bbox_idx [] = {
-			0, 1,
-			1, 2,
-			2, 3,
-			3, 0,
-			0, 4,
-			1, 5,
-			2, 6,
-			3, 7,
-			4, 5,
-			5, 6,
-			6, 7,
-			7, 4,
 		};
 		XMFLOAT3 _vert[] = {
 			XMFLOAT3(+0.5f, -0.5f, +0.0f),
@@ -250,8 +222,8 @@ void Physics::create_mesh(uint32_t const _id) {
 			0, 1, 2,
 			0, 2, 3
 		};
-		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
-		uint32_t _size[] = {8, 24, 4, 4, 6};
+		void* _data[] = {_bbox, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 4, 4, 6};
 		data_e.mesh.insert(_id, _data, _size);
 		break;
 	}
@@ -265,20 +237,6 @@ void Physics::create_mesh(uint32_t const _id) {
 			XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),
 			XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
 			XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),
-		};
-		DWORD _bbox_idx [] = {
-			0, 1,
-			1, 2,
-			2, 3,
-			3, 0,
-			0, 4,
-			1, 5,
-			2, 6,
-			3, 7,
-			4, 5,
-			5, 6,
-			6, 7,
-			7, 4,
 		};
 		XMFLOAT3 _vert[] = {
 			XMFLOAT3(-0.25f, +0.0f, -0.25f),
@@ -306,8 +264,8 @@ void Physics::create_mesh(uint32_t const _id) {
 			3, 4, 0,
 			0, 5, 3,
 		};
-		void* _data[] = {_bbox, _bbox_idx, _vert, _tex_coord, _vert_idx};
-		uint32_t _size[] = {8, 24, 6, 6, 24};
+		void* _data[] = {_bbox, _vert, _tex_coord, _vert_idx};
+		uint32_t _size[] = {8, 6, 6, 24};
 		data_e.mesh.insert(_id, _data, _size);
 		break;
 	}

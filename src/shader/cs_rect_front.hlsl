@@ -6,6 +6,8 @@ RWBuffer<float4> rect : register(u0);
 void main(uint3 _gr : SV_GroupID) {
 	uint _wvp_offset = _gr.x * 4;
 	uint _bbox_offset = 0;
+	uint _rect_offset = _gr.x * 4;
+	uint _rect_idx_offset = _gr.x * 8;
 
 	// build wvp
 	float4x4 _wvp = float4x4(
@@ -32,11 +34,10 @@ void main(uint3 _gr : SV_GroupID) {
 		else if(_vert.y > _top) _top = _vert.y;
 		if(_vert.z < _near) _near = _vert.z;
 	}
-	rect[_gr.x * 5] = float4(_left, _bottom, _near, 1.0f);
-	rect[_gr.x * 5 + 1] = float4(_left, _top, _near, 1.0f);
-	rect[_gr.x * 5 + 2] = float4(_right, _top, _near, 1.0f);
-	rect[_gr.x * 5 + 3] = float4(_right, _bottom, _near, 1.0f);
-	rect[_gr.x * 5 + 4] = float4(_left, _bottom, _near, 1.0f);
+	rect[_rect_offset] = float4(_left, _bottom, _near, 1.0f);
+	rect[_rect_offset + 1] = float4(_left, _top, _near, 1.0f);
+	rect[_rect_offset + 2] = float4(_right, _top, _near, 1.0f);
+	rect[_rect_offset + 3] = float4(_right, _bottom, _near, 1.0f);
 }
 
 

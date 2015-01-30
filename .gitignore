@@ -10,7 +10,6 @@ kolko_krzyzyk.vcxproj.user
 kolko_krzyzyk_graph.v12.suo
 src/b.bat
 src/c.bat
-src/kolko_krzyzyk.exe
 src/kolko_krzyzyk.ilk
 src/kolko_krzyzyk.pdb
 *.txt

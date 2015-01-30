@@ -174,7 +174,7 @@
     <FxCompile Include="src\shader\vs_f4f44_tform.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="src\shader\vs_void_draw_rect_front.hlsl">
+    <FxCompile Include="src\shader\vs_void_debug_draw_rect_front.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
   </ItemGroup>

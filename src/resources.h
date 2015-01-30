@@ -39,8 +39,8 @@ enum CSNo {
 	CS_RECT_FRONT,
 };
 enum VSNo {
+	VS_VOID_DEBUG_DRAW_RECT_FRONT,
 	VS_F4_PASS,
-	VS_VOID_DRAW_RECT_FRONT,
 	VS_F4F44_TFORM,
 	VS_PASS_ON,
 	VS_TFORM,
@@ -80,7 +80,7 @@ struct GraphR : public GraphDev {
 										~ObGroup();
 		void							update_wvp(XMFLOAT4X4 const*const,
 											uint32_t const);
-		void							update_bbox(void*const*const,
+		void							update_bbox(XMFLOAT4 const*const,
 											uint32_t const);
 		void							update_rect_front(XMFLOAT4 const*const,
 											uint32_t const);
@@ -95,7 +95,6 @@ struct GraphR : public GraphDev {
 		ID3D11ShaderResourceView*		wvp_srv;
 		ID3D11Buffer*					bbox_buf;
 		ID3D11ShaderResourceView*		bbox_srv;
-		ID3D11Buffer*					bbox_idx_buf;
 		ID3D11Buffer*					rect_front_buf;
 		ID3D11UnorderedAccessView*		rect_front_uav;
 		ID3D11ShaderResourceView*		rect_front_srv;
@@ -147,7 +146,6 @@ public:
 	VecSparse<uint32_t>		no;
 	VecSparse<uint32_t>		ref_cnt;
 	Vec2<XMFLOAT4>			bbox;
-	Vec2<DWORD>				bbox_idx;
 	Vec2<XMFLOAT3>			vert;
 	Vec2<XMFLOAT2>			tex_coord;
 	Vec2<DWORD>				vert_idx;
