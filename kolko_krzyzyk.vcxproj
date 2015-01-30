@@ -153,7 +153,7 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)src\shader\%(Filename).cso</ObjectFileOutput>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="src\shader\vs_void_debug_draw_rect_front.hlsl">
+    <FxCompile Include="src\shader\vs_void_pass_rect_front.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\shader\vs_f4_pass.hlsl">

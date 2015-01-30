@@ -10,11 +10,12 @@ public:
 	void			do_tasks();
 protected:
 	void			update_pos_ob(uint32_t const);
-	void			cull_occl(uint32_t const);
-	uint32_t		get_gr_cnt(uint32_t) const;
 	void			draw(uint32_t const);
-	void			debug_draw_bbox();
-	void			debug_draw_rect_front();
+	void			cull_occl();
+	void			draw_bbox();
+	void			draw_rect_front_frame();
+	void			draw_rect_front_face();
+	uint32_t		get_gr_cnt(uint32_t) const;
 
 	void			do_cam_update_pos(uint32_t const);
 	void			draw_previous();

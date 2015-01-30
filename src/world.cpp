@@ -57,34 +57,28 @@ void World::do_tasks() {
 void World::set_loc_ob(uint32_t const _i_task)  {
 	if(!flg_task[TASK_DETECT_COLL]) insert_task(Task{TASK_DETECT_COLL, 0});
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 void World::set_v_ob(uint32_t const _i_task)  {
 	if(!flg_task[TASK_DETECT_COLL]) insert_task(Task{TASK_DETECT_COLL, 0});
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 void World::set_rot_cam(uint32_t const _i_task)  {
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 void World::set_loc_cam(uint32_t const _i_task)  {
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 void World::set_v_cam(uint32_t const _i_task)  {
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 void World::create_ob(uint32_t const _i_task) {
 	if(!flg_task[TASK_DETECT_COLL]) insert_task(Task{TASK_DETECT_COLL, 0});
 	if(!flg_task[TASK_UPDATE_POS_OB]) insert_task(Task{TASK_UPDATE_POS_OB, 0});
-	if(!flg_task[TASK_CULL_OCCL]) insert_task(Task{TASK_CULL_OCCL, 0});
 	if(!flg_task[TASK_DRAW]) insert_task(Task{TASK_DRAW, 0});
 }
 // -------------------------------------------------------

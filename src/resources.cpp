@@ -449,7 +449,7 @@ void GraphR::create_in_lay() {
 		D3D11_INPUT_ELEMENT_DESC _desc[1];
 		in_lay.push_back(0);
 		_shad_bytes.clear();
-		_shad_bytes = read_bytes("shader\\vs_void_debug_draw_rect_front.cso");
+		_shad_bytes = read_bytes("shader\\vs_void_pass_rect_front.cso");
 		if(_shad_bytes.size() == 0) logi.pisz("", "shader not read");
 		_r = dev->CreateInputLayout(_desc, 0, &_shad_bytes[0], _shad_bytes.size(), &in_lay[IN_VOID]);
 		if(_r != S_OK) logi.pisz("", "input layout not created");
@@ -513,13 +513,13 @@ void GraphR::create_vs() {
 	vector<byte> _shad_bytes;
 	HRESULT _r;
 
-	// VS_VOID_DEBUG_DRAW_RECT_FRONT
+	// VS_VOID_PASS_RECT_FRONT
 	vs.push_back(0);
-	_shad_bytes = read_bytes("shader\\vs_void_debug_draw_rect_front.cso");
+	_shad_bytes = read_bytes("shader\\vs_void_pass_rect_front.cso");
 	_r = dev->CreateVertexShader(
 		&_shad_bytes[0],
 		_shad_bytes.size(),
-		0, &vs[VS_VOID_DEBUG_DRAW_RECT_FRONT]
+		0, &vs[VS_VOID_PASS_RECT_FRONT]
 	);
 	if(_r != S_OK) logi.pisz("", "failed to create vertex shader");
 

@@ -19,7 +19,6 @@ void Graphics::do_tasks() {
 
 		switch(((Task*)task[_i])->code) {
 		case TASK_UPDATE_POS_OB: update_pos_ob(_i); break;
-		case TASK_CULL_OCCL: cull_occl(_i); break;
 		case TASK_DRAW: draw(_i); break;
 		}
 	}
@@ -71,7 +70,23 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 
 	task.erase(_i_task);
 }
-void Graphics::cull_occl(uint32_t const _i_task) {
+void Graphics::draw(uint32_t const _i_task) {
+	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	devctx->ClearRenderTargetView(res.rtv, _color);
+	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+	
+	cull_occl();
+
+	//draw_bbox();
+	//draw_rect_front_frame();
+	//draw_previous();
+
+	chain->Present(0, 0);
+
+	task.erase(_i_task);
+}
+void Graphics::cull_occl() {
 	ID3D11UnorderedAccessView* _uav_null = 0;
 	ID3D11ShaderResourceView* _srv_null = 0;
 
@@ -93,35 +108,9 @@ void Graphics::cull_occl(uint32_t const _i_task) {
 	devctx->CSSetShader(0, 0, 0);
 
 	// front rectangles to depth buffer
-	//devctx->IASetInputLayout(res.in_lay[IN_VOID]);
-	//devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//devctx->IASetVertexShader()
-
-	task.erase(_i_task);
+	draw_rect_front_face();
 }
-uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
-	uint32_t _cnt = 1;
-	for(uint32_t _i = _hnd_idx + 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
-		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i])
-			++_cnt;
-	}
-	return _cnt;
-}
-void Graphics::draw(uint32_t const _i_task) {
-	devctx->ClearDepthStencilView(res.ds_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	float const _color[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	devctx->ClearRenderTargetView(res.rtv, _color);
-	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
-	
-	debug_draw_bbox();
-	debug_draw_rect_front();
-	//draw_previous();
-
-	chain->Present(0, 0);
-
-	task.erase(_i_task);
-}
-void Graphics::debug_draw_bbox() {
+void Graphics::draw_bbox() {
 	devctx->IASetInputLayout(res.in_lay[IN_F4F44]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
@@ -161,7 +150,7 @@ void Graphics::debug_draw_bbox() {
 	devctx->VSSetShader(0, 0, 0);
 	devctx->PSSetShader(0, 0, 0);
 }
-void Graphics::debug_draw_rect_front() {
+void Graphics::draw_rect_front_frame() {
 	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	DWORD _idx[] = {
@@ -173,7 +162,7 @@ void Graphics::debug_draw_rect_front() {
 	res.ob.update_idx(_idx, 8);
 	devctx->IASetIndexBuffer(res.ob.idx_buf, DXGI_FORMAT_R32_UINT, 0);
 	devctx->VSSetShaderResources(0, 1, &res.ob.rect_front_srv);
-	devctx->VSSetShader(res.vs[VS_VOID_DEBUG_DRAW_RECT_FRONT], 0, 0);
+	devctx->VSSetShader(res.vs[VS_VOID_PASS_RECT_FRONT], 0, 0);
 	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
 	devctx->DrawIndexedInstanced(
 		8,
@@ -187,6 +176,39 @@ void Graphics::debug_draw_rect_front() {
 	devctx->VSSetShaderResources(0, 1, &_srv);
 	devctx->VSSetShader(0, 0, 0);
 	devctx->PSSetShader(0, 0, 0);
+}
+void Graphics::draw_rect_front_face() {
+	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DWORD _idx[] = {
+		0, 1, 2,
+		0, 2, 3,
+	};
+	res.ob.update_idx(_idx, 6);
+	devctx->IASetIndexBuffer(res.ob.idx_buf, DXGI_FORMAT_R32_UINT, 0);
+	devctx->VSSetShaderResources(0, 1, &res.ob.rect_front_srv);
+	devctx->VSSetShader(res.vs[VS_VOID_PASS_RECT_FRONT], 0, 0);
+	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
+	devctx->DrawIndexedInstanced(
+		6,
+		data_e.wvp.get_size(),
+		0,
+		0,
+		0
+	);
+	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+	ID3D11ShaderResourceView* _srv = 0;
+	devctx->VSSetShaderResources(0, 1, &_srv);
+	devctx->VSSetShader(0, 0, 0);
+	devctx->PSSetShader(0, 0, 0);
+}
+uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
+	uint32_t _cnt = 1;
+	for(uint32_t _i = _hnd_idx + 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
+		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i])
+			++_cnt;
+	}
+	return _cnt;
 }
 
 void Graphics::draw_previous() {
