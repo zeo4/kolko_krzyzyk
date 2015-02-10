@@ -141,16 +141,10 @@
     <FxCompile Include="src\shader\ps_sample_tex.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="src\shader\ps_write_depth.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="src\shader\vs_pass_on.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="src\shader\vs_tform.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
-    <FxCompile Include="src\shader\vs_tform_tex.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="src\shader\test_ps_rect_occl.hlsl">
@@ -165,16 +159,34 @@
     <FxCompile Include="src\shader\gs_gen_occl_rect_frame.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="src\shader\cs_rect_front.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="src\shader\vs_f4_pass.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="src\shader\vs_f4f44_tform.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="src\shader\vs_void_pass_rect_front.hlsl">
+    <FxCompile Include="src\shader\cs_mark_occluders.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\cs_create_occl_shape.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_void_pass_occl_rect.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\cs_downsample_occl_rep.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\cs_resize_ds_pow2.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_f4f2_pass.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\ps_draw_depth.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\vs_f4f2f44_tform.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
   </ItemGroup>

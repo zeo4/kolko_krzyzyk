@@ -31,20 +31,27 @@ enum TexNo{
 enum InLayNo {
 	IN_VOID,
 	IN_F4,
+	IN_F4F2,
 	IN_F3F2,
+	IN_F3F44,
 	IN_F4F44,
 	IN_F3F2F44,
+	IN_F4F2F44,
 };
 enum CSNo {
-	CS_RECT_FRONT,
+	CS_CREATE_OCCL_SHAPE,
+	CS_MARK_OCCLUDERS,
+	CS_RESIZE_DS_POW2,
+	CS_DOWNSAMPLE_OCCL_REP,
 };
 enum VSNo {
-	VS_VOID_PASS_RECT_FRONT,
+	VS_VOID_PASS_OCCL_RECT,
 	VS_F4_PASS,
+	VS_F4F2_PASS,
 	VS_F4F44_TFORM,
+	VS_F4F2F44_TFORM,
 	VS_PASS_ON,
 	VS_TFORM,
-	VS_TFORM_TEX,
 	TEST_VS_RECT_OCCL,
 };
 enum GSNo {
@@ -55,16 +62,20 @@ enum PSNo {
 	PS_DRAW_DEPTH,
 	TEST_PS_RECT_OCCL,
 };
+enum ViewportNo {
+	VIEWPORT_MAIN,
+	VIEWPORT_MAP
+};
 // -------------------------------------------------------
 class GraphDev {
 public:
-	struct ScrSize {
+	struct Screen {
 		uint32_t const				width;
 		uint32_t const				height;
 	};
 	static void						create_dev_ctx_chain();
 	static void						destroy_dev_ctx_chain();
-	static ScrSize					scr_size;
+	static Screen					screen;
 protected:
 	static ID3D11Device*			dev;
 	static IDXGISwapChain*			chain;
@@ -78,30 +89,38 @@ struct GraphR : public GraphDev {
 	struct ObGroup : public GraphDev {
 										ObGroup();
 										~ObGroup();
-		void							update_wvp(XMFLOAT4X4 const*const,
+		void							update_wvp(void*const*const,
 											uint32_t const);
 		void							update_bbox(XMFLOAT4 const*const,
 											uint32_t const);
-		void							update_rect_front(XMFLOAT4 const*const,
+		void							update_occl_rect(XMFLOAT4 const*const,
 											uint32_t const);
+		void							update_occluders(bool const*const, uint32_t const);
+		void							update_vert(XMFLOAT3 const*const, uint32_t const);
 		void							update_vert(XMFLOAT4 const*const, uint32_t const);
 		void							update_coord_tex(XMFLOAT2 const*const,
 											uint32_t const);
 		void							update_idx(DWORD const*const, uint32_t const);
+		void							update_const_buf(void const*const, uint32_t const);
 		void							update_so(uint32_t const);
 		void							bind_vert(uint32_t const) const;
 		Vec<XMFLOAT4X4>					wvp_tposed;
 		ID3D11Buffer*					wvp_buf;
 		ID3D11ShaderResourceView*		wvp_srv;
+		ID3D11Buffer*					wvp_map_buf;
 		ID3D11Buffer*					bbox_buf;
 		ID3D11ShaderResourceView*		bbox_srv;
-		ID3D11Buffer*					rect_front_buf;
-		ID3D11UnorderedAccessView*		rect_front_uav;
-		ID3D11ShaderResourceView*		rect_front_srv;
+		ID3D11Buffer*					occl_rect_buf;
+		ID3D11UnorderedAccessView*		occl_rect_uav;
+		ID3D11ShaderResourceView*		occl_rect_srv;
+		ID3D11Buffer*					occluders_buf;
+		ID3D11UnorderedAccessView*		occluders_uav;
+		ID3D11ShaderResourceView*		occluders_srv;
 		ID3D11Buffer*					vert_buf;
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;
 		ID3D11Buffer*					idx_buf;
+		ID3D11Buffer*					const_buf;
 		ID3D11Buffer*					so_buf;
 	};
 										GraphR();
@@ -109,6 +128,7 @@ struct GraphR : public GraphDev {
 	void								create_scr_size();
 	void								create_rtv();
 	void								create_ds();
+	void								create_map();
 	void								create_viewport();
 	void								create_cs();
 	void								create_in_lay();
@@ -116,7 +136,6 @@ struct GraphR : public GraphDev {
 	void								create_gs();
 	void								create_ps();
 	void								create_ss();
-	void								bind_viewport() const;
 	void								bind_prim_topol() const;
 	void								bind_ss() const;
 	ID3D11Buffer*						scr_size_buf;
@@ -124,7 +143,14 @@ struct GraphR : public GraphDev {
 	ID3D11Texture2D*					ds_tex2;
 	ID3D11DepthStencilView*				ds_dsv;
 	ID3D11ShaderResourceView*			ds_srv;
-	D3D11_VIEWPORT						viewport;
+	ID3D11Texture2D*					occl_rep_tex2;
+	Vec<ID3D11UnorderedAccessView*>		occl_rep_mips_uav;
+	Vec<ID3D11ShaderResourceView*>		occl_rep_mips_srv;
+	ID3D11ShaderResourceView*			occl_rep_srv;
+	ID3D11Texture2D*					map_tex2;
+	ID3D11RenderTargetView*				map_rtv;
+	ID3D11ShaderResourceView*			map_srv;
+	Vec<D3D11_VIEWPORT>					viewport;
 	Vec<ID3D11ComputeShader*>			cs;
 	Vec<ID3D11InputLayout*>				in_lay;
 	Vec<ID3D11VertexShader*>			vs;
@@ -170,6 +196,7 @@ struct DataEngine {
 		Vec<XMFLOAT3>		v;
 		Vec<XMFLOAT4X4>		world;
 		Vec<XMFLOAT4X4>		wvp;
+		Vec<XMFLOAT4X4>		wvp_map;
 		Vec<float>			t_coll;
 		Vec<bool>			occluder;
 		Vec<uint32_t>		mesh_hnd;
@@ -181,7 +208,7 @@ struct DataEngine {
 };
 // -------------------------------------------------------
 struct Cam {
-					Cam();
+					Cam(XMFLOAT4, XMFLOAT3, float, float, float);
 	XMFLOAT4X4		mtx_view;
 	XMFLOAT4X4		mtx_proj;
 	XMFLOAT4		q;
@@ -193,6 +220,7 @@ struct Cam {
 };
 struct Camera {
 	static Cam		cam;
+	static Cam		cam_map;
 };
 // -------------------------------------------------------
 struct DataGame {

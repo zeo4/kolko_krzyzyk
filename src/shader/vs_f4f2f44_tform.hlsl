@@ -1,6 +1,6 @@
 struct Prim {
 	float4		vert_coord : SV_POSITION;
-	float2		tex_coord : TTTTT;
+	float2		tex_coord : TEX;
 };
 
 Prim main(float4 _vert_coord : VERT_COORD, float2 _tex_coord : TEX_COORD, float4x4 _mtx_wvp : WVP) {

@@ -12,6 +12,12 @@ protected:
 	void			update_pos_ob(uint32_t const);
 	void			draw(uint32_t const);
 	void			cull_occl();
+	void			create_occl_shape();
+	void			draw_depth_occl_shape();
+	void			downsample_ds();
+	void			mark_occluders();
+	void			draw_occl_map();
+	void			apply_occl_rep();
 	void			draw_bbox();
 	void			draw_rect_front_frame();
 	void			draw_rect_front_face();

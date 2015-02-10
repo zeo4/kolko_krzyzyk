@@ -44,8 +44,8 @@ void Logika::handle_input(MSG const& _wiad) {
 			break;
 		}
 		POINTS _pkt = MAKEPOINTS(_wiad.lParam);
-		_pkt.x = float(_pkt.x) - float(GraphDev::scr_size.width)/2;
-		_pkt.y = -float(_pkt.y) + float(GraphDev::scr_size.height)/2;
+		_pkt.x = float(_pkt.x) - float(GraphDev::screen.width)/2;
+		_pkt.y = -float(_pkt.y) + float(GraphDev::screen.height)/2;
 		if(_pkt.x > 0) {
 			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(0.0f, 3.14f*1.0f/180, 0.0f)});
 		} else if(_pkt.x < 0) {
@@ -56,7 +56,7 @@ void Logika::handle_input(MSG const& _wiad) {
 		}else if(_pkt.y < 0) {
 			insert_task(TaskSetRotCam{TASK_SET_ROT_CAM, task.get_col_size(), XMFLOAT3(3.14f*1.0f/180, 0.0f, 0.0f)});
 		}
-		POINT _p = {GraphDev::scr_size.width/2, GraphDev::scr_size.height/2};
+		POINT _p = {GraphDev::screen.width/2, GraphDev::screen.height/2};
 		ClientToScreen(uch_okno, &_p);
 		SetCursorPos(_p.x, _p.y);
 		data_input.flg_mouse = false;
@@ -65,7 +65,7 @@ void Logika::handle_input(MSG const& _wiad) {
 	case WM_KEYDOWN: {
 		switch(_wiad.wParam) {
 		case 0x4c: { // l
-			POINT _pkt = {GraphDev::scr_size.width/2, GraphDev::scr_size.height/2};
+			POINT _pkt = {GraphDev::screen.width/2, GraphDev::screen.height/2};
 			ClientToScreen(uch_okno, &_pkt);
 			SetCursorPos(_pkt.x, _pkt.y);
 			data_input.flg_mouse = false;

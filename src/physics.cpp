@@ -152,9 +152,9 @@ void Physics::create_ob(uint32_t const _i_task) {
 		&data_e.world[data_e.world.get_size()-1], XMMatrixIdentity()
 	);
 	data_e.wvp.push_back(XMFLOAT4X4());
-	XMStoreFloat4x4(
-		&data_e.wvp[data_e.wvp.get_size()-1], XMMatrixIdentity()
-	);
+	XMStoreFloat4x4(&data_e.wvp[data_e.wvp.get_size()-1], XMMatrixIdentity());
+	data_e.wvp_map.push_back(XMFLOAT4X4());
+	XMStoreFloat4x4(&data_e.wvp_map[data_e.wvp_map.get_size()-1], XMMatrixIdentity());
 	data_e.occluder.push_back(false);
 	create_mesh(_task.mesh_hnd);
 	create_tex(_task.tex_hnd);
