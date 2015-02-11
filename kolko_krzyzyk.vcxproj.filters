@@ -156,9 +156,6 @@
     <FxCompile Include="src\shader\test_cs_rect_occl.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="src\shader\gs_gen_occl_rect_frame.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="src\shader\vs_f4_pass.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
@@ -187,6 +184,9 @@
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="src\shader\vs_f4f2f44_tform.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shader\gs_discard_occl.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
   </ItemGroup>

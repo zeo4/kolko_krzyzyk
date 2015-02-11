@@ -90,9 +90,9 @@ GraphR::ObGroup::ObGroup()
 	occl_rect_buf(0),
 	occl_rect_uav(0),
 	occl_rect_srv(0),
-	occluders_buf(0),
-	occluders_uav(0),
-	occluders_srv(0),
+	occludees_buf(0),
+	occludees_uav(0),
+	occludees_srv(0),
 	vert_buf(0),
 	vert_uav(0),
 	coord_tex_buf(0),
@@ -109,9 +109,9 @@ GraphR::ObGroup::~ObGroup() {
 	if(occl_rect_buf != 0) occl_rect_buf->Release();
 	if(occl_rect_uav != 0) occl_rect_uav->Release();
 	if(occl_rect_srv != 0) occl_rect_srv->Release();
-	if(occluders_buf != 0) occluders_buf->Release();
-	if(occluders_uav != 0) occluders_uav->Release();
-	if(occluders_srv != 0) occluders_srv->Release();
+	if(occludees_buf != 0) occludees_buf->Release();
+	if(occludees_uav != 0) occludees_uav->Release();
+	if(occludees_srv != 0) occludees_srv->Release();
 	if(vert_buf != 0) vert_buf->Release();
 	if(vert_uav != 0) vert_uav->Release();
 	if(coord_tex_buf != 0) coord_tex_buf->Release();
@@ -297,8 +297,8 @@ void GraphR::ObGroup::update_occluders(bool const*const _data, uint32_t const _s
 	if(_size == 0) return;
 	D3D11_BUFFER_DESC _buf_desc;
 
-	if(occluders_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
-	else occluders_buf->GetDesc(&_buf_desc);
+	if(occludees_buf == 0) memset(&_buf_desc, 0, sizeof(_buf_desc));
+	else occludees_buf->GetDesc(&_buf_desc);
 	if(_size * sizeof(bool) > _buf_desc.ByteWidth) {
 		// buf
 		_buf_desc.ByteWidth = _size * 4;
@@ -306,9 +306,9 @@ void GraphR::ObGroup::update_occluders(bool const*const _data, uint32_t const _s
 		_buf_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 		_buf_desc.CPUAccessFlags = 0;
 		_buf_desc.MiscFlags = 0;
-		if(occluders_buf != 0) occluders_buf->Release();
-		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &occluders_buf);
-		if(_r != S_OK) logi.pisz("", "failed to create occluders_buf");
+		if(occludees_buf != 0) occludees_buf->Release();
+		HRESULT _r = dev->CreateBuffer(&_buf_desc, 0, &occludees_buf);
+		if(_r != S_OK) logi.pisz("", "failed to create occludees_buf");
 
 		// uav
 		D3D11_UNORDERED_ACCESS_VIEW_DESC _uav_desc;
@@ -317,9 +317,9 @@ void GraphR::ObGroup::update_occluders(bool const*const _data, uint32_t const _s
 		_uav_desc.Buffer.FirstElement = 0;
 		_uav_desc.Buffer.NumElements = _size;
 		_uav_desc.Buffer.Flags = 0;
-		if(occluders_uav != 0) occluders_uav->Release();
-		_r = dev->CreateUnorderedAccessView(occluders_buf, &_uav_desc, &occluders_uav);
-		if(_r != S_OK) logi.pisz("", "failed to create occluders_uav");
+		if(occludees_uav != 0) occludees_uav->Release();
+		_r = dev->CreateUnorderedAccessView(occludees_buf, &_uav_desc, &occludees_uav);
+		if(_r != S_OK) logi.pisz("", "failed to create occludees_uav");
 
 		// srv
 		D3D11_SHADER_RESOURCE_VIEW_DESC _srv_desc;
@@ -327,11 +327,11 @@ void GraphR::ObGroup::update_occluders(bool const*const _data, uint32_t const _s
 		_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		_srv_desc.Buffer.FirstElement = 0;
 		_srv_desc.Buffer.NumElements = _size;
-		if(occluders_srv != 0) occluders_srv->Release();
-		_r = dev->CreateShaderResourceView(occluders_buf, &_srv_desc, &occluders_srv);
-		if(_r != S_OK) logi.pisz("", "failed to create occluders_srv");
+		if(occludees_srv != 0) occludees_srv->Release();
+		_r = dev->CreateShaderResourceView(occludees_buf, &_srv_desc, &occludees_srv);
+		if(_r != S_OK) logi.pisz("", "failed to create occludees_srv");
 	}
-	if(_data != 0) devctx->UpdateSubresource(occluders_buf, 0, 0, _data, 0, 0);
+	if(_data != 0) devctx->UpdateSubresource(occludees_buf, 0, 0, _data, 0, 0);
 }
 void GraphR::ObGroup::update_vert(XMFLOAT3 const*const _vert, uint32_t const _size) {
 	if(_size == 0) return;
@@ -864,15 +864,11 @@ void GraphR::create_gs() {
 	vector<byte> _shad_bytes;
 	HRESULT _r;
 
-	// GS_GEN_OCCL_RECT_FRAME
+	// GS_DISCARD_OCCL
 	{
-		D3D11_SO_DECLARATION_ENTRY _so_lay[] = {
-			{0, "SV_Position", 0, 0, 4, 0},
-		};
-		uint32_t a = sizeof(_so_lay);
-		_shad_bytes = read_bytes("shader\\gs_gen_occl_rect_frame.cso");
+		_shad_bytes = read_bytes("shader\\gs_discard_occl.cso");
 		gs.push_back(0);
-		_r = dev->CreateGeometryShaderWithStreamOutput(&_shad_bytes[0], _shad_bytes.size(), _so_lay, 1, 0, 0, 0, 0, &gs[GS_GEN_OCCL_RECT_FRAME]);
+		_r = dev->CreateGeometryShader(&_shad_bytes[0], _shad_bytes.size(), 0, &gs[GS_DISCARD_OCCL]);
 		if(_r != S_OK) logi.pisz("", "failed to create geometry shader");
 	}
 }

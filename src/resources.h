@@ -55,7 +55,7 @@ enum VSNo {
 	TEST_VS_RECT_OCCL,
 };
 enum GSNo {
-	GS_GEN_OCCL_RECT_FRAME,
+	GS_DISCARD_OCCL,
 };
 enum PSNo {
 	PS_SAMPLE_TEX,
@@ -113,9 +113,9 @@ struct GraphR : public GraphDev {
 		ID3D11Buffer*					occl_rect_buf;
 		ID3D11UnorderedAccessView*		occl_rect_uav;
 		ID3D11ShaderResourceView*		occl_rect_srv;
-		ID3D11Buffer*					occluders_buf;
-		ID3D11UnorderedAccessView*		occluders_uav;
-		ID3D11ShaderResourceView*		occluders_srv;
+		ID3D11Buffer*					occludees_buf;
+		ID3D11UnorderedAccessView*		occludees_uav;
+		ID3D11ShaderResourceView*		occludees_srv;
 		ID3D11Buffer*					vert_buf;
 		ID3D11UnorderedAccessView*		vert_uav;
 		ID3D11Buffer*					coord_tex_buf;

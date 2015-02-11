@@ -134,7 +134,7 @@
     <FxCompile Include="src\shader\cs_resize_ds_pow2.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="src\shader\gs_gen_occl_rect_frame.hlsl">
+    <FxCompile Include="src\shader\gs_discard_occl.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
     </FxCompile>
     <FxCompile Include="src\shader\cs_create_occl_shape.hlsl">

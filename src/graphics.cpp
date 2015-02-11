@@ -42,11 +42,12 @@ void Graphics::update_pos_ob(uint32_t const _i_task) {
 	XMStoreFloat4x4(&cam.mtx_proj, _mtx_proj);
 
 	// matrices of map camera
+	XMVECTOR _view_map_up_dir = XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), XMLoadFloat4(&cam.q));
+	_view_map_up_dir = XMVectorSetY(_view_map_up_dir, 0.0f);
 	XMMATRIX _mtx_view_map = XMMatrixLookAtLH(
 		XMLoadFloat3(&cam.loc) + XMVectorSet(0.0f, 3.0f, 0.0f, 0.0f),
 		XMLoadFloat3(&cam.loc),
-		XMLoadFloat3(&cam.loc) + XMVectorSet(0.0f, 3.0f, 1.0f, 0.0f)
-		//XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f)
+		_view_map_up_dir
 	);
 	XMMATRIX _mtx_proj_map = XMMatrixOrthographicLH(20.0f, 20.0f, 1.0f, 100.0f);
 
@@ -259,7 +260,7 @@ void Graphics::mark_occluders() {
 
 	devctx->CSSetShaderResources(0, 1, &res.ob.occl_rect_srv);
 	devctx->CSSetShaderResources(1, 1, &res.occl_rep_srv);
-	devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.occluders_uav, 0);
+	devctx->CSSetUnorderedAccessViews(0, 1, &res.ob.occludees_uav, 0);
 	devctx->CSSetShader(res.cs[CS_MARK_OCCLUDERS], 0, 0);
 	devctx->Dispatch(
 		data_e.wvp.get_size(),
@@ -279,6 +280,7 @@ void Graphics::draw_occl_map() {
 	XMFLOAT3 _vert1[] = {XMFLOAT3(0.0f, 0.0f, 0.0f)};
 	res.ob.update_vert(_vert1, 1);
 	devctx->VSSetShader(res.vs[VS_F4F44_TFORM], 0, 0);
+	devctx->GSSetShader(res.gs[GS_DISCARD_OCCL], 0, 0);
 	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	devctx->IASetInputLayout(res.in_lay[IN_F3F44]);
@@ -286,6 +288,7 @@ void Graphics::draw_occl_map() {
 	uint32_t _strides[] = {0, sizeof(XMFLOAT4X4)};
 	uint32_t _offsets[] = {0, 0};
 	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
+	devctx->GSSetShaderResources(0, 1, &res.ob.occludees_srv);
 	devctx->RSSetViewports(1, &res.viewport[VIEWPORT_MAP]);
 	float const _color[] = {0.9f, 0.9f, 0.9f, 0.0f};
 	devctx->ClearRenderTargetView(res.map_rtv, _color);
@@ -297,9 +300,11 @@ void Graphics::draw_occl_map() {
 		0
 	);
 	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+	devctx->GSSetShaderResources(0, 1, &_srv_null);
 	devctx->RSSetViewports(1, &res.viewport[VIEWPORT_MAIN]);
 	devctx->IASetVertexBuffers(0, 2, _buf_null, _strides, _offsets);
 	devctx->PSSetShader(0, 0, 0);
+	devctx->GSSetShader(0, 0, 0);
 	devctx->VSSetShader(0, 0, 0);
 
 	// draw map
