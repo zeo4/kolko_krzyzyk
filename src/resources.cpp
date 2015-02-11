@@ -538,7 +538,7 @@ void GraphR::create_ds() {
 
 	// occlusion representation
 
-	// occlusiono representation size
+	// occlusion representation size
 	uint32_t _width = pow(2, (uint32_t)log2(screen.width));
 	uint32_t _height = pow(2, (uint32_t)log2(screen.height));
 

@@ -3,7 +3,7 @@ struct Prim {
 	float2		tex_coord : TEX_COORD;
 };
 
-Texture2D tex : register(t0);
+Texture2D<float> tex : register(t0);
 SamplerState sampl_state;
 
 float4 main(Prim _pix) : SV_Target {

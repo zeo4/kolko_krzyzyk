@@ -94,9 +94,9 @@ void Graphics::draw(uint32_t const _i_task) {
 	devctx->ClearRenderTargetView(res.rtv, _color);
 	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
 	
-	cull_occl();
+	OcclCuller().execute();
 
-	//draw_bbox();
+	//Debugger().draw_bbox();
 	//draw_rect_front_frame();
 	//draw_rect_front_face();
 	//draw_previous();
@@ -105,15 +105,23 @@ void Graphics::draw(uint32_t const _i_task) {
 
 	task.erase(_i_task);
 }
-void Graphics::cull_occl() {
+uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
+	uint32_t _cnt = 1;
+	for(uint32_t _i = _hnd_idx + 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
+		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i])
+			++_cnt;
+	}
+	return _cnt;
+}
+void Graphics::OcclCuller::execute() {
 	create_occl_shape();
 	draw_depth_occl_shape();
 	downsample_ds();
+	draw_occl_rep();
 	mark_occluders();
 	draw_occl_map();
-	//apply_occl_rep();
 }
-void Graphics::create_occl_shape() {
+void Graphics::OcclCuller::create_occl_shape() {
 	ID3D11ShaderResourceView* _srv_null = 0;
 	ID3D11UnorderedAccessView* _uav_null = 0;
 
@@ -131,7 +139,7 @@ void Graphics::create_occl_shape() {
 	devctx->CSSetUnorderedAccessViews(0, 1, &_uav_null, 0);
 	devctx->CSSetShader(0, 0, 0);
 }
-void Graphics::draw_depth_occl_shape() {
+void Graphics::OcclCuller::draw_depth_occl_shape() {
 	ID3D11RenderTargetView* _rtv_null = 0;
 	ID3D11ShaderResourceView* _srv_null = 0;
 
@@ -159,7 +167,7 @@ void Graphics::draw_depth_occl_shape() {
 	devctx->VSSetShaderResources(0, 1, &_srv_null);
 	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
 }
-void Graphics::downsample_ds() {
+void Graphics::OcclCuller::downsample_ds() {
 	ID3D11Buffer*const _buf_null = 0;
 	ID3D11RenderTargetView*const _rtv_null = 0;
 	ID3D11DepthStencilView*const _dsv_null = 0;
@@ -214,47 +222,8 @@ void Graphics::downsample_ds() {
 		devctx->CSSetShaderResources(0, 1, &_srv_null);
 	}
 	devctx->CSSetShader(0, 0, 0);
-
-	// test
-	XMFLOAT4 _vert[] = {
-		XMFLOAT4(-1.0f, -1.0f, 0.5f, 1.0f),
-		XMFLOAT4(-1.0f, 1.0f, 0.5f, 1.0f),
-		XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f),
-		XMFLOAT4(1.0f, -1.0f, 0.5f, 1.0f),
-	};
-	res.ob.update_vert(_vert, 4);
-	XMFLOAT2 _coord_tex[] = {
-		XMFLOAT2(0.0f, 1.0f),
-		XMFLOAT2(0.0f, 0.0f),
-		XMFLOAT2(1.0f, 0.0f),
-		XMFLOAT2(1.0f, 1.0f),
-	};
-	res.ob.update_coord_tex(_coord_tex, 4);
-	DWORD _idx[] = {
-		0, 1, 2,
-		0, 2, 3,
-	};
-	res.ob.update_idx(_idx, 6);
-	ID3D11Buffer* _buf[] = {res.ob.vert_buf, res.ob.coord_tex_buf};
-	uint32_t _strides[] = {sizeof(XMFLOAT4), sizeof(XMFLOAT2)};
-	uint32_t _offsets[] = {0, 0};
-	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
-	devctx->IASetIndexBuffer(res.ob.idx_buf, DXGI_FORMAT_R32_UINT, 0);
-	devctx->IASetInputLayout(res.in_lay[IN_F4F2]);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	devctx->VSSetShader(res.vs[VS_F4F2_PASS], 0, 0);
-	devctx->PSSetShader(res.ps[PS_SAMPLE_TEX], 0, 0);
-	devctx->PSSetShaderResources(0, 1, &res.occl_rep_srv);
-	devctx->DrawIndexed(
-		6,
-		0,
-		0
-	);
-	devctx->PSSetShaderResources(0, 1, &_srv_null);
-	devctx->VSSetShader(0, 0, 0);
-	devctx->PSSetShader(0, 0, 0);
 }
-void Graphics::mark_occluders() {
+void Graphics::OcclCuller::mark_occluders() {
 	ID3D11UnorderedAccessView* _uav_null = 0;
 	ID3D11ShaderResourceView* _srv_null = 0;
 
@@ -272,7 +241,7 @@ void Graphics::mark_occluders() {
 	devctx->CSSetUnorderedAccessViews(0, 1, &_uav_null, 0);
 	devctx->CSSetShader(0, 0, 0);
 }
-void Graphics::draw_occl_map() {
+void Graphics::OcclCuller::draw_occl_map() {
 	ID3D11Buffer* _buf_null[] = {0, 0};
 	ID3D11ShaderResourceView* _srv_null = 0;
 
@@ -350,34 +319,48 @@ void Graphics::draw_occl_map() {
 	devctx->PSSetShader(0, 0, 0);
 	devctx->VSSetShader(0, 0, 0);
 }
-void Graphics::apply_occl_rep() {
-	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
-	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+void Graphics::OcclCuller::draw_occl_rep() {
+	ID3D11ShaderResourceView* _srv_null = 0;
+
+	XMFLOAT4 _vert[] = {
+		XMFLOAT4(-1.0f, -1.0f, 0.5f, 1.0f),
+		XMFLOAT4(-1.0f, 1.0f, 0.5f, 1.0f),
+		XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f),
+		XMFLOAT4(1.0f, -1.0f, 0.5f, 1.0f),
+	};
+	res.ob.update_vert(_vert, 4);
+	XMFLOAT2 _coord_tex[] = {
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f),
+	};
+	res.ob.update_coord_tex(_coord_tex, 4);
 	DWORD _idx[] = {
 		0, 1, 2,
 		0, 2, 3,
 	};
 	res.ob.update_idx(_idx, 6);
+	ID3D11Buffer* _buf[] = {res.ob.vert_buf, res.ob.coord_tex_buf};
+	uint32_t _strides[] = {sizeof(XMFLOAT4), sizeof(XMFLOAT2)};
+	uint32_t _offsets[] = {0, 0};
+	devctx->IASetVertexBuffers(0, 2, _buf, _strides, _offsets);
 	devctx->IASetIndexBuffer(res.ob.idx_buf, DXGI_FORMAT_R32_UINT, 0);
-	devctx->VSSetShaderResources(0, 1, &res.ob.occl_rect_srv);
-	devctx->VSSetShader(res.vs[VS_VOID_PASS_OCCL_RECT], 0, 0);
-	devctx->PSSetShader(0, 0, 0);
-	ID3D11RenderTargetView* _rtv = 0;
-	devctx->OMSetRenderTargets(1, &_rtv, res.ds_dsv);
-	devctx->DrawIndexedInstanced(
+	devctx->IASetInputLayout(res.in_lay[IN_F4F2]);
+	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	devctx->VSSetShader(res.vs[VS_F4F2_PASS], 0, 0);
+	devctx->PSSetShader(res.ps[PS_SAMPLE_TEX], 0, 0);
+	devctx->PSSetShaderResources(0, 1, &res.occl_rep_srv);
+	devctx->DrawIndexed(
 		6,
-		data_e.wvp.get_size(),
-		0,
 		0,
 		0
 	);
-	devctx->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
-	ID3D11ShaderResourceView* _srv = 0;
-	devctx->VSSetShaderResources(0, 1, &_srv);
+	devctx->PSSetShaderResources(0, 1, &_srv_null);
 	devctx->VSSetShader(0, 0, 0);
-	devctx->OMSetRenderTargets(1, &res.rtv, res.ds_dsv);
+	devctx->PSSetShader(0, 0, 0);
 }
-void Graphics::draw_bbox() {
+void Graphics::Debugger::draw_bbox() {
 	devctx->IASetInputLayout(res.in_lay[IN_F4F44]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ID3D11Buffer* _buf[] = {res.ob.bbox_buf, res.ob.wvp_buf};
@@ -416,10 +399,9 @@ void Graphics::draw_bbox() {
 	devctx->IASetIndexBuffer(res.ob.idx_buf, DXGI_FORMAT_R32_UINT, 0);
 	devctx->VSSetShader(res.vs[VS_F4F44_TFORM], 0, 0);
 	devctx->PSSetShader(res.ps[PS_DRAW_DEPTH], 0, 0);
-	uint32_t _inst_cnt = get_gr_cnt(0);
 	devctx->DrawIndexedInstanced(
 		36,
-		_inst_cnt,
+		data_e.wvp.get_size(),
 		0,
 		0,
 		0
@@ -431,7 +413,7 @@ void Graphics::draw_bbox() {
 	devctx->VSSetShader(0, 0, 0);
 	devctx->PSSetShader(0, 0, 0);
 }
-void Graphics::draw_rect_front_frame() {
+void Graphics::Debugger::draw_rect_front_frame() {
 	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	DWORD _idx[] = {
@@ -458,7 +440,7 @@ void Graphics::draw_rect_front_frame() {
 	devctx->VSSetShader(0, 0, 0);
 	devctx->PSSetShader(0, 0, 0);
 }
-void Graphics::draw_rect_front_face() {
+void Graphics::Debugger::draw_rect_front_face() {
 	devctx->IASetInputLayout(res.in_lay[IN_VOID]);
 	devctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DWORD _idx[] = {
@@ -482,14 +464,6 @@ void Graphics::draw_rect_front_face() {
 	devctx->VSSetShaderResources(0, 1, &_srv_null);
 	devctx->VSSetShader(0, 0, 0);
 	devctx->PSSetShader(0, 0, 0);
-}
-uint32_t Graphics::get_gr_cnt(uint32_t _hnd_idx) const {
-	uint32_t _cnt = 1;
-	for(uint32_t _i = _hnd_idx + 1; _i < data_e.mesh_hnd.get_size(); ++_i) {
-		if(data_e.mesh_hnd[_i-1] == data_e.mesh_hnd[_i] && data_e.tex_hnd[_i-1] == data_e.tex_hnd[_i])
-			++_cnt;
-	}
-	return _cnt;
 }
 
 void Graphics::draw_previous() {
